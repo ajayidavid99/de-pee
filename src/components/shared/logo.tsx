@@ -1,3 +1,4 @@
+// de-pee/src/components/shared/logo.tsx
 'use client';
 
 import { siteConfig } from '@/features/site/config';

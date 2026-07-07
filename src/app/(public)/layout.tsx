@@ -1,3 +1,4 @@
+//de-pee/src/app/(public)/layout.tsx
 import { BackgroundGradient } from '@/components/shared/background-gradient';
 import Header from '@/features/navigation/header';
 import type { ReactNode } from 'react';

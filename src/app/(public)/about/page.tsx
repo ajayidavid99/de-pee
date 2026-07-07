@@ -1,49 +1,22 @@
-import { HomeGetStartedSection } from '@/components/shared/get-started-section';
+// de-pee/src/app/(public)/about/page.tsx
 import {
   getLocaleDirection,
   siteConfig,
   type Locale,
 } from '@/features/site/config';
-import { getGitHubStars } from '@/features/site/github';
 import { cn } from '@/libs/utils';
-import { Check } from 'lucide-react';
+import { Building2, Eye, HeartHandshake, ShieldCheck } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = await getTranslations();
   return {
-    title: `${t('about.title')} | ${t('common.appName')}`,
-    description: siteConfig.description,
+    title: `About Us | ${siteConfig.appName || 'De-Pee Medical'}`,
+    description:
+      'To supply quality medical related equipments and consumables at affordable prices.',
   };
 };
-
-const audienceItems = [
-  'Teams building dashboards, admin panels, and authenticated SaaS apps',
-  'Startups that want strict TypeScript, lean tooling, and fast iteration',
-  'API-first products that need caching, routing, and polished UX out of the box',
-];
-
-const stackItems = [
-  'Next.js 16 App Router with React 19 and Tailwind v4',
-  '40+ shadcn/ui primitives plus custom components with a live showcase',
-  'ofetch API layer with TanStack Query for server-state caching',
-  'React Hook Form + Zod for typed forms and inline validation',
-];
-
-const platformItems = [
-  'BetterAuth with email/password, Google OAuth, and permission-based RBAC',
-  'Parallel /dashboard routes with @user and @admin slots',
-  'Type-safe i18n via next-intl — 6 locales with Arabic RTL support',
-  'Server-first SEO, PWA manifest, sitemap, robots, and JSON-LD',
-];
-
-const dxItems = [
-  'T3 Env for build-time validation of server and client variables',
-  'Sentry monitoring and Upstash rate limiting hooks',
-  'ESLint, Prettier, Knip, Lefthook, Vitest, and Playwright',
-  'npm run check — typecheck, lint, knip, and tests in one command',
-];
 
 function AboutCard({
   title,
@@ -57,7 +30,7 @@ function AboutCard({
   return (
     <div
       className={cn(
-        'ui-card ui-hover-lift relative flex min-h-[15rem] flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-card p-6 text-left shadow-sm sm:p-7',
+        'ui-card ui-hover-lift relative flex min-h-[12rem] flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-card p-6 text-left shadow-sm sm:p-7',
         isRtl && 'text-right',
       )}
     >
@@ -71,80 +44,118 @@ function AboutCard({
   );
 }
 
-function AboutCheckList({ items, isRtl }: { items: string[]; isRtl: boolean }) {
-  return (
-    <ul
-      className={cn(
-        'mt-auto space-y-2.5 border-t border-border/40 pt-4 text-[11px] text-muted-foreground',
-        isRtl ? 'text-right' : 'text-left',
-      )}
-    >
-      {items.map((item) => (
-        <li
-          key={item}
-          className={cn(
-            'flex items-start gap-2.5',
-            isRtl && 'flex-row-reverse',
-          )}
-        >
-          <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20">
-            <Check className="h-2.5 w-2.5 stroke-[3]" />
-          </div>
-          <span className="leading-normal">{item}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 const AboutPage = async () => {
-  const [t, locale, githubStars] = await Promise.all([
-    getTranslations('about'),
-    getLocale(),
-    getGitHubStars(),
-  ]);
+  const locale = await getLocale();
   const isRtl = getLocaleDirection(locale as Locale) === 'rtl';
 
   return (
-    <div className="flex flex-col gap-12 lg:gap-16">
+    <div className="flex flex-col gap-12 pb-16 lg:gap-16">
       <div className="mx-auto w-full max-w-7xl px-4 pt-12">
         <div className="mx-auto w-full max-w-screen-xl space-y-8 px-5 sm:space-y-10 xl:px-0">
-          <header className={cn('text-center', !isRtl && 'lg:text-left')}>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground">
-              {t('title')}
+          <header
+            className={cn('space-y-2 text-center', !isRtl && 'lg:text-left')}
+          >
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+              About De-Pee Medical
             </h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Equipments and consumables built on corporate trust, accessible
+              pricing models, and clinical safety patterns.
+            </p>
           </header>
 
-          <div className="grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-2 lg:gap-8">
-            <AboutCard title={`What is ${siteConfig.appName}?`} isRtl={isRtl}>
-              <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
-                <p>{siteConfig.tagline}</p>
-                <p>{siteConfig.description}</p>
-              </div>
-            </AboutCard>
+          <div className="grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-3 lg:gap-8">
+            <div className="md:col-span-2">
+              <AboutCard title="Our Corporate Profile" isRtl={isRtl}>
+                <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+                  <p>
+                    De-Pee Medical Equipments and Consumables combines
+                    real-world quality metrics, structural affordability, and
+                    exceptional customer service pathways to ensure that
+                    clinical clients retain stable access to items exactly when
+                    they need them.
+                  </p>
+                  <p>
+                    We interface closely with reputable manufacturers and global
+                    medical suppliers to supply products that strictly comply
+                    with universally recognized validation standards.
+                  </p>
+                </div>
+              </AboutCard>
+            </div>
 
-            <AboutCard title="Who is it for?" isRtl={isRtl}>
-              <AboutCheckList items={audienceItems} isRtl={isRtl} />
+            <AboutCard title="Distribution Network" isRtl={isRtl}>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <p className="flex items-center gap-2 font-semibold text-foreground">
+                  <Building2 className="h-4 w-4 text-primary" /> Locations
+                  Matrix
+                </p>
+                <p>
+                  Fully established, fully functional localized hubs handling
+                  secure storage, inventory management, and regional
+                  transportation dispatching:
+                </p>
+                <div className="flex gap-2 pt-2">
+                  <span className="rounded-md border border-border bg-muted px-2.5 py-1 text-xs font-bold">
+                    Lagos Hub
+                  </span>
+                  <span className="rounded-md border border-border bg-muted px-2.5 py-1 text-xs font-bold">
+                    Ife Hub
+                  </span>
+                </div>
+              </div>
             </AboutCard>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-7 lg:grid-cols-3 lg:gap-8">
-            <AboutCard title="Stack & UI" isRtl={isRtl}>
-              <AboutCheckList items={stackItems} isRtl={isRtl} />
-            </AboutCard>
+          <div className="space-y-4 pt-4">
+            <h3 className="text-xl font-extrabold tracking-tight text-foreground">
+              Our Strategic Pillars
+            </h3>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-7 lg:gap-8">
+              <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card/50 p-6">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
+                  <Eye className="h-5 w-5" />
+                </div>
+                <h4 className="text-sm font-bold text-foreground">
+                  Core Objective
+                </h4>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  To supply premium quality medical related equipment platforms
+                  and high-utility consumables at affordable market tiers.
+                </p>
+              </div>
 
-            <AboutCard title="Auth & platform" isRtl={isRtl}>
-              <AboutCheckList items={platformItems} isRtl={isRtl} />
-            </AboutCard>
+              <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card/50 p-6">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <h4 className="text-sm font-bold text-foreground">
+                  Exceptional Care
+                </h4>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  To consistently deliver premium customer service solutions
+                  alongside timely logistical supply operations to prevent
+                  shortages.
+                </p>
+              </div>
 
-            <AboutCard title="DX & quality" isRtl={isRtl}>
-              <AboutCheckList items={dxItems} isRtl={isRtl} />
-            </AboutCard>
+              <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card/50 p-6">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500">
+                  <HeartHandshake className="h-5 w-5" />
+                </div>
+                <h4 className="text-sm font-bold text-foreground">
+                  Integrity Commitments
+                </h4>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  To proactively foster durable, lasting partnerships with
+                  healthcare administrators based firmly on truth, metrics, and
+                  deep trust.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <HomeGetStartedSection githubStars={githubStars} />
     </div>
   );
 };

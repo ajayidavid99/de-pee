@@ -13,7 +13,7 @@ const HomePage = async () => {
 
   return (
     <div className="flex flex-col gap-12 lg:gap-16">
-      <HeroSection locale={locale as Locale} githubStars={githubStars} />
+      <HeroSection locale={locale as Locale} />
       <HomeGetStartedSection githubStars={githubStars} />
     </div>
   );

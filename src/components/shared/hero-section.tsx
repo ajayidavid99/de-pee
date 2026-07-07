@@ -1,567 +1,170 @@
+// de-pee/src/components/shared/hero-section.tsx
 'use client';
 
-import { GithubIcon } from '@/components/icons/github-icon';
-import { VercelIcon } from '@/components/icons/vercel-icon';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { type Locale } from '@/features/site/config';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Switch } from '@/components/ui/switch';
-import {
-  getLocaleDirection,
-  siteConfig,
-  type Locale,
-} from '@/features/site/config';
-import { githubRepoUrl, vercelDeployUrl } from '@/features/site/github';
-import { cn } from '@/libs/utils';
-import {
-  Calendar as CalendarIcon,
-  Check,
-  Cpu,
-  FileText,
-  Globe,
-  Search,
-  Shield,
-  Shuffle,
-  Star,
-  type LucideIcon,
+  Activity,
+  ArrowRight,
+  Building2,
+  MapPin,
+  ShieldAlert,
+  Stethoscope,
+  Truck,
+  Users,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
-import TextLink from './text-link';
 
-interface HomeCardProps {
+interface CategoryCardProps {
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
-  demo: ReactNode;
-  large?: boolean;
-  link?: {
-    href: string;
-    label: string;
-  };
 }
 
-function HomeCard({
-  title,
-  description,
-  demo,
-  large = false,
-  link,
-}: HomeCardProps) {
+function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
   return (
     <Card
       hover
-      className={cn(
-        'relative col-span-1 h-auto min-h-[22rem] justify-between overflow-hidden rounded-2xl p-4 sm:min-h-[24rem] sm:p-6 md:p-8',
-        'gap-0',
-        large ? 'md:col-span-2 md:h-[29rem]' : 'md:h-[29rem]',
-      )}
+      className="relative flex min-h-[16rem] flex-col justify-between overflow-hidden rounded-2xl p-6 md:p-8"
     >
-      <div className="mb-3 flex w-full flex-1 items-center justify-center overflow-hidden px-1 sm:mb-4 sm:px-0">
-        {demo}
-      </div>
-
-      <div className="mx-auto mt-auto flex w-full max-w-xl flex-col items-center text-center">
-        <h2 className="mb-3 text-xl font-extrabold tracking-tight text-foreground md:text-2xl">
-          <span className="bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
-            {title}
-          </span>
-          {link && (
-            <span className="text-foreground/80">
-              {' - '}
-              <TextLink
-                href={link.href}
-                variant="underlined"
-                className="text-primary transition-colors hover:text-primary/80"
-                aria-label={`${link.label} ${title.toLowerCase()}`}
-              >
-                {link.label}
-              </TextLink>
-            </span>
-          )}
-        </h2>
-        <p className="mx-auto max-w-md text-sm leading-relaxed [text-wrap:balance] text-muted-foreground">
+      <div>
+        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
+          <Icon className="h-6 w-6" />
+        </div>
+        <h3 className="mb-3 text-lg font-extrabold tracking-tight text-foreground">
+          {title}
+        </h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {description}
         </p>
       </div>
+      <div className="group mt-6 flex items-center gap-2 text-sm font-bold text-primary">
+        <span>View Products</span>
+        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </div>
     </Card>
   );
 }
 
-function ComponentShowcaseGrid() {
-  const [switchChecked, setSwitchChecked] = useState(true);
-  const [checkboxChecked, setCheckboxChecked] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date(2026, 5, 17),
-  );
-
+export default function HeroSection({ locale }: { locale: Locale }) {
   return (
-    <div className="flex w-full max-w-lg flex-col items-center justify-center gap-8 select-none md:flex-row md:gap-16">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="primary"
-            size="sm"
-            className="h-9 w-24 cursor-default rounded-xl text-sm font-medium shadow-sm"
-          >
-            Primary
-          </Button>
-          <Button
-            variant="success"
-            size="sm"
-            className="h-9 w-24 cursor-default rounded-xl text-sm font-medium shadow-sm"
-          >
-            Success
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden h-9 w-24 cursor-default rounded-xl text-sm font-medium shadow-xs sm:inline-flex"
-          >
-            Outline
-          </Button>
-        </div>
+    <div className="mx-auto flex max-w-7xl flex-col gap-16 px-4 pt-4">
+      {/* Dynamic Hero banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-slate-950 text-white shadow-xl">
+        {/* Abstract tint overlay rather than raw image to preserve look/feel and maximize dark text contrast */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-primary/10" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px] opacity-20" />
 
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outlineDestructive"
-            size="sm"
-            className="h-9 w-24 cursor-default rounded-xl text-sm font-medium"
-          >
-            Destructive
-          </Button>
-          <Button
-            loading
-            size="sm"
-            className="h-9 w-24 cursor-default rounded-xl text-sm font-medium shadow-xs"
-          >
-            Loading
-          </Button>
-          <Button
-            variant="primary"
-            size="icon"
-            aria-label="Demo star button"
-            className="hidden h-9 w-9 cursor-default rounded-xl shadow-xs sm:inline-flex"
-          >
-            <Star className="size-4 shrink-0 fill-primary-foreground text-primary-foreground" />
-          </Button>
-        </div>
-      </div>
+        <div className="relative z-10 max-w-3xl px-6 py-16 text-left sm:px-12 sm:py-20 md:py-24 lg:px-16">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-semibold text-blue-400">
+            <Building2 className="h-3 w-3" />
+            <span>Serving Lagos & Ife Healthcare Facilities</span>
+          </div>
 
-      <div className="flex flex-col items-center justify-center gap-4.5">
-        <div className="flex items-center gap-6">
-          <Switch
-            checked={switchChecked}
-            onCheckedChange={setSwitchChecked}
-            size="lg"
-            aria-label="Demo switch"
-          />
-          <Checkbox
-            checked={checkboxChecked}
-            onCheckedChange={(checked) => setCheckboxChecked(checked === true)}
-            aria-label="Demo checkbox"
-          />
-        </div>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 w-36 shrink-0 cursor-pointer items-center justify-start gap-2 rounded-xl border-border/80 px-4 text-sm font-medium hover:border-primary/50 hover:bg-muted/30"
-            >
-              <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
-              <span className="truncate" suppressHydrationWarning>
-                {selectedDate
-                  ? selectedDate.toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  : 'Pick date'}
-              </span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="z-50 w-auto bg-popover p-0" align="center">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-    </div>
-  );
-}
-
-function ScoreGauge({
-  label,
-  targetScore,
-  delay,
-}: {
-  label: string;
-  targetScore: number;
-  delay: number;
-}) {
-  const [score, setScore] = useState(0);
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    const timerId = setTimeout(() => {
-      let current = 0;
-      intervalId = setInterval(() => {
-        current += 2;
-        if (current >= targetScore) {
-          setScore(targetScore);
-          clearInterval(intervalId);
-        } else {
-          setScore(current);
-        }
-      }, 15);
-    }, delay);
-
-    return () => {
-      clearTimeout(timerId);
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [targetScore, delay]);
-
-  const radius = 60;
-  const strokeWidth = 8;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (score / 100) * circumference;
-
-  return (
-    <div className="flex flex-col items-center gap-1.5 select-none sm:gap-3">
-      <div className="xs:h-24 xs:w-24 relative h-20 w-20 sm:h-36 sm:w-36">
-        <svg
-          className="h-full w-full rotate-[-90deg]"
-          viewBox="0 0 144 144"
-          aria-hidden="true"
-        >
-          <circle
-            cx="72"
-            cy="72"
-            r={radius}
-            stroke="var(--border)"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-          />
-          <circle
-            cx="72"
-            cy="72"
-            r={radius}
-            stroke="#22c55e"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            className="transition-all duration-75 ease-out"
-            style={{
-              filter: 'drop-shadow(0 0 4px rgba(34, 197, 94, 0.45))',
-            }}
-          />
-        </svg>
-        <span className="xs:text-2xl absolute inset-0 flex items-center justify-center text-xl font-black text-success sm:text-4xl">
-          {score}
-        </span>
-      </div>
-      <span className="xs:text-xs text-center text-[10px] font-medium text-muted-foreground sm:text-sm">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function LighthouseDashboard() {
-  return (
-    <div className="grid w-full max-w-3xl grid-cols-2 justify-center gap-x-3 gap-y-3 py-1 sm:grid-cols-4 sm:gap-x-8 sm:gap-y-4 sm:px-4 sm:py-0 lg:gap-x-12">
-      <ScoreGauge label="Performance" targetScore={100} delay={100} />
-      <ScoreGauge label="Accessibility" targetScore={100} delay={250} />
-      <ScoreGauge label="Best Practices" targetScore={100} delay={400} />
-      <ScoreGauge label="SEO" targetScore={100} delay={550} />
-    </div>
-  );
-}
-
-function AuthDemoVisual() {
-  return (
-    <div className="flex items-center justify-center transition-transform duration-200 select-none hover:scale-105">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 400 300"
-        className="h-28 w-auto shrink-0 text-foreground"
-        aria-hidden="true"
-      >
-        <path
-          fill="currentColor"
-          d="M200 0h200v300H200V200h100V100H200zM0 0h100v100h100v100H100v100H0z"
-        />
-      </svg>
-    </div>
-  );
-}
-
-function DeployDemoVisual() {
-  return (
-    <a
-      href={vercelDeployUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex h-9 items-center gap-2 rounded-md bg-black px-4 font-mono text-[11px] font-bold text-white transition-transform duration-200 select-none hover:scale-105 dark:bg-white dark:text-black"
-    >
-      <svg
-        viewBox="0 0 75 65"
-        fill="currentColor"
-        className="h-3 w-auto"
-        aria-hidden="true"
-      >
-        <path d="M37.5 0L75 65H0L37.5 0Z" />
-      </svg>
-      Deploy to Vercel
-    </a>
-  );
-}
-
-function FeatureCard({
-  icon: IconComponent,
-  title,
-  description,
-  badges,
-  details,
-}: {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  badges?: { label: string; value: string }[];
-  details: string[];
-}) {
-  return (
-    <Card
-      hover
-      className="relative min-h-[15rem] gap-4 overflow-hidden rounded-2xl p-4 text-left sm:gap-5 sm:p-6 md:p-7"
-    >
-      <div className="flex items-center gap-3.5">
-        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#7663ff]/25 bg-gradient-to-br from-[#7663ff]/20 to-[#392ea3]/10 text-[#9d8cff] shadow-[0_0_12px_rgba(118,99,255,0.15)]">
-          <IconComponent className="h-5 w-5" />
-        </div>
-        <h3 className="text-base font-extrabold tracking-tight">
-          <span className="bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
-            {title}
-          </span>
-        </h3>
-      </div>
-
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        {description}
-      </p>
-
-      {badges?.length ? (
-        <div className="flex flex-wrap gap-2 select-none">
-          {badges.map((badge) => (
-            <span
-              key={`${badge.label}:${badge.value}`}
-              className="inline-flex items-center rounded-md border border-border/40 bg-muted/60 px-2 py-0.5 text-[9px] font-bold text-muted-foreground"
-            >
-              {badge.value}
-            </span>
-          ))}
-        </div>
-      ) : null}
-
-      <ul className="mt-auto space-y-2.5 border-t border-border/40 pt-4 text-[11px] text-muted-foreground">
-        {details.map((detail) => (
-          <li key={detail} className="flex items-start gap-2.5">
-            <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20">
-              <Check className="h-2.5 w-2.5 stroke-[3]" />
-            </div>
-            <span className="leading-normal">{detail}</span>
-          </li>
-        ))}
-      </ul>
-    </Card>
-  );
-}
-
-const secondaryFeatures = [
-  {
-    icon: Cpu,
-    title: 'Modern stack, lean setup',
-    description: 'Next.js 16 App Router, React 19, Tailwind v4.',
-    badges: [{ label: 'Framework', value: 'Next.js 16 + React 19' }],
-    details: [
-      'RSC-first; client components only when needed',
-      'TypeScript strict mode with path aliases',
-      'API-driven; no forced database layer',
-    ],
-  },
-  {
-    icon: Search,
-    title: 'SEO + PWA, server-first',
-    description: 'Metadata, sitemap & manifest generated on server.',
-    badges: [{ label: 'SEO', value: 'OG + JSON-LD' }],
-    details: [
-      'Open Graph, Twitter cards, and JSON-LD metadata',
-      'sitemap.ts and robots.ts metadata routes',
-      'Web manifest and canonical URL from site config',
-    ],
-  },
-  {
-    icon: Shuffle,
-    title: 'Parallel routing',
-    description: 'One URL per feature; role-specific UI via slots.',
-    badges: [{ label: 'Routes', value: '@user · @admin' }],
-    details: [
-      'Same /dashboard path for every role',
-      '@user and @admin slots render the right dashboard',
-      'Layout picks the active slot from permissions',
-    ],
-  },
-  {
-    icon: Globe,
-    title: 'Type-safe i18n',
-    description: 'Type-safe next-intl with cookie locale and RTL.',
-    badges: [{ label: 'i18n', value: '6 locales + RTL' }],
-    details: [
-      'NEXT_LOCALE cookie; no URL prefixes needed',
-      'Typed messages via global.d.ts declarations',
-      'Six locales with RTL support for Arabic',
-    ],
-  },
-  {
-    icon: FileText,
-    title: 'Forms + validation',
-    description: 'Zod schemas, React Hook Form for form handling.',
-    badges: [{ label: 'Validation', value: 'React Hook Form + Zod' }],
-    details: [
-      'Zod schemas for login, register, and reset',
-      'Inferred types with z.infer inside auth forms',
-      'zodResolver plus InputError for accessible inline errors',
-    ],
-  },
-  {
-    icon: Shield,
-    title: 'Type-safe environment',
-    description: 'T3 Env validates every variable with Zod.',
-    badges: [{ label: 'Env', value: 'T3 Env + Zod' }],
-    details: [
-      'Server secrets and NEXT_PUBLIC_* client vars validated',
-      'Zod validates URLs, booleans, and required secrets',
-      'SKIP_ENV_VALIDATION for CI, Vitest, and lint checks',
-    ],
-  },
-];
-
-function HeroSection({
-  locale,
-  githubStars,
-}: {
-  locale: Locale;
-  githubStars?: string | null;
-}) {
-  const isRtl = getLocaleDirection(locale) === 'rtl';
-
-  return (
-    <div
-      className={cn(
-        'mx-auto flex max-w-7xl flex-col gap-8 px-4 pt-8',
-        isRtl ? 'text-right' : 'text-left',
-      )}
-    >
-      <div className="flex flex-col items-center gap-4">
-        <header className="space-y-0 text-center">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl">
-            <span className="bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
-              {siteConfig.appName}
+          <h1 className="text-4xl leading-tight font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            Quality Medical Equipment <br />
+            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+              At Affordable Prices.
             </span>
           </h1>
-          <p className="mx-auto mt-3 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            {siteConfig.tagline}
+
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+            Partnering with globally recognized, reputable manufacturers to
+            deliver trusted medical diagnostics, machinery, and daily surgical
+            consumables.
           </p>
-        </header>
 
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={vercelDeployUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-11 items-center gap-2.5 rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
-          >
-            <VercelIcon className="size-3.5" />
-            Deploy to Vercel
-          </a>
-          <a
-            href={githubRepoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-11 items-center gap-2.5 rounded-full border border-border bg-background px-5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted/50"
-          >
-            <GithubIcon className="size-4" />
-            Star on GitHub
-            {githubStars ? (
-              <span className="text-muted-foreground">{githubStars}</span>
-            ) : null}
-          </a>
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Button
+              variant="primary"
+              size="lg"
+              className="rounded-xl font-semibold shadow-md"
+            >
+              Request a Quote
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="rounded-xl border-white/20 bg-white/5 font-semibold text-white backdrop-blur-xs hover:bg-white/10"
+            >
+              Our Products
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="mx-auto mt-16 grid w-full max-w-screen-xl grid-cols-1 gap-4 px-4 sm:gap-6 sm:px-5 md:grid-cols-3 xl:px-0">
-        <HomeCard
-          title="40+ custom, reusable components"
-          description="Accelerate your workflow with a vast collection of accessible, fully customizable Tailwind CSS and Radix UI components designed for modern web apps."
-          demo={<ComponentShowcaseGrid />}
-          link={{ href: '/ui-components', label: 'see all' }}
-          large
-        />
-        <HomeCard
-          title="Better Auth"
-          description="Enterprise-grade user management powered by BetterAuth. Includes session handling, social logins, and role-based access control out of the box."
-          demo={<AuthDemoVisual />}
-        />
-        <HomeCard
-          title="Blazing Fast Speeds"
-          description="Performance optimized for maximum efficiency. Experience instant page loads, highly optimized static assets, and elite Lighthouse scores across accessibility, SEO, and best practices."
-          demo={<LighthouseDashboard />}
-          large
-        />
-        <HomeCard
-          title="Instant Deployment"
-          description="Deploy Next-Elite directly to Vercel's global edge network with a seamless, single-click integration."
-          demo={<DeployDemoVisual />}
-        />
-      </div>
-
-      <div className="mx-auto my-12 w-full max-w-screen-xl space-y-4 px-4 sm:space-y-6 sm:px-5 xl:px-0">
-        <div className="text-center sm:text-left">
+      {/* Core Product Categories Grid */}
+      <div className="w-full space-y-6">
+        <div className="flex flex-col gap-2 text-left">
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-            More features
+            Product Portfolio
           </h2>
+          <p className="max-w-xl text-sm text-muted-foreground">
+            Complying strictly with recognized medical regulatory criteria to
+            protect staff and healthcare standards.
+          </p>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-          {secondaryFeatures.map((feature) => (
-            <FeatureCard
-              key={feature.title}
-              icon={feature.icon}
-              title={feature.title}
-              description={feature.description}
-              badges={feature.badges}
-              details={feature.details}
-            />
-          ))}
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <CategoryCard
+            icon={Stethoscope}
+            title="Diagnostic Tools"
+            description="Advanced primary monitoring instruments, premium stethoscopes, visual scopes, and electronic clinical parameters gauges."
+          />
+          <CategoryCard
+            icon={Activity}
+            title="Surgical Instruments"
+            description="Precision-engineered stainless steel surgical tools, retractors, scalpel platforms, and sterile operational kits."
+          />
+          <CategoryCard
+            icon={ShieldAlert}
+            title="Hospital Consumables"
+            description="High-volume protective equipment, clinical single-use needles, procedural dressings, gloves, and sanitation consumables."
+          />
+        </div>
+      </div>
+
+      {/* Corporate Value Props Section */}
+      <div className="grid grid-cols-1 gap-8 border-t border-border/60 pt-12 md:grid-cols-3">
+        <div className="flex gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <MapPin className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="font-bold text-foreground">Dual-Hub Distribution</h4>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Strategic processing warehouses in Lagos and Ife ensure quick
+              access and rapid procurement dispatch across regions.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Truck className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="font-bold text-foreground">
+              Timely Supply Commitments
+            </h4>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              We sync logistical parameters directly with clinical timelines
+              because your inventory status impacts human well-being.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Users className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="font-bold text-foreground">Reputable Compliance</h4>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Working strictly with certified suppliers to guarantee that all
+              delivered systems mirror stringent medical parameters.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default HeroSection;
