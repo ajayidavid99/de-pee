@@ -44,7 +44,7 @@ function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
       </div>
     </Card>
   );
-}
+} 
 
 export default function HeroSection({ locale }: { locale: Locale }) {
   return (
