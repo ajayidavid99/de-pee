@@ -1,3 +1,4 @@
+// de-pee/src/features/auth/lib/auth.ts
 import { env } from '@/libs/env';
 import { betterAuth } from 'better-auth';
 import { Pool } from 'pg';

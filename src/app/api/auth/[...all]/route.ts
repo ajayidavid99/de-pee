@@ -1,3 +1,4 @@
+// de-pee/src/app/api/auth/[...all]/route.ts
 import { auth } from '@/features/auth/lib/auth';
 import { toNextJsHandler } from 'better-auth/next-js';
 

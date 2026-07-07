@@ -1,3 +1,4 @@
+// de-pee/src/features/auth/demo/accounts.ts
 import type { UserRole } from '../rbac/permissions';
 
 export interface DemoAccount {

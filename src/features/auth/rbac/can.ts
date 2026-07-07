@@ -1,3 +1,4 @@
+// de-pee/src/features/auth/rbac/can.ts
 import type { AuthPermission } from './permissions';
 
 export function hasPermission(

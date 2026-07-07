@@ -1,3 +1,4 @@
+// de-pee/src/components/shared/get-started-section.tsx
 'use client';
 
 import { GithubIcon } from '@/components/icons/github-icon';

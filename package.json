@@ -11,6 +11,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "db:migrate": "npx @better-auth/cli migrate --config=src/features/auth/lib/auth.ts",
     "analyze": "ANALYZE=true next build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . && prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,yml,yaml}\"",

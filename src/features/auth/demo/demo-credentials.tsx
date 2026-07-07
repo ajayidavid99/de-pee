@@ -1,3 +1,4 @@
+// de-pee/src/features/auth/demo/demo-credentials.tsx
 'use client';
 
 import { useTranslations } from 'next-intl';

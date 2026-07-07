@@ -1,3 +1,4 @@
+// de-pee/src/features/auth/rbac/roles.ts
 import { env } from '@/libs/env';
 import { getDemoRoleByEmail } from '../demo/accounts';
 import type { AuthPermission, UserRole } from './permissions';

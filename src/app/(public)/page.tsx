@@ -1,3 +1,4 @@
+// de-pee/src/app/(public)/page.tsx
 import { HomeGetStartedSection } from '@/components/shared/get-started-section';
 import HeroSection from '@/components/shared/hero-section';
 import type { Locale } from '@/features/site/config';
