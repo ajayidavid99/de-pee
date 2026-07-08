@@ -1,18 +1,16 @@
-// de-pee/src/components/shared/hero-section.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { type Locale } from '@/features/site/config';
+import { cn } from '@/libs/utils';
 import {
   Activity,
   ArrowRight,
-  Building2,
-  MapPin,
   ShieldAlert,
   Stethoscope,
-  Truck,
-  Users,
+  Sparkles,
+  CheckCircle2
 } from 'lucide-react';
 
 interface CategoryCardProps {
@@ -25,7 +23,7 @@ function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
   return (
     <Card
       hover
-      className="relative flex min-h-[16rem] flex-col justify-between overflow-hidden rounded-2xl p-6 md:p-8"
+      className="relative flex flex-col justify-between overflow-hidden rounded-2xl p-6 md:p-8"
     >
       <div>
         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
@@ -38,70 +36,101 @@ function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
           {description}
         </p>
       </div>
-      <div className="group mt-6 flex items-center gap-2 text-sm font-bold text-primary">
-        <span>View Products</span>
+      <div className="mt-6 flex items-center gap-2 text-sm font-bold text-primary group cursor-pointer">
+        <span>Browse Category</span>
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
       </div>
     </Card>
   );
-} 
+}
+
+interface HotProductCardProps {
+  title: string;
+  badge: string;
+  specs: string[];
+}
+
+function HotProductCard({ title, badge, specs }: HotProductCardProps) {
+  return (
+    <Card hover className="flex flex-col overflow-hidden rounded-2xl p-0 border border-border/60">
+      {/* Mock Image Wrapper */}
+      <div className="relative h-48 w-full bg-muted/40 flex items-center justify-center border-b border-border/40">
+        <div className="absolute top-3 left-3 bg-primary/10 text-primary text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-md">
+          {badge}
+        </div>
+        <span className="text-xs text-muted-foreground font-medium">Product Image Placeholder</span>
+      </div>
+      
+      <div className="p-5 flex flex-col flex-1 justify-between">
+        <div>
+          <h4 className="font-extrabold text-base text-foreground tracking-tight mb-3">
+            {title}
+          </h4>
+          <ul className="space-y-1.5">
+            {specs.map((spec, i) => (
+              <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                <span className="truncate">{spec}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <Button variant="outline" size="sm" className="w-full mt-5 rounded-xl font-medium text-xs">
+          View Specifications
+        </Button>
+      </div>
+    </Card>
+  );
+}
 
 export default function HeroSection({ locale }: { locale: Locale }) {
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-16 px-4 pt-4">
-      {/* Dynamic Hero banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-950 text-white shadow-xl">
-        {/* Abstract tint overlay rather than raw image to preserve look/feel and maximize dark text contrast */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-primary/10" />
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px] opacity-20" />
+    <div className="w-full space-y-16 pb-12">
+      
+      {/* 1. Full-Width Large Impact Hero Banner */}
+      <section className="relative w-full overflow-hidden rounded-3xl bg-slate-950 text-white min-h-[500px] flex items-center shadow-xl">
+        {/* Large Mock Image Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity"
+          style={{ 
+            backgroundImage: `url('https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=2000&auto=format&fit=crop')` 
+          }}
+        />
+        {/* Precise Linear Shading to guarantee high typography contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-0" />
 
-        <div className="relative z-10 max-w-3xl px-6 py-16 text-left sm:px-12 sm:py-20 md:py-24 lg:px-16">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-semibold text-blue-400">
-            <Building2 className="h-3 w-3" />
-            <span>Serving Lagos & Ife Healthcare Facilities</span>
-          </div>
-
-          <h1 className="text-4xl leading-tight font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            Quality Medical Equipment <br />
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-              At Affordable Prices.
+        <div className="relative z-10 max-w-4xl px-6 py-16 sm:px-12 sm:py-20 lg:px-16 text-left">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl leading-tight">
+            Premium Medical Supplies <br />
+            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              With Guaranteed Reliability.
             </span>
           </h1>
-
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
-            Partnering with globally recognized, reputable manufacturers to
-            deliver trusted medical diagnostics, machinery, and daily surgical
-            consumables.
+          
+          <p className="mt-6 max-w-xl text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed">
+            Supplying healthcare channels across Lagos and Ife with verified tools, high-tier clinical diagnostics, and sterile hospital consumables.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Button
-              variant="primary"
-              size="lg"
-              className="rounded-xl font-semibold shadow-md"
-            >
-              Request a Quote
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Button variant="primary" size="lg" className="rounded-xl font-semibold shadow-md">
+              Order Consumables
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-xl border-white/20 bg-white/5 font-semibold text-white backdrop-blur-xs hover:bg-white/10"
-            >
-              Our Products
+            <Button variant="outline" size="lg" className="rounded-xl border-white/20 text-white bg-white/5 hover:bg-white/10 font-semibold backdrop-blur-xs">
+              View Catalog
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Core Product Categories Grid */}
-      <div className="w-full space-y-6">
-        <div className="flex flex-col gap-2 text-left">
+      {/* 2. Core Product Categories Portfolio */}
+      <section className="max-w-7xl mx-auto px-4 space-y-6">
+        <div className="flex flex-col gap-1 text-left">
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
             Product Portfolio
           </h2>
-          <p className="max-w-xl text-sm text-muted-foreground">
-            Complying strictly with recognized medical regulatory criteria to
-            protect staff and healthcare standards.
+          <p className="text-sm text-muted-foreground max-w-xl">
+            Sourced exclusively from reputable manufacturers to comply with recognized clinical standards.
           </p>
         </div>
 
@@ -109,62 +138,61 @@ export default function HeroSection({ locale }: { locale: Locale }) {
           <CategoryCard
             icon={Stethoscope}
             title="Diagnostic Tools"
-            description="Advanced primary monitoring instruments, premium stethoscopes, visual scopes, and electronic clinical parameters gauges."
+            description="Precision testing setups, electronic blood pressure parameter tools, assessment equipment, and clinical kits."
           />
           <CategoryCard
             icon={Activity}
             title="Surgical Instruments"
-            description="Precision-engineered stainless steel surgical tools, retractors, scalpel platforms, and sterile operational kits."
+            description="Premium surgical stainless tools, dissecting scissors, sterile tissue forcep configurations, and scalpel platforms."
           />
           <CategoryCard
             icon={ShieldAlert}
             title="Hospital Consumables"
-            description="High-volume protective equipment, clinical single-use needles, procedural dressings, gloves, and sanitation consumables."
+            description="High-grade clinical syringes, gloves, examination materials, protective single-use gowns, and daily items."
           />
         </div>
-      </div>
+      </section>
 
-      {/* Corporate Value Props Section */}
-      <div className="grid grid-cols-1 gap-8 border-t border-border/60 pt-12 md:grid-cols-3">
-        <div className="flex gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <MapPin className="h-5 w-5" />
+      {/* 3. Hot Products Showcase */}
+      <section className="max-w-7xl mx-auto px-4 space-y-6">
+        <div className="flex items-center justify-between border-b border-border/60 pb-4">
+          <div className="flex items-center gap-2 text-left">
+            <div className="p-1 rounded-md bg-amber-500/10 text-amber-500">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <h2 className="text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
+              Hot Products
+            </h2>
           </div>
-          <div>
-            <h4 className="font-bold text-foreground">Dual-Hub Distribution</h4>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Strategic processing warehouses in Lagos and Ife ensure quick
-              access and rapid procurement dispatch across regions.
-            </p>
-          </div>
+          <span className="text-xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1">
+            See All Hot Deals <ArrowRight className="h-3 w-3" />
+          </span>
         </div>
-        <div className="flex gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Truck className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="font-bold text-foreground">
-              Timely Supply Commitments
-            </h4>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              We sync logistical parameters directly with clinical timelines
-              because your inventory status impacts human well-being.
-            </p>
-          </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <HotProductCard 
+            title="Digital Clinical Ultrasound" 
+            badge="High Demand"
+            specs={["High-resolution imaging", "Portable design configuration", "ISO compliant certification"]}
+          />
+          <HotProductCard 
+            title="Premium Surgical Forceps Kit" 
+            badge="Top Seller"
+            specs={["Medical-grade stainless steel", "Autoclave safe profile", "Sterile sealed pack sets"]}
+          />
+          <HotProductCard 
+            title="Electronic Vital Signs Monitor" 
+            badge="Trending"
+            specs={["Real-time telemetry tracking", "Rechargeable internal battery", "Multi-parameter tracking system"]}
+          />
+          <HotProductCard 
+            title="Sterile Disposable Gloves (Bulk)" 
+            badge="In Stock"
+            specs={["Powder-free textured nitrile", "100 units per master pack", "High tactile feedback design"]}
+          />
         </div>
-        <div className="flex gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Users className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="font-bold text-foreground">Reputable Compliance</h4>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Working strictly with certified suppliers to guarantee that all
-              delivered systems mirror stringent medical parameters.
-            </p>
-          </div>
-        </div>
-      </div>
+      </section>
+
     </div>
   );
 }
