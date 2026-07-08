@@ -51,8 +51,8 @@ export default function HeroSection({ locale }: { locale: Locale }) {
   return (
     <div className="w-full flex flex-col gap-16 pb-12">
       
-      {/* Full-Width Large Hero Image with Sharp Edges */}
-      <div className="relative w-full h-[500px] md:h-[600px] bg-slate-900 rounded-none overflow-hidden">
+      {/* Full-Width Large Hero Image with Sharp Edges - No gaps */}
+      <div className="relative w-full min-h-[550px] md:h-[650px] bg-slate-900 rounded-none overflow-hidden flex flex-col">
         {/* Background Image - Strict Sharp Edges */}
         <div 
           className="absolute inset-0 bg-cover bg-center rounded-none"
@@ -60,21 +60,22 @@ export default function HeroSection({ locale }: { locale: Locale }) {
             backgroundImage: `url('https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=2000&q=80')` 
           }}
         />
-        {/* Semi-transparent overlay for text contrast */}
-        <div className="absolute inset-0 bg-slate-950/60 rounded-none z-0" />
+        {/* Semi-transparent dark overlay for high contrast visibility */}
+        <div className="absolute inset-0 bg-slate-950/55 rounded-none z-0" />
 
-        {/* Hero Content Layer */}
-        <div className="relative z-10 max-w-7xl mx-auto h-full px-6 flex flex-col justify-center items-start text-left text-white">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 border border-primary/30 px-3 py-1 text-xs font-semibold text-blue-400 mb-6">
+        {/* Hero Content Layer - Dynamically padded at top to account for header height context */}
+        <div className="relative z-10 max-w-7xl mx-auto w-full h-full px-6 flex-1 flex flex-col justify-center items-start text-left text-white pt-[calc(var(--app-header-height)+2rem)] pb-16">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/25 border border-primary/40 px-3 py-1 text-xs font-semibold text-blue-400 mb-6 backdrop-blur-xs">
             <Building2 className="h-3 w-3" />
             <span>Serving Lagos & Ife Healthcare Facilities</span>
           </div>
           
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl max-w-3xl leading-tight">
+          {/* Changed from font-extrabold to font-semibold for a cleaner appearance */}
+          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl max-w-3xl leading-tight">
             Quality Medical Equipment & Consumables At Affordable Prices
           </h1>
           
-          <p className="mt-6 max-w-xl text-base sm:text-lg text-slate-200 leading-relaxed">
+          <p className="mt-6 max-w-xl text-base sm:text-lg text-slate-200 font-normal leading-relaxed opacity-95">
             Partnering directly with globally recognized manufacturers to deliver trusted medical diagnostics, machinery, and critical surgical consumables.
           </p>
 

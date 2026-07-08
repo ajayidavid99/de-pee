@@ -8,9 +8,10 @@ const PublicLayout = ({ children }: { children: ReactNode }) => {
     <div className="relative flex min-h-0 flex-1 flex-col">
       <BackgroundGradient />
       <Header />
+      {/* Removed the automatic top padding here so the hero can touch the header */}
       <main
         id="main-content"
-        className="relative z-10 flex-1 pt-[calc(var(--app-header-height)+env(safe-area-inset-top,0px))]"
+        className="relative z-10 flex-1"
       >
         {children}
       </main>
