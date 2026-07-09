@@ -30,15 +30,13 @@
   },
   "navigation": {
     "home": "হোম",
+    "products": "পণ্যসমূহ",
+    "blog": "ব্লগ",
     "about": "আমাদের সম্পর্কে",
-    "services": "সেবা",
     "contact": "যোগাযোগ",
-    "language": "ভাষা",
     "dashboard": "ড্যাশবোর্ড",
-    "profile": "প্রোফাইল",
-    "logout": "লগআউট",
-    "login": "লগইন",
-    "uiComponents": "UI কম্পোনেন্ট"
+    "logout": "লগ আউট",
+    "login": "লগ ইন"
   },
   "auth": {
     "login": {

@@ -28,17 +28,15 @@
     "dark": "داكن",
     "system": "النظام"
   },
-  "navigation": {
+ "navigation": {
     "home": "الرئيسية",
-    "about": "معلومات عنا",
-    "services": "الخدمات",
+    "products": "المنتجات",
+    "blog": "المدونة",
+    "about": "من نحن",
     "contact": "اتصل بنا",
-    "language": "اللغة",
     "dashboard": "لوحة التحكم",
-    "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
-    "login": "تسجيل الدخول",
-    "uiComponents": "مكونات الواجهة"
+    "login": "تسجيل الدخول"
   },
   "auth": {
     "login": {

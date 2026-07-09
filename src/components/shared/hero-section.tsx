@@ -1,4 +1,5 @@
 // de-pee/src/components/shared/hero-section.tsx
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,6 @@ import {
   ShieldAlert,
   Stethoscope,
 } from 'lucide-react';
-import Image from 'next/image';
 
 interface CategoryCardProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -48,8 +48,9 @@ function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
 
 export default function HeroSection({ locale }: { locale: Locale }) {
   return (
-    <div className="w-full bg-background pt-[var(--app-header-height)]">
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-6">
+    // Reduced space between header and hero section by dividing top padding in half
+    <div className="w-full bg-background pt-[calc(var(--app-header-height)/2)]">
+      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4">
         
         {/* Main Classic 2-Column Sidebar Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
@@ -58,22 +59,28 @@ export default function HeroSection({ locale }: { locale: Locale }) {
           <div className="lg:col-span-3 flex flex-col gap-10">
             
             {/* Full-bleed Sharp Hero Box Container */}
-            <div className="relative w-full h-[400px] md:h-[460px] bg-slate-900 rounded-none overflow-hidden group">
+            <div className="relative w-full h-[400px] md:h-[480px] bg-slate-900 rounded-none overflow-hidden group">
               <div 
-                className="absolute inset-0 bg-cover bg-center rounded-none transition-transform duration-700 group-hover:scale-102"
+                className="absolute inset-0 bg-cover bg-center rounded-none transition-transform duration-700 group-hover:scale-101"
                 style={{ 
                   backgroundImage: `url('https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1600&q=80')` 
                 }}
               />
-              {/* Specialized Medical Overlay Blue-Tint Tones Match Mockup */}
-              <div className="absolute inset-0 bg-slate-950/40 mix-blend-multiply rounded-none z-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent rounded-none z-0" />
+              <div className="absolute inset-0 bg-slate-950/45 mix-blend-multiply rounded-none z-0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent rounded-none z-0" />
 
               {/* Inner Text Context Layer */}
               <div className="relative z-10 h-full p-6 md:p-12 flex flex-col justify-center items-start text-left text-white max-w-2xl">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight leading-tight">
+                
+                {/* Main Heading Text - Adjusted to font-medium for a much cleaner weight */}
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight leading-tight">
                   Your Trusted Source for Medical Supplies. Quality and Reliability Guaranteed.
                 </h1>
+
+                {/* Sub-text Layer (Easy to update or toggle based on client preference) */}
+                <p className="mt-4 text-sm sm:text-base text-slate-200 font-normal opacity-90 leading-relaxed max-w-xl">
+                  Providing healthcare facilities globally with premium clinical-grade consumables, diagnostics, and surgical instrumentation built on compliance.
+                </p>
                 
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Button variant="primary" size="lg" className="rounded-md font-semibold px-6 bg-white text-slate-900 hover:bg-slate-100 shadow-sm">
@@ -145,7 +152,6 @@ export default function HeroSection({ locale }: { locale: Locale }) {
               </h2>
               
               <div className="flex flex-col gap-3">
-                {/* Item 1 */}
                 <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 cursor-pointer group">
                   <div className="relative h-12 w-12 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
                     <Stethoscope className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -158,7 +164,6 @@ export default function HeroSection({ locale }: { locale: Locale }) {
                   </div>
                 </div>
 
-                {/* Item 2 */}
                 <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 cursor-pointer group">
                   <div className="relative h-12 w-12 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
                     <Activity className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -171,7 +176,6 @@ export default function HeroSection({ locale }: { locale: Locale }) {
                   </div>
                 </div>
 
-                {/* Item 3 */}
                 <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 cursor-pointer group">
                   <div className="relative h-12 w-12 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
                     <ShieldAlert className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />

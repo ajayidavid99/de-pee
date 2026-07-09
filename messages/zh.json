@@ -30,15 +30,13 @@
   },
   "navigation": {
     "home": "首页",
+    "products": "产品中心",
+    "blog": "博客",
     "about": "关于我们",
-    "services": "服务",
     "contact": "联系我们",
-    "language": "语言",
-    "dashboard": "仪表板",
-    "profile": "个人资料",
+    "dashboard": "控制台",
     "logout": "退出登录",
-    "login": "登录",
-    "uiComponents": "UI 组件"
+    "login": "登录"
   },
   "auth": {
     "login": {

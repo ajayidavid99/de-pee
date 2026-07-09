@@ -30,15 +30,13 @@
   },
   "navigation": {
     "home": "Inicio",
-    "about": "Acerca de",
-    "services": "Servicios",
+    "products": "Productos",
+    "blog": "Blog",
+    "about": "Nosotros",
     "contact": "Contacto",
-    "language": "Idioma",
-    "dashboard": "Panel de control",
-    "profile": "Perfil",
+    "dashboard": "Panel de Control",
     "logout": "Cerrar sesión",
-    "login": "Iniciar sesión",
-    "uiComponents": "Componentes UI"
+    "login": "Iniciar sesión"
   },
   "auth": {
     "login": {

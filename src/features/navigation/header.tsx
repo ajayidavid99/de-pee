@@ -80,7 +80,7 @@ const Header = () => {
             <AppBrand href="/" isRtl={isRtl} />
           </div>
 
-          {/* DESKTOP NAVIGATION: Cleaned up to only include Home and About */}
+          {/* DESKTOP NAVIGATION */}
           <nav className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex">
             <Link
               href="/"
@@ -94,6 +94,28 @@ const Header = () => {
               {t('home')}
             </Link>
             <Link
+              href="/product-categories"
+              className={cn(
+                'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                pathname === '/product-categories'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+              )}
+            >
+              {t('products') || 'Products'}
+            </Link>
+            <Link
+              href="/blog"
+              className={cn(
+                'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                pathname === '/blog'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+              )}
+            >
+              {t('blog') || 'Blog'}
+            </Link>
+            <Link
               href="/about"
               className={cn(
                 'rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -103,6 +125,17 @@ const Header = () => {
               )}
             >
               {t('about')}
+            </Link>
+            <Link
+              href="/contact"
+              className={cn(
+                'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                pathname === '/contact'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+              )}
+            >
+              {t('contact') || 'Contact'}
             </Link>
           </nav>
 
@@ -222,6 +255,30 @@ const Header = () => {
                 {t('home')}
               </Link>
               <Link
+                href="/product-categories"
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  pathname === '/product-categories'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                )}
+              >
+                {t('products') || 'Products'}
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  pathname === '/blog'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                )}
+              >
+                {t('blog') || 'Blog'}
+              </Link>
+              <Link
                 href="/about"
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
@@ -232,6 +289,18 @@ const Header = () => {
                 )}
               >
                 {t('about')}
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  pathname === '/contact'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                )}
+              >
+                {t('contact') || 'Contact'}
               </Link>
             </nav>
 
