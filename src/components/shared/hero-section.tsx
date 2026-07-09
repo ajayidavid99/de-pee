@@ -1,3 +1,4 @@
+// de-pee/src/components/shared/hero-section.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';

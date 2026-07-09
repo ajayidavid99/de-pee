@@ -1,3 +1,4 @@
+// de-pee/src/features/navigation/header.tsx
 'use client';
 
 import { AppBrand } from '@/components/shared/app-brand';
@@ -17,7 +18,7 @@ import { ThemeToggle } from '@/features/theme/components/theme-toggle';
 import { setHeaderChromeActive } from '@/features/theme/context/theme-provider';
 import { useScroll } from '@/hooks/use-scroll';
 import { cn } from '@/libs/utils';
-import { LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -79,6 +80,7 @@ const Header = () => {
             <AppBrand href="/" isRtl={isRtl} />
           </div>
 
+          {/* DESKTOP NAVIGATION: Cleaned up to only include Home and About */}
           <nav className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex">
             <Link
               href="/"
@@ -92,17 +94,6 @@ const Header = () => {
               {t('home')}
             </Link>
             <Link
-              href="/ui-components"
-              className={cn(
-                'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                pathname === '/ui-components'
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-              )}
-            >
-              {t('uiComponents')}
-            </Link>
-            <Link
               href="/about"
               className={cn(
                 'rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -113,19 +104,6 @@ const Header = () => {
             >
               {t('about')}
             </Link>
-            {user && (
-              <Link
-                href="/dashboard"
-                className={cn(
-                  'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                  pathname?.startsWith('/dashboard')
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                )}
-              >
-                {t('dashboard')}
-              </Link>
-            )}
           </nav>
 
           <div className="z-10 hidden items-center gap-2 md:flex">
@@ -167,6 +145,16 @@ const Header = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  
+                  {/* DESKTOP NESTED DASHBOARD LINK */}
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/dashboard" className="flex items-center gap-2 w-full">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span>{t('dashboard')}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
                     onClick={() => void signOut()}
@@ -203,6 +191,7 @@ const Header = () => {
         </div>
       </div>
 
+      {/* MOBILE CONTAINER AREA */}
       <div
         className={cn(
           'absolute top-full left-0 z-20 grid w-full overflow-hidden bg-background/98 backdrop-blur-xl transition-all duration-300 ease-in-out md:hidden',
@@ -218,6 +207,7 @@ const Header = () => {
               mobileMenuOpen ? 'translate-y-0' : '-translate-y-4',
             )}
           >
+            {/* MOBILE NAVIGATION LINKS */}
             <nav className="flex flex-col gap-1">
               <Link
                 href="/"
@@ -232,18 +222,6 @@ const Header = () => {
                 {t('home')}
               </Link>
               <Link
-                href="/ui-components"
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                  pathname === '/ui-components'
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                )}
-              >
-                {t('uiComponents')}
-              </Link>
-              <Link
                 href="/about"
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
@@ -255,20 +233,6 @@ const Header = () => {
               >
                 {t('about')}
               </Link>
-              {user && (
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                    pathname?.startsWith('/dashboard')
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                  )}
-                >
-                  {t('dashboard')}
-                </Link>
-              )}
             </nav>
 
             <div className="flex items-center justify-center gap-4 border-t border-border pt-4">
@@ -304,6 +268,16 @@ const Header = () => {
                         </span>
                       </div>
                     </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+
+                    {/* MOBILE NESTED DASHBOARD LINK */}
+                    <DropdownMenuItem asChild className="cursor-pointer" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href="/dashboard" className="flex items-center gap-2 w-full">
+                        <LayoutDashboard className="h-4 w-4" />
+                        <span>{t('dashboard')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
