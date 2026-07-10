@@ -45,14 +45,17 @@ export default function HeroSection({ locale }: { locale: Locale }) {
                 className="absolute inset-0 bg-cover bg-center rounded-none"
                 style={{ backgroundImage: `url('/hero_img.jpg')` }}
               />
-              <div className="absolute inset-0 bg-slate-950/45 mix-blend-multiply rounded-none z-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent rounded-none z-0" />
+              {/* Reduced solid shadow overlay opacity */}
+              <div className="absolute inset-0 bg-slate-950/15 rounded-none z-0" />
+              
+              {/* Compressed the gradient fade to keep it strictly at the bottom for typography contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent rounded-none z-0" />
 
               <div className="relative z-10 h-full p-6 md:p-12 flex flex-col justify-center items-start text-left text-white max-w-2xl">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight leading-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight leading-tight [text-shadow:0_2px_8px_rgba(0,0,0,0.4)]">
                   Your Trusted Source for Medical Supplies. Quality and Reliability Guaranteed.
                 </h1>
-                <p className="mt-4 text-sm sm:text-base text-slate-200 font-normal opacity-90 leading-relaxed max-w-xl">
+                <p className="mt-4 text-sm sm:text-base text-slate-100 font-normal opacity-95 leading-relaxed max-w-xl [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]">
                   Providing healthcare facilities globally with premium clinical-grade consumables, diagnostics, and surgical instrumentation built on compliance.
                 </p>
                 <div className="mt-8">
@@ -62,6 +65,9 @@ export default function HeroSection({ locale }: { locale: Locale }) {
                 </div>
               </div>
             </div>
+
+            {/* Product Portfolio Grid */}
+            {/* ... remaining grid code remains unchanged */}
 
             {/* Product Portfolio Grid */}
             <div className="w-full flex flex-col gap-6">
