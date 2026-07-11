@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MOCK_POSTS, type BlogPost } from '@/features/blog/data';
 import { Calendar, Clock, ArrowRight, BookOpen, Flame } from 'lucide-react';
+import Link from 'next/link';
 
 export default function BlogHub() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -79,15 +80,19 @@ const featuredPost = MOCK_POSTS.find((p) => p.featured) ?? MOCK_POSTS[0]!;
                     </div>
 
                     <div className="pt-4 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
-                      <div className="flex items-center gap-3">
-                        <span>{featuredPost.author.name}</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {featuredPost.readTime}</span>
-                      </div>
-                      <Button variant="ghost" size="sm" className="text-xs gap-1 h-8 px-2 pr-0 group-hover:text-primary">
-                        Read Analysis <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                        <div className="flex items-center gap-3">
+                            <span>{featuredPost.author.name}</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {featuredPost.readTime}</span>
+                        </div>
+                        
+                        {/* Wrap this button with Link */}
+                        <Link href={`/blog/${featuredPost.slug}`} className="inline-block">
+                            <Button variant="ghost" size="sm" className="text-xs gap-1 h-8 px-2 pr-0 group-hover:text-primary">
+                            Read Analysis <ArrowRight className="h-3.5 w-3.5" />
+                            </Button>
+                        </Link>
+                        </div>
                   </div>
                 </div>
               </div>
@@ -114,40 +119,53 @@ const featuredPost = MOCK_POSTS.find((p) => p.featured) ?? MOCK_POSTS[0]!;
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {regularPosts.map((post) => (
                 <Card key={post.id} className="group p-4 flex flex-col justify-between border border-border/60 hover:border-border/100 transition-all bg-card overflow-hidden">
-                  <div className="space-y-3">
-                    <div className="w-full h-44 bg-muted rounded-xl overflow-hidden relative mb-1">
-                      <img 
+                <div className="space-y-3">
+                    
+                    {/* Wrap the image block so it's clickable */}
+                    <Link href={`/blog/${post.slug}`}>
+                    <div className="w-full h-44 bg-muted rounded-xl overflow-hidden relative mb-1 cursor-pointer">
+                        <img 
                         src={post.image} 
                         alt={post.title} 
                         className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
-                      />
-                      <span className="absolute top-3 left-3 text-[9px] font-bold tracking-wider uppercase bg-background/90 text-foreground px-2 py-0.5 rounded shadow-xs">
+                        />
+                        <span className="absolute top-3 left-3 text-[9px] font-bold tracking-wider uppercase bg-background/90 text-foreground px-2 py-0.5 rounded shadow-xs">
                         {post.categoryLabel}
-                      </span>
+                        </span>
                     </div>
+                    </Link>
 
                     <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {post.publishedAt}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {post.readTime}</span>
+                    <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {post.publishedAt}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {post.readTime}</span>
                     </div>
 
-                    <h3 className="text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                      {post.title}
+                    {/* Wrap the heading text so it's clickable */}
+                    <Link href={`/blog/${post.slug}`}>
+                    <h3 className="text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors cursor-pointer">
+                        {post.title}
                     </h3>
+                    </Link>
+                    
                     <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                      {post.excerpt}
+                    {post.excerpt}
                     </p>
-                  </div>
+                </div>
 
-                  <div className="mt-5 pt-3 border-t border-border/40 flex items-center justify-between">
+                <div className="mt-5 pt-3 border-t border-border/40 flex items-center justify-between">
                     <span className="text-[11px] font-medium text-foreground truncate max-w-[140px]">
-                      {post.author.name}
+                    {post.author.name}
                     </span>
-                    <Button variant="link" size="sm" className="h-auto p-0 text-xs font-bold text-primary group-hover:underline">
-                      Read Article →
-                    </Button>
-                  </div>
+                    
+                    {/* Change the button element directly into a Next.js Link style */}
+                    <Link 
+                    href={`/blog/${post.slug}`} 
+                    className="text-xs font-bold text-primary group-hover:underline transition-all"
+                    >
+                    Read Article →
+                    </Link>
+                </div>
                 </Card>
               ))}
             </div>
