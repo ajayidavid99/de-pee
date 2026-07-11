@@ -5,20 +5,35 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Activity, ArrowRight, Building2, Clock, Flame, ShieldCheck, Star, Stethoscope, Mail, Phone, MapPin } from 'lucide-react';
+import { Activity, ArrowRight, Building2, Clock, Flame, ShieldCheck, Mail, Phone, MapPin } from 'lucide-react';
 
 /* ==========================================================================
-   3. NEW ARRIVALS COMPONENT
+   3. NEW ARRIVALS COMPONENT (With Added Images)
    ========================================================================== */
 export function NewArrivals() {
   const arrivals = [
-    { title: 'Digital Blood Pressure Monitor', cat: 'Diagnostics', desc: 'Clinical grade precision automated reader.' },
-    { title: 'Stainless Steel Surgical Forceps', cat: 'Surgical', desc: 'Ergonomic, high-alloy durability.' },
-    { title: 'Premium Nitrile Exam Gloves', cat: 'Consumables', desc: 'Powder-free extra barrier protection.' },
+    { 
+      title: 'Digital Blood Pressure Monitor', 
+      cat: 'Diagnostics', 
+      desc: 'Clinical grade precision automated reader.',
+      img: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&w=400&q=80'
+    },
+    { 
+      title: 'Stainless Steel Surgical Forceps', 
+      cat: 'Surgical', 
+      desc: 'Ergonomic, high-alloy durability.',
+      img: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=400&q=80'
+    },
+    { 
+      title: 'Premium Nitrile Exam Gloves', 
+      cat: 'Consumables', 
+      desc: 'Powder-free extra barrier protection.',
+      img: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=400&q=80'
+    },
   ];
 
   return (
-    <section className="w-full py-10 bg-background border-t border-border/40">
+    <section className="w-full py-12 bg-background border-t border-border/40">
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
         <div className="flex items-center gap-2 mb-6">
           <Flame className="h-5 w-5 text-amber-500 fill-amber-500" />
@@ -26,13 +41,19 @@ export function NewArrivals() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {arrivals.map((item, idx) => (
-            <Card key={idx} className="p-5 border border-border/80 flex flex-col justify-between">
+            <Card key={idx} className="overflow-hidden border border-border/80 flex flex-col justify-between hover:border-border/100 hover:shadow-xs transition-all">
               <div>
-                <span className="text-[10px] uppercase tracking-wider font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-sm">{item.cat}</span>
-                <h3 className="text-base font-bold text-foreground mt-2">{item.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                {/* Product Thumbnail Window */}
+                <div className="w-full h-36 bg-muted relative overflow-hidden border-b border-border/40">
+                  <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="p-4 space-y-2">
+                  <span className="text-[9px] uppercase tracking-wider font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-sm inline-block">{item.cat}</span>
+                  <h3 className="text-sm font-bold text-foreground leading-tight">{item.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-normal">{item.desc}</p>
+                </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-border/40 flex items-center justify-between">
+              <div className="mx-4 mb-4 pt-3 border-t border-border/40 flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">Quote Only</span>
                 <Button variant="outline" size="sm" className="text-xs h-7">Request</Button>
               </div>
@@ -45,7 +66,7 @@ export function NewArrivals() {
 }
 
 /* ==========================================================================
-   4. FEATURED PRODUCTS MOBILE CAROUSEL (Hides on Desktop/Widescreens)
+   4. FEATURED PRODUCTS MOBILE CAROUSEL
    ========================================================================== */
 export function MobileFeaturedProducts() {
   const mockProducts = [
@@ -59,7 +80,6 @@ export function MobileFeaturedProducts() {
     <section className="block lg:hidden w-full py-8 bg-muted/30 border-t border-border/40">
       <div className="px-4">
         <h2 className="text-lg font-bold tracking-tight text-foreground mb-4">Featured Products</h2>
-        {/* Horizontal scrollable box container */}
         <div className="flex gap-4 overflow-x-auto pb-4 snap-x scrollbar-none">
           {mockProducts.map((p, i) => (
             <div key={i} className="w-[200px] shrink-0 snap-start bg-background border border-border/80 p-4 rounded-xl flex flex-col justify-between min-h-[140px]">
@@ -70,7 +90,6 @@ export function MobileFeaturedProducts() {
               <Button size="sm" className="w-full text-[11px] h-7 mt-3">Get Quote</Button>
             </div>
           ))}
-          {/* Last element as "More" link navigation trigger */}
           <div className="w-[160px] shrink-0 snap-start bg-primary/5 border border-dashed border-primary/40 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer group">
             <span className="text-sm font-bold text-primary group-hover:underline">View More</span>
             <ArrowRight className="h-4 w-4 text-primary mt-1 transition-transform group-hover:translate-x-1" />
@@ -82,7 +101,7 @@ export function MobileFeaturedProducts() {
 }
 
 /* ==========================================================================
-   5. WHY CHOOSE DE-PEE COMPONENT (Company Identity & Core Pillars)
+   5. WHY CHOOSE DE-PEE COMPONENT (With Added Stacked Image Composition)
    ========================================================================== */
 export function WhyChooseUs() {
   const pillars = [
@@ -105,18 +124,16 @@ export function WhyChooseUs() {
 
   const highlights = [
     { value: "100%", label: "Compliant Quality" },
-    { value: "2", label: "Distribution Hubs (Lagos & Ife)" },
-    { value: "Rapid", label: "Turnaround Procurement" },
-    { value: "Direct", label: "Manufacturer Sourcing" }
+    { value: "2", label: "Hubs (Lagos & Ife)" },
   ];
 
   return (
-    <section className="w-full py-16 lg:py-24 bg-background border-t border-border/40">
+    <section className="w-full py-16 lg:py-20 bg-background border-t border-border/40">
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Content Column */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-6 space-y-8">
             <div className="space-y-3">
               <span className="text-xs uppercase tracking-widest font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
                 Value Proposition
@@ -124,12 +141,12 @@ export function WhyChooseUs() {
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Why Choose De-Pee?
               </h2>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Based out of Lagos and Ife, De-Pee Medical Equipments and Consumables combines quality, affordability, and exceptional customer service. We work strictly alongside reputable global manufacturers to source items completely compliant with recognized medical quality standards.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-5">
+            <div className="grid grid-cols-1 gap-4">
               {pillars.map((pillar, index) => (
                 <div 
                   key={index} 
@@ -151,37 +168,42 @@ export function WhyChooseUs() {
             </div>
           </div>
 
-          {/* Right Visual Stats Column */}
-          <div className="lg:col-span-5 relative">
-            {/* Soft decorative background gradient blur */}
-            <div className="absolute -inset-4 bg-gradient-to-tr from-primary/10 to-transparent blur-2xl opacity-50 rounded-3xl -z-10" />
+          {/* Right Visual Image & Stats Composition Column */}
+          <div className="lg:col-span-6 grid grid-cols-12 gap-4 items-center relative">
+            <div className="absolute -inset-4 bg-gradient-to-tr from-primary/5 to-transparent blur-2xl opacity-40 rounded-3xl -z-10" />
             
-            <div className="bg-gradient-to-b from-muted/60 to-muted/20 border border-border/80 p-8 rounded-2xl relative backdrop-blur-sm">
-              <div className="space-y-2 mb-6">
-                <h3 className="text-base font-bold text-foreground">
-                  Our Core Commitment
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Fostering lasting procurement partnerships built on corporate integrity.
-                </p>
+            {/* Main Clinical Banner Placement */}
+            <div className="col-span-7 h-64 md:h-80 rounded-2xl overflow-hidden border border-border/60 shadow-xs bg-muted">
+              <img 
+                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=500&q=80" 
+                alt="Clinical evaluation" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Stacked Secondary Details Block Panel */}
+            <div className="col-span-5 space-y-4">
+              <div className="h-32 md:h-40 rounded-2xl overflow-hidden border border-border/60 shadow-xs bg-muted">
+                <img 
+                  src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&w=400&q=80" 
+                  alt="Medical infrastructure" 
+                  className="w-full h-full object-cover"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {highlights.map((stat, idx) => (
-                  <div 
-                    key={idx} 
-                    className="p-4 rounded-xl bg-background border border-border/60 flex flex-col justify-between space-y-2"
-                  >
-                    <span className="text-xl font-extrabold tracking-tight text-primary">
-                      {stat.value}
-                    </span>
-                    <span className="text-[11px] font-medium text-muted-foreground leading-snug">
-                      {stat.label}
-                    </span>
-                  </div>
-                ))}
+              {/* Data Highlights Grid Summary box underneath secondary photo frame */}
+              <div className="bg-gradient-to-b from-muted/80 to-muted/30 border border-border/80 p-4 rounded-xl space-y-3">
+                <div className="grid grid-cols-1 gap-2">
+                  {highlights.map((stat, idx) => (
+                    <div key={idx} className="p-2 rounded-lg bg-background border border-border/40 flex items-center justify-between gap-2">
+                      <span className="text-sm font-extrabold text-primary">{stat.value}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground text-right">{stat.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+
           </div>
 
         </div>
@@ -191,7 +213,7 @@ export function WhyChooseUs() {
 }
 
 /* ==========================================================================
-   6. MOBILE LATEST NEWS (Hides on Desktop/Widescreens)
+   6. MOBILE LATEST NEWS
    ========================================================================== */
 export function MobileLatestNews() {
   return (
@@ -214,15 +236,12 @@ export function MobileLatestNews() {
 }
 
 /* ==========================================================================
-   FINAL INTEGRATED FOOTER + CONTACT / NEWSLETTER SECTION
+   7. INTEGRATED FOOTER
    ========================================================================== */
 export function CompanyFooter() {
   return (
     <footer className="w-full bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
-      {/* Upper Grid: Contact Form paired with Location Specs */}
       <div className="mx-auto max-w-7xl px-4 lg:px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-12">
-        
-        {/* Contact/Quote Column */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-white">Quick Quote & Inquiries</h3>
           <p className="text-xs text-slate-400">Since we feature custom quote configurations across our catalogue without direct prices, send us a quick note below.</p>
@@ -236,7 +255,6 @@ export function CompanyFooter() {
           </form>
         </div>
 
-        {/* Directory Metadata details */}
         <div className="flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-white">De-Pee Medical</h3>
@@ -251,7 +269,6 @@ export function CompanyFooter() {
             <span className="hover:underline cursor-pointer">Privacy & Terms</span>
           </div>
         </div>
-
       </div>
     </footer>
   );

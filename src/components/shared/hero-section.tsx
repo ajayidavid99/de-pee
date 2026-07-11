@@ -34,40 +34,32 @@ export default function HeroSection({ locale }: { locale: Locale }) {
   return (
     <div className="w-full bg-background pt-[calc(var(--app-header-height)/2)]">
       <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4">
-        {/* Swapped to grid-cols-1 or 4 depending on widescreen display */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           
           {/* LEFT MAIN CONTENT AREA */}
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-10">
-            {/* Updated image background to track local public directory item */}
-            <div className="relative w-full h-[380px] md:h-[460px] bg-slate-900 rounded-none overflow-hidden group">
+            {/* Image frame without any dark tint/gradient overlays across the raw file source */}
+            <div className="relative w-full h-[380px] md:h-[460px] bg-slate-900 rounded-2xl overflow-hidden group border border-border/40">
               <div 
-                className="absolute inset-0 bg-cover bg-center rounded-none"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.01]"
                 style={{ backgroundImage: `url('/hero_img.jpg')` }}
               />
-              {/* Reduced solid shadow overlay opacity */}
-              <div className="absolute inset-0 bg-slate-950/15 rounded-none z-0" />
               
-              {/* Compressed the gradient fade to keep it strictly at the bottom for typography contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent rounded-none z-0" />
-
-              <div className="relative z-10 h-full p-6 md:p-12 flex flex-col justify-center items-start text-left text-white max-w-2xl">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight leading-tight [text-shadow:0_2px_8px_rgba(0,0,0,0.4)]">
+              {/* Isolated clear card background positioning the text with clean high contrast shadows */}
+              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 p-6 md:p-8 bg-slate-950/75 backdrop-blur-md rounded-xl flex flex-col justify-center items-start text-left text-white max-w-xl border border-white/10 shadow-xl">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug drop-shadow-md">
                   Your Trusted Source for Medical Supplies. Quality and Reliability Guaranteed.
                 </h1>
-                <p className="mt-4 text-sm sm:text-base text-slate-100 font-normal opacity-95 leading-relaxed max-w-xl [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]">
+                <p className="mt-3 text-xs sm:text-sm text-slate-200 font-normal opacity-95 leading-relaxed drop-shadow-sm">
                   Providing healthcare facilities globally with premium clinical-grade consumables, diagnostics, and surgical instrumentation built on compliance.
                 </p>
-                <div className="mt-8">
-                  <Button variant="primary" size="lg" className="rounded-md font-semibold px-6 bg-white text-slate-900 hover:bg-slate-100 shadow-sm">
+                <div className="mt-5">
+                  <Button variant="primary" size="sm" className="rounded-md font-semibold px-5 bg-white text-slate-900 hover:bg-slate-100 text-xs shadow-sm">
                     View Products
                   </Button>
                 </div>
               </div>
             </div>
-
-            {/* Product Portfolio Grid */}
-            {/* ... remaining grid code remains unchanged */}
 
             {/* Product Portfolio Grid */}
             <div className="w-full flex flex-col gap-6">
@@ -79,7 +71,7 @@ export default function HeroSection({ locale }: { locale: Locale }) {
             </div>
           </div>
 
-          {/* RIGHT SIDEBAR PANEL - Now completely hidden below lg (desktop/laptop widescreen) viewports */}
+          {/* RIGHT SIDEBAR PANEL */}
           <aside className="hidden lg:flex lg:col-span-1 flex-col gap-8 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)]">
             <div className="space-y-4">
               <h2 className="text-lg font-bold tracking-tight text-foreground border-b border-border pb-2">Latest News</h2>
