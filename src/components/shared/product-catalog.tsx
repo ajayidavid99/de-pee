@@ -1,3 +1,4 @@
+//de-pee/src/components/shared/product-catalog.tsx
 'use client';
 
 import { useState } from 'react';

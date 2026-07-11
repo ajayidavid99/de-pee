@@ -1,4 +1,4 @@
-
+//de-pee/src/app/(public)/products/page.tsx
 import ProductCatalog from '@/components/shared/product-catalog';
 
 export const metadata = {
