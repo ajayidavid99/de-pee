@@ -121,7 +121,6 @@ const featuredPost = MOCK_POSTS.find((p) => p.featured) ?? MOCK_POSTS[0]!;
                 <Card key={post.id} className="group p-4 flex flex-col justify-between border border-border/60 hover:border-border/100 transition-all bg-card overflow-hidden">
                 <div className="space-y-3">
                     
-                    {/* Wrap the image block so it's clickable */}
                     <Link href={`/blog/${post.slug}`}>
                     <div className="w-full h-44 bg-muted rounded-xl overflow-hidden relative mb-1 cursor-pointer">
                         <img 

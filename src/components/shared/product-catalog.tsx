@@ -1,4 +1,4 @@
-//de-pee/src/components/shared/product-catalog.tsx
+// de-pee/src/components/shared/product-catalog.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,7 +6,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MOCK_PRODUCTS, PRODUCT_CATEGORIES, type Product } from '@/features/products/data';
-import { ShoppingBag, FileText, CheckCircle, Package, Layers } from 'lucide-react';
+import { ShoppingBag, FileText, CheckCircle, Package, Layers, Info } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ProductCatalog() {
   const [activeTab, setActiveTab] = useState('all');
@@ -21,7 +22,9 @@ export default function ProductCatalog() {
   };
 
   const addToQuote = (product: Product) => {
-    const qtyNum = parseInt(quantities[product.id] || '0', 10);
+    // If field is empty, fallback to a default quantity of 1
+    const qtyStr = quantities[product.id] === '' ? '0' : (quantities[product.id] || '1');
+    const qtyNum = parseInt(qtyStr, 10) || 1;
     if (qtyNum <= 0) return;
 
     setQuoteCart((prev) => {
@@ -55,7 +58,7 @@ export default function ProductCatalog() {
         {/* 3-COLUMN MASTER DASHBOARD CONTAINER */}
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 items-start">
           
-          {/* 1. LEFT SIDEBAR: Categories (Sticky desktop, Dropdown mobile) */}
+          {/* 1. LEFT SIDEBAR: Categories */}
           <aside className="lg:col-span-1 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)] space-y-3">
             <div className="hidden lg:flex items-center gap-2 border-b border-border pb-3 mb-2">
               <Layers className="h-4 w-4 text-primary" />
@@ -93,26 +96,30 @@ export default function ProductCatalog() {
             </div>
           </aside>
 
-          {/* 2. CENTER PIECE: Catalog Items Grid (2 columns on mobile, 3 columns on desktop) */}
+          {/* 2. CENTER PIECE: Catalog Items Grid */}
           <div className="lg:col-span-4 space-y-6">
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProducts.map((product) => (
                 <Card key={product.id} className="p-3 sm:p-4 border border-border/80 flex flex-col justify-between overflow-hidden">
                   <div className="space-y-2">
-                    {/* Visual Mock-up Image Window */}
-                    <div className="w-full h-28 sm:h-36 relative bg-muted rounded-md overflow-hidden mb-2 border border-border/40">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                        loading="lazy"
-                      />
-                    </div>
+                    {/* Clickable Image to view details */}
+                    <Link href={`/products/${product.id}`}>
+                      <div className="w-full h-28 sm:h-36 relative bg-muted rounded-md overflow-hidden mb-2 border border-border/40 cursor-pointer">
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                          loading="lazy"
+                        />
+                      </div>
+                    </Link>
 
                     <span className="text-[9px] uppercase font-bold text-primary tracking-wider bg-primary/10 px-2 py-0.5 rounded-sm inline-block">
                       {product.category}
                     </span>
-                    <h3 className="text-xs sm:text-sm font-bold text-foreground leading-tight line-clamp-1">{product.name}</h3>
+                    <Link href={`/products/${product.id}`}>
+                      <h3 className="text-xs sm:text-sm font-bold text-foreground leading-tight line-clamp-1 hover:text-primary transition-colors cursor-pointer">{product.name}</h3>
+                    </Link>
                     <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{product.description}</p>
                     <p className="text-[10px] text-muted-foreground/80 bg-muted/40 p-1.5 rounded border border-border/40 font-mono truncate">
                       {product.specification}
@@ -125,27 +132,40 @@ export default function ProductCatalog() {
                       <label className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">Qty:</label>
                       <Input
                         type="text"
-                        placeholder="e.g. 50"
-                        value={quantities[product.id] || ''}
+                        placeholder="1"
+                        value={quantities[product.id] === undefined ? '1' : quantities[product.id]}
                         onChange={(e) => handleQuantityChange(product.id, e.target.value)}
                         className="h-7 text-xs w-16 text-center px-1"
                       />
                     </div>
-                    <Button
-                      size="sm"
-                      onClick={() => addToQuote(product)}
-                      disabled={!quantities[product.id]}
-                      className="w-full text-[11px] h-7"
-                    >
-                      Add to Quote
-                    </Button>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
+                      <Button
+                        size="sm"
+                        onClick={() => addToQuote(product)}
+                        className="w-full text-[11px] h-7"
+                      >
+                        Add to Quote
+                      </Button>
+                      
+                      <Link href={`/products/${product.id}`} className="w-full">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-[11px] h-7 gap-1"
+                        >
+                          <Info className="h-3 w-3" />
+                          Details
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </Card>
               ))}
             </div>
           </div>
 
-          {/* 3. RIGHT SIDEBAR: Live Quote Cart Drawer Summary */}
+          {/* 3. RIGHT SIDEBAR: Live Quote Cart */}
           <aside className="lg:col-span-1 bg-muted/30 border border-border/80 rounded-2xl p-4 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)]">
             <div className="flex items-center gap-2 border-b border-border pb-3 mb-4">
               <ShoppingBag className="h-4 w-4 text-primary" />
