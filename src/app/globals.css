@@ -995,6 +995,10 @@
   background-position: top, bottom;
 }
 
+.dark .hero-image-container {
+  filter: brightness(0.6);
+}
+
 /* ========== Theme Change Wave (View Transitions) ========== */
 @property --reveal-radius {
   syntax: '<length-percentage>';

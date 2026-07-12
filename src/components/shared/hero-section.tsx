@@ -42,22 +42,22 @@ export default function HeroSection({ locale }: { locale: Locale }) {
             {/* Forced raw sharp square edges with rounded-none */}
             <div className="relative w-full h-[380px] md:h-[460px] bg-slate-900 rounded-none overflow-hidden group border border-border/40">
               <div 
-                className="absolute inset-0 bg-cover bg-center rounded-none"
+                className="absolute inset-0 bg-cover bg-center rounded-2xl md:rounded-none hero-image-container" 
                 style={{ backgroundImage: `url('/hero_img.jpg')` }}
               />
               
               {/* Main typography content layout wrapper */}
-              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-white max-w-xl gap-3">
+              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-primary-foreground max-w-xl gap-3">
                 
                 {/* Heading isolated inside its own lighter, softer translucent background plate */}
-                <div className="bg-slate-950/45 backdrop-blur-xs px-4 py-3 rounded-lg border border-white/5 shadow-xs">
+                <div className="bg-background/80 backdrop-blur-xs px-4 py-3 rounded-lg border border-white/5 shadow-xs">
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug">
                     Your Trusted Source for Medical Supplies. Quality and Reliability Guaranteed.
                   </h1>
                 </div>
 
                 {/* Sub-text isolated inside its own separate soft background plate */}
-                <div className="bg-slate-950/45 backdrop-blur-xs px-4 py-2.5 rounded-lg border border-white/5 shadow-xs">
+                <div className="bg-background/80 backdrop-blur-xs px-4 py-2.5 rounded-lg border border-white/5 shadow-xs">
                   <p className="text-xs sm:text-sm text-slate-100 font-normal opacity-95 leading-relaxed">
                     Providing healthcare facilities globally with premium clinical-grade consumables, diagnostics, and surgical instrumentation built on compliance.
                   </p>
@@ -65,11 +65,11 @@ export default function HeroSection({ locale }: { locale: Locale }) {
 
                 {/* Action Row: Distinct un-plated structural buttons with specific navigation destinations */}
                 <div className="mt-2 flex flex-wrap gap-3">
-                  <Button asChild variant="primary" size="sm" className="rounded-md font-semibold px-5 bg-white text-slate-900 hover:bg-slate-100 text-xs shadow-xs">
+                  <Button asChild variant="primary" size="sm" className="rounded-md font-semibold px-5 bg-white text-foreground hover:bg-slate-100 text-xs shadow-xs">
                     <Link href="/products">View Products</Link>
                   </Button>
                   
-                  <Button asChild variant="outline" size="sm" className="rounded-md font-semibold px-5 bg-transparent border-white text-white hover:bg-white/10 text-xs shadow-xs">
+                  <Button asChild variant="outline" size="sm" className="rounded-md font-semibold px-5 bg-transparent border-white text-primary-foreground hover:bg-white/10 text-xs shadow-xs">
                     <Link href="/contact">Inquire Now</Link>
                   </Button>
                 </div>
