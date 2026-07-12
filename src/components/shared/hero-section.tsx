@@ -47,7 +47,7 @@ export default function HeroSection({ locale }: { locale: Locale }) {
               />
               
               {/* Main typography content layout wrapper */}
-              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-primary-foreground max-w-xl gap-3">
+              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-white max-w-xl gap-3">
                 
                 {/* Heading isolated inside its own lighter, softer translucent background plate */}
                 <div className="bg-background/80 backdrop-blur-xs px-4 py-3 rounded-lg border border-white/5 shadow-xs">
@@ -69,7 +69,7 @@ export default function HeroSection({ locale }: { locale: Locale }) {
                     <Link href="/products">View Products</Link>
                   </Button>
                   
-                  <Button asChild variant="outline" size="sm" className="rounded-md font-semibold px-5 bg-transparent border-white text-primary-foreground hover:bg-white/10 text-xs shadow-xs">
+                  <Button asChild variant="outline" size="sm" className="rounded-md font-semibold px-5 bg-transparent border-white text-white hover:bg-white/10 text-xs shadow-xs">
                     <Link href="/contact">Inquire Now</Link>
                   </Button>
                 </div>
