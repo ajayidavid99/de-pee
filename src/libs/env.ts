@@ -48,7 +48,6 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.string().url().optional(),
     NEXT_PUBLIC_GOOGLE_AUTH_ENABLED: booleanFromString,
     NEXT_PUBLIC_AUTH_ADMIN_EMAILS: csvEmails,
-    NEXT_PUBLIC_DEMO_MODE: booleanFromString,
     NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   },
   experimental__runtimeEnv: {
@@ -58,7 +57,6 @@ export const env = createEnv({
     NEXT_PUBLIC_AUTH_ADMIN_EMAILS:
       process.env.NEXT_PUBLIC_AUTH_ADMIN_EMAILS ??
       process.env.AUTH_ADMIN_EMAILS,
-    NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
   skipValidation:

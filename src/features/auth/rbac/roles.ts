@@ -1,6 +1,5 @@
-// de-pee/src/features/auth/rbac/roles.ts
+// de-pee/src/features/auth/rbac/roles.ts 
 import { env } from '@/libs/env';
-import { getDemoRoleByEmail } from '../demo/accounts';
 import type { AuthPermission, UserRole } from './permissions';
 
 const ROLE_PERMISSIONS = {
@@ -19,8 +18,5 @@ export function getRoleFromEmail(
   if (!email) return 'user';
   const normalized = email.toLowerCase();
   if (adminEmails.includes(normalized)) return 'admin';
-  if (env.NEXT_PUBLIC_DEMO_MODE) {
-    return getDemoRoleByEmail(normalized) ?? 'user';
-  }
   return 'user';
 }

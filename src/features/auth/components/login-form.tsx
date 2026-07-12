@@ -13,12 +13,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  DemoCredentials,
-  isDemoMode,
-  signInWithDemoFallback,
-  type DemoAccount,
-} from '../demo';
+
 import { useAuth } from '../hooks/auth-provider';
 import { loginSchema, type LoginInput } from '../schemas/login';
 
@@ -26,7 +21,7 @@ const LoginForm = () => {
   const t = useTranslations('auth.login');
   const tCommon = useTranslations('common');
   const router = useRouter();
-  const { signIn, signUp, user, isLoading, signInWithGoogle, isGoogleEnabled } =
+  const { signIn, user, isLoading, signInWithGoogle, isGoogleEnabled } =
     useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -42,15 +37,8 @@ const LoginForm = () => {
   const onSubmit = form.handleSubmit(async (values) => {
     setServerError(null);
     try {
-      if (isDemoMode) {
-        await signInWithDemoFallback(
-          { signIn, signUp },
-          values.email,
-          values.password,
-        );
-      } else {
-        await signIn(values.email, values.password);
-      }
+      // Stripped away fallback parameters completely
+      await signIn(values.email, values.password);
       router.replace('/dashboard');
       router.refresh();
     } catch (error) {
@@ -60,12 +48,6 @@ const LoginForm = () => {
       form.setValue('password', '');
     }
   });
-
-  const handleDemoSelect = (account: DemoAccount) => {
-    form.reset({ email: account.email, password: account.password });
-    form.clearErrors();
-    setServerError(null);
-  };
 
   if (isLoading) {
     return (
@@ -173,8 +155,6 @@ const LoginForm = () => {
               {t('signUp')}
             </TextLink>
           </p>
-
-          {isDemoMode && <DemoCredentials onSelect={handleDemoSelect} />}
         </CardContent>
       </Card>
     </div>

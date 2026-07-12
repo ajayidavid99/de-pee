@@ -12,7 +12,6 @@
     "src/features/auth/server/*.ts",
     "src/features/auth/rbac/*.ts",
     "src/features/auth/schemas/*.ts",
-    "src/features/auth/demo/index.ts",
     "src/features/users/api.ts",
     "src/features/users/hooks/*.ts",
     "src/features/users/schemas/*.ts",
