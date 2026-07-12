@@ -5,29 +5,41 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import * as Dialog from '@radix-ui/react-dialog';
-import { MOCK_PRODUCTS, PRODUCT_CATEGORIES, type Product, type ProductCategory } from '@/features/products/data';
-import { ShoppingBag, FileText, CheckCircle, Package, Layers, Info, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { MOCK_PRODUCTS, PRODUCT_CATEGORIES, type Product } from '@/features/products/data';
+import { ShoppingBag, FileText, CheckCircle, Package, Layers, Info, ChevronDown, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProductCatalog() {
   const [activeTab, setActiveTab] = useState('all');
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({ surgical: true });
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const [quoteCart, setQuoteCart] = useState<Array<{ product: Product; quantity: number }>>([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
-
-  const handleCategorySelect = (catId: string) => {
-    setActiveTab(catId);
-    setActiveSubTab(null); // Reset subcategory context whenever root switches
-  };
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleQuantityChange = (productId: string, val: string) => {
     if (val === '' || /^\d+$/.test(val)) {
       setQuantities((prev) => ({ ...prev, [productId]: val }));
     }
+  };
+
+  const toggleExpand = (catId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Avoid triggering full category change when using the chevron toggle arrow
+    setExpandedCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
+  };
+
+  const selectCategory = (catId: string) => {
+    setActiveTab(catId);
+    setActiveSubTab(null);
+    setIsMobileMenuOpen(false);
+  };
+
+  const selectSubCategory = (catId: string, subCatId: string) => {
+    setActiveTab(catId);
+    setActiveSubTab(subCatId);
+    setIsMobileMenuOpen(false);
   };
 
   const addToQuote = (product: Product) => {
@@ -46,70 +58,23 @@ export default function ProductCatalog() {
     });
   };
 
-  // Complex multi-tier filtering logic
-  const filteredProducts = MOCK_PRODUCTS.filter((p) => {
+  // Hierarchy filter implementation
+  const filteredProducts = MOCK_PRODUCTS.filter((product) => {
     if (activeTab === 'all') return true;
-    if (p.category !== activeTab) return false;
-    if (activeSubTab && p.subCategory !== activeSubTab) return false;
-    return true;
+    if (activeSubTab) return product.subCategory === activeSubTab;
+    return product.category === activeTab;
   });
 
-  const activeCategoryName = PRODUCT_CATEGORIES.find(c => c.id === activeTab)?.name || 'All Products';
-  const activeSubCategoryName = PRODUCT_CATEGORIES.find(c => c.id === activeTab)
-    ?.subCategories?.find(s => s.id === activeSubTab)?.name;
-
-  // Sidebar Layout Content rendered dynamically on both Desktop View & Mobile Drawer
-  const NavigationMenu = () => (
-    <div className="flex flex-col gap-1 pr-1">
-      {PRODUCT_CATEGORIES.map((cat) => {
-        const hasSubs = cat.subCategories && cat.subCategories.length > 0;
-        const isCurrent = activeTab === cat.id;
-
-        return (
-          <div key={cat.id} className="space-y-1">
-            <button
-              onClick={() => {
-                handleCategorySelect(cat.id);
-                if (!hasSubs) setIsMobileMenuOpen(false);
-              }}
-              className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg transition-all flex items-center justify-between ${
-                isCurrent && !activeSubTab
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : isCurrent 
-                  ? 'bg-muted/80 text-foreground'
-                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-              }`}
-            >
-              <span className="truncate">{cat.name}</span>
-              {hasSubs && <ChevronDown className={`h-3 w-3 shrink-0 transition-transform ${isCurrent ? 'rotate-180' : ''}`} />}
-            </button>
-
-            {/* Render nested Sub-Categories gracefully inline if matched */}
-            {hasSubs && isCurrent && (
-              <div className="pl-4 pr-1 py-1 flex flex-col gap-1 border-l border-border/60 ml-3">
-                {cat.subCategories?.map((sub) => (
-                  <button
-                    key={sub.id}
-                    onClick={() => {
-                      setActiveSubTab(sub.id);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-2.5 py-1.5 text-[11px] font-medium rounded-md transition-all truncate ${
-                      activeSubTab === sub.id
-                        ? 'bg-primary text-primary-foreground shadow-xs'
-                        : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
-                    }`}
-                  >
-                    {sub.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
+  const getActiveLabel = () => {
+    if (activeTab === 'all') return 'All Products';
+    const mainCat = PRODUCT_CATEGORIES.find(c => c.id === activeTab);
+    if (!mainCat) return 'Select Category';
+    if (activeSubTab) {
+      const subCat = mainCat.subCategories?.find(s => s.id === activeSubTab);
+      return `${mainCat.name} › ${subCat?.name}`;
+    }
+    return mainCat.name;
+  };
 
   return (
     <div className="w-full bg-background pt-[var(--app-header-height)] pb-16">
@@ -127,56 +92,126 @@ export default function ProductCatalog() {
         {/* 3-COLUMN MASTER DASHBOARD CONTAINER */}
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 items-start">
           
-          {/* 1. LEFT SIDEBAR (Desktop Architecture) */}
-          <aside className="hidden lg:block lg:col-span-1 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)] space-y-3">
-            <div className="flex items-center gap-2 border-b border-border pb-3 mb-2">
+          {/* 1. LEFT SIDEBAR: Categories */}
+          <aside className="lg:col-span-1 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)] space-y-3">
+            <div className="hidden lg:flex items-center gap-2 border-b border-border pb-3 mb-2">
               <Layers className="h-4 w-4 text-primary" />
               <h2 className="text-sm font-bold text-foreground">Categories</h2>
             </div>
-            <NavigationMenu />
-          </aside>
 
-          {/* Mobile Categories Floating Trigger Pop-up control */}
-          <div className="block lg:hidden w-full mb-4">
-            <Dialog.Root open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <Dialog.Trigger asChild>
-                <Button variant="outline" className="w-full flex items-center justify-between text-xs h-10 px-3 bg-card border-border">
-                  <span className="flex items-center gap-2 truncate text-muted-foreground">
-                    <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
-                    Viewing: <strong className="text-foreground font-semibold">{activeCategoryName}{activeSubCategoryName ? ` → ${activeSubCategoryName}` : ''}</strong>
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                </Button>
-              </Dialog.Trigger>
-              
-              <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 transition-opacity" />
-                <Dialog.Content className="fixed bottom-0 left-0 right-0 max-h-[85vh] w-full bg-card border-t border-border p-6 shadow-2xl rounded-t-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
-                  <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
-                    <Dialog.Title className="text-sm font-bold text-foreground flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-primary" /> Select Category
-                    </Dialog.Title>
-                    <Dialog.Close asChild>
-                      <button className="text-muted-foreground hover:text-foreground rounded-md p-1">
-                        <X className="h-4 w-4" />
-                      </button>
-                    </Dialog.Close>
+            {/* Mobile Popover UI Selector */}
+            <div className="block lg:hidden w-full mb-2">
+              <Popover open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between h-11 text-xs px-3 font-medium">
+                    <span className="flex items-center gap-2 truncate">
+                      <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      {getActiveLabel()}
+                    </span>
+                    <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[calc(100vw-2rem)] p-2 max-h-[75vh] overflow-y-auto" align="start">
+                  <div className="flex flex-col gap-1">
+                    {PRODUCT_CATEGORIES.map((cat) => (
+                      <div key={cat.id} className="space-y-1">
+                        <div 
+                          onClick={() => selectCategory(cat.id)}
+                          className={`flex items-center justify-between w-full text-left px-3 py-2.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                            activeTab === cat.id && !activeSubTab
+                              ? 'bg-primary text-primary-foreground'
+                              : 'text-foreground hover:bg-muted'
+                          }`}
+                        >
+                          <span>{cat.name}</span>
+                          {cat.subCategories && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 p-0 hover:bg-transparent"
+                              onClick={(e) => toggleExpand(cat.id, e)}
+                            >
+                              {expandedCategories[cat.id] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                            </Button>
+                          )}
+                        </div>
+
+                        {cat.subCategories && expandedCategories[cat.id] && (
+                          <div className="pl-4 pr-1 flex flex-col gap-1 border-l border-border/60 ml-3">
+                            {cat.subCategories.map((sub) => (
+                              <button
+                                key={sub.id}
+                                onClick={() => selectSubCategory(cat.id, sub.id)}
+                                className={`w-full text-left px-3 py-1.5 text-[11px] font-medium rounded-md transition-all ${
+                                  activeSubTab === sub.id
+                                    ? 'bg-secondary text-secondary-foreground font-bold'
+                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                }`}
+                              >
+                                {sub.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="overflow-y-auto flex-1 pr-1 pb-4">
-                    <NavigationMenu />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Desktop Navigation Tree List */}
+            <div className="hidden lg:flex flex-col gap-1 max-h-[70vh] overflow-y-auto pr-1">
+              {PRODUCT_CATEGORIES.map((cat) => (
+                <div key={cat.id} className="flex flex-col w-full">
+                  <div
+                    onClick={() => selectCategory(cat.id)}
+                    className={`group flex items-center justify-between w-full text-left px-3 py-2 text-xs font-medium rounded-lg transition-all cursor-pointer ${
+                      activeTab === cat.id && !activeSubTab
+                        ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                    }`}
+                  >
+                    <span className="truncate">{cat.name}</span>
+                    {cat.subCategories && (
+                      <span 
+                        onClick={(e) => toggleExpand(cat.id, e)}
+                        className="p-0.5 rounded-md hover:bg-foreground/10 text-muted-foreground transition-colors group-hover:text-inherit"
+                      >
+                        {expandedCategories[cat.id] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                      </span>
+                    )}
                   </div>
-                </Dialog.Content>
-              </Dialog.Portal>
-            </Dialog.Root>
-          </div>
+
+                  {/* Desktop Sub-categories Render Block */}
+                  {cat.subCategories && expandedCategories[cat.id] && (
+                    <div className="flex flex-col border-l border-border/80 ml-3.5 pl-2 mt-1 gap-0.5">
+                      {cat.subCategories.map((sub) => (
+                        <button
+                          key={sub.id}
+                          onClick={() => selectSubCategory(cat.id, sub.id)}
+                          className={`w-full text-left px-2.5 py-1.5 text-[11px] font-medium rounded-md transition-all truncate ${
+                            activeSubTab === sub.id
+                              ? 'bg-muted text-foreground font-semibold border-r-2 border-primary rounded-r-none'
+                              : 'text-muted-foreground/90 hover:bg-muted/40 hover:text-foreground'
+                          }`}
+                        >
+                          {sub.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </aside>
 
           {/* 2. CENTER PIECE: Catalog Items Grid */}
           <div className="lg:col-span-4 space-y-6">
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-24 border border-dashed border-border rounded-xl space-y-2">
-                <Package className="h-8 w-8 text-muted-foreground/60 mx-auto" />
-                <p className="text-sm font-medium text-muted-foreground">No catalog items discovered here yet.</p>
+              <div className="text-center py-16 border border-dashed rounded-xl space-y-2">
+                <Package className="h-8 w-8 mx-auto text-muted-foreground/50" />
+                <p className="text-sm font-medium text-muted-foreground">No equipment fits this selection.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -194,9 +229,17 @@ export default function ProductCatalog() {
                         </div>
                       </Link>
 
-                      <span className="text-[9px] uppercase font-bold text-primary tracking-wider bg-primary/10 px-2 py-0.5 rounded-sm inline-block">
-                        {product.category}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[9px] uppercase font-bold text-primary tracking-wider bg-primary/10 px-2 py-0.5 rounded-sm inline-block">
+                          {product.category}
+                        </span>
+                        {product.subCategory && (
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider bg-muted px-2 py-0.5 rounded-sm inline-block">
+                            {product.subCategory.replace('-', ' ')}
+                          </span>
+                        )}
+                      </div>
+                      
                       <Link href={`/products/${product.id}`}>
                         <h3 className="text-xs sm:text-sm font-bold text-foreground leading-tight line-clamp-1 hover:text-primary transition-colors cursor-pointer">{product.name}</h3>
                       </Link>
