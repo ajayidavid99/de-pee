@@ -329,7 +329,7 @@ export default function ProductCatalog() {
                     className="w-full text-xs h-8 gap-1 bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <FileText className="h-3 w-3" />
-                    Submit Request
+                    Submit Request 
                   </Button>
                 </div>
               </div>
