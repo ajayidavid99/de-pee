@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { type Locale } from '@/features/site/config';
 import { Activity, ArrowRight, Clock, ShieldAlert, Stethoscope } from 'lucide-react';
+import Link from 'next/link';
 
 interface CategoryCardProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -38,26 +39,41 @@ export default function HeroSection({ locale }: { locale: Locale }) {
           
           {/* LEFT MAIN CONTENT AREA */}
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-10">
-            {/* Image frame without any dark tint/gradient overlays across the raw file source */}
-            <div className="relative w-full h-[380px] md:h-[460px] bg-slate-900 rounded-2xl overflow-hidden group border border-border/40">
+            {/* Forced raw sharp square edges with rounded-none */}
+            <div className="relative w-full h-[380px] md:h-[460px] bg-slate-900 rounded-none overflow-hidden group border border-border/40">
               <div 
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.01]"
+                className="absolute inset-0 bg-cover bg-center rounded-none"
                 style={{ backgroundImage: `url('/hero_img.jpg')` }}
               />
               
-              {/* Isolated clear card background positioning the text with clean high contrast shadows */}
-              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 p-6 md:p-8 bg-slate-950/75 backdrop-blur-md rounded-xl flex flex-col justify-center items-start text-left text-white max-w-xl border border-white/10 shadow-xl">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug drop-shadow-md">
-                  Your Trusted Source for Medical Supplies. Quality and Reliability Guaranteed.
-                </h1>
-                <p className="mt-3 text-xs sm:text-sm text-slate-200 font-normal opacity-95 leading-relaxed drop-shadow-sm">
-                  Providing healthcare facilities globally with premium clinical-grade consumables, diagnostics, and surgical instrumentation built on compliance.
-                </p>
-                <div className="mt-5">
-                  <Button variant="primary" size="sm" className="rounded-md font-semibold px-5 bg-white text-slate-900 hover:bg-slate-100 text-xs shadow-sm">
-                    View Products
+              {/* Main typography content layout wrapper */}
+              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-white max-w-xl gap-3">
+                
+                {/* Heading isolated inside its own lighter, softer translucent background plate */}
+                <div className="bg-slate-950/45 backdrop-blur-xs px-4 py-3 rounded-lg border border-white/5 shadow-xs">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug">
+                    Your Trusted Source for Medical Supplies. Quality and Reliability Guaranteed.
+                  </h1>
+                </div>
+
+                {/* Sub-text isolated inside its own separate soft background plate */}
+                <div className="bg-slate-950/45 backdrop-blur-xs px-4 py-2.5 rounded-lg border border-white/5 shadow-xs">
+                  <p className="text-xs sm:text-sm text-slate-100 font-normal opacity-95 leading-relaxed">
+                    Providing healthcare facilities globally with premium clinical-grade consumables, diagnostics, and surgical instrumentation built on compliance.
+                  </p>
+                </div>
+
+                {/* Action Row: Distinct un-plated structural buttons with specific navigation destinations */}
+                <div className="mt-2 flex flex-wrap gap-3">
+                  <Button asChild variant="primary" size="sm" className="rounded-md font-semibold px-5 bg-white text-slate-900 hover:bg-slate-100 text-xs shadow-xs">
+                    <Link href="/products">View Products</Link>
+                  </Button>
+                  
+                  <Button asChild variant="outline" size="sm" className="rounded-md font-semibold px-5 bg-transparent border-white text-white hover:bg-white/10 text-xs shadow-xs">
+                    <Link href="/contact">Inquire Now</Link>
                   </Button>
                 </div>
+
               </div>
             </div>
 
