@@ -47,7 +47,7 @@ export default function HeroSection({ locale }: { locale: Locale }) {
               />
               
               {/* Main typography content layout wrapper */}
-              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-white max-w-xl gap-3">
+              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-white/80 max-w-xl gap-3">
                 
                 {/* Heading isolated inside its own lighter, softer translucent background plate */}
                 <div className="bg-slate-950/45 backdrop-blur-xs px-4 py-3 rounded-lg border border-white/5 shadow-xs">
