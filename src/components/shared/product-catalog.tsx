@@ -13,7 +13,7 @@ import Link from 'next/link';
 export default function ProductCatalog() {
   const [activeTab, setActiveTab] = useState('all');
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({ surgical: true });
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const [quoteCart, setQuoteCart] = useState<Array<{ product: Product; quantity: number }>>([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -34,6 +34,12 @@ export default function ProductCatalog() {
     setActiveTab(catId);
     setActiveSubTab(null);
     setIsMobileMenuOpen(false);
+
+    // Optional: Automatically expand the category folder layout when clicked on desktop/mobile
+  setExpandedCategories(prev => ({
+    ...prev,
+    [catId]: !prev[catId]
+  }));
   };
 
   const selectSubCategory = (catId: string, subCatId: string) => {
