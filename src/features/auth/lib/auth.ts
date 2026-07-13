@@ -1,7 +1,8 @@
 // de-pee/src/features/auth/lib/auth.ts
 import { env } from '@/libs/env';
 import { betterAuth } from 'better-auth';
-import { Pool } from 'pg';
+// Import your centralized database client pool
+import { db } from '@/libs/db';
 
 if (
   process.env.NODE_ENV === 'production' &&
@@ -38,29 +39,13 @@ const socialProviders =
     : undefined;
 
 export const auth = betterAuth({
-  /* baseURL: {
-    allowedHosts: allowlistedHosts,
-    protocol: 'auto',
-    fallback: env.BETTER_AUTH_URL,
-  },
+  // Provide your shared Neon client pool to manage user and session tables
+  database: db,
+  baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,
   },
-  socialProviders, */
-  baseURL: {
-    allowedHosts: allowlistedHosts,
-    protocol: 'auto',
-    fallback: env.BETTER_AUTH_URL,
-  },
   socialProviders,
-  secret: process.env.BETTER_AUTH_SECRET!,
-  emailAndPassword: {
-    enabled: true,
-  },
-  database: new Pool({
-    // This variable will change automatically depending on your environment
-    connectionString: process.env.DATABASE_URL,
-    ssl: true,
-  }),
+  // Add additional settings below if required by your template layout
 });

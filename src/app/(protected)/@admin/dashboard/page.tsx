@@ -22,13 +22,16 @@ export default async function AdminDashboardPage() {
     <PageLayout>
       <div className="space-y-6">
         {/* Dynamic Context Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <PageHeader 
-            title={t('title') || 'Medical Equipment Management'} 
-            subtitle={t('description') || 'Control and update De-Pee internal catalogs across Lagos and Ife hubs.'} 
-          />
-          {/* Replaced static button with interactive modal trigger layout */}
-          <AddProductDialog />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-4">
+          <div className="min-w-0 flex-1">
+            <PageHeader 
+              title={t('title') || 'Medical Equipment Management'} 
+              subtitle={t('description') || 'Control and update De-Pee internal catalogs across Lagos and Ife hubs.'} 
+            />
+          </div>
+          <div className="shrink-0 w-full sm:w-auto">
+            <AddProductDialog />
+          </div>
         </div>
 
         {/* Dynamic Metric Grid */}

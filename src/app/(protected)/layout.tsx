@@ -1,3 +1,4 @@
+// de-pee/src/app/(protected)/layout.tsx
 import { hasPermission } from '@/features/auth/rbac/can';
 import { requireUser } from '@/features/auth/rbac/require';
 import { Sidebar } from '@/features/navigation/sidebar';
