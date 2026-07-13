@@ -1,0 +1,232 @@
+C:.
+|   global.d.ts
+|   instrumentation-client.ts
+|   instrumentation.ts
+|   
++---app
+|   |   error.tsx
+|   |   fonts.ts
+|   |   globals.css
+|   |   layout.tsx
+|   |   manifest.ts
+|   |   not-found.tsx
+|   |   providers.tsx
+|   |   robots.ts
+|   |   sitemap.ts
+|   |   
+|   +---(auth)
+|   |   |   layout.tsx
+|   |   |   
+|   |   +---login
+|   |   |       page.tsx
+|   |   |       
+|   |   +---password-reset
+|   |   |       page.tsx
+|   |   |       
+|   |   \---register
+|   |           page.tsx
+|   |           
+|   +---(protected)
+|   |   |   layout.tsx
+|   |   |   
+|   |   +---@admin
+|   |   |   |   default.tsx
+|   |   |   |   
+|   |   |   +---dashboard
+|   |   |   |       page.tsx
+|   |   |   |       
+|   |   |   \---profile
+|   |   |           page.tsx
+|   |   |           
+|   |   +---@user
+|   |   |   |   default.tsx
+|   |   |   |   
+|   |   |   +---dashboard
+|   |   |   |       page.tsx
+|   |   |   |       
+|   |   |   \---profile
+|   |   |           page.tsx
+|   |   |           
+|   |   \---unauthorized
+|   |           page.tsx
+|   |           
+|   +---(public)
+|   |   |   layout.tsx
+|   |   |   page.tsx
+|   |   |   
+|   |   +---about
+|   |   |       page.tsx
+|   |   |       
+|   |   +---blog
+|   |   |   |   page.tsx
+|   |   |   |   
+|   |   |   \---[slug]
+|   |   |           page.tsx
+|   |   |           
+|   |   +---contact
+|   |   |       page.tsx
+|   |   |       
+|   |   \---products
+|   |       |   page.tsx
+|   |       |   
+|   |       \---[id]
+|   |               page.tsx
+|   |               
+|   \---api
+|       +---auth
+|       |   \---[...all]
+|       |           route.ts
+|       |           
+|       \---health
+|               route.ts
+|               
++---components
+|   +---icons
+|   |       loader-icon.tsx
+|   |       
+|   +---shared
+|   |       app-brand.tsx
+|   |       background-gradient.tsx
+|   |       blog-hub.tsx
+|   |       case.tsx
+|   |       hero-section.tsx
+|   |       home-sections.tsx
+|   |       logo.tsx
+|   |       page-header.tsx
+|   |       product-catalog.tsx
+|   |       text-link.tsx
+|   |       theme-overlay.tsx
+|   |       
+|   \---ui
+|           accordion.tsx
+|           alert.tsx
+|           avatar.tsx
+|           badge.tsx
+|           breadcrumb.tsx
+|           button-group.tsx
+|           button.test.tsx
+|           button.tsx
+|           calendar.tsx
+|           card.test.tsx
+|           card.tsx
+|           carousel.tsx
+|           checkbox.tsx
+|           collapsible.tsx
+|           combobox.tsx
+|           dialog.tsx
+|           dropdown-menu.tsx
+|           form.tsx
+|           icon.tsx
+|           input-error.tsx
+|           input-group.tsx
+|           input-otp.tsx
+|           input.tsx
+|           label.tsx
+|           navigation-menu.tsx
+|           password-input.tsx
+|           placeholder-pattern.tsx
+|           popover.tsx
+|           radio-group.tsx
+|           select.tsx
+|           separator.tsx
+|           sheet.tsx
+|           skeleton.tsx
+|           spinner.tsx
+|           switch.tsx
+|           table.tsx
+|           tabs.tsx
+|           textarea.tsx
+|           toggle-group.tsx
+|           toggle.tsx
+|           tooltip.tsx
+|           
++---features
+|   +---auth
+|   |   |   types.ts
+|   |   |   
+|   |   +---components
+|   |   |       login-form.tsx
+|   |   |       password-reset-form.tsx
+|   |   |       register-form.tsx
+|   |   |       
+|   |   +---hooks
+|   |   |       auth-provider.tsx
+|   |   |       
+|   |   +---lib
+|   |   |       auth-client.ts
+|   |   |       auth.ts
+|   |   |       
+|   |   +---rbac
+|   |   |       can.ts
+|   |   |       permissions.ts
+|   |   |       require.ts
+|   |   |       roles.test.ts
+|   |   |       roles.ts
+|   |   |       
+|   |   +---schemas
+|   |   |       login.test.ts
+|   |   |       login.ts
+|   |   |       register.test.ts
+|   |   |       register.ts
+|   |   |       
+|   |   \---server
+|   |           get-current-user.ts
+|   |           
+|   +---blog
+|   |       data.tsx
+|   |       
+|   +---i18n
+|   |   |   locale-actions.ts
+|   |   |   request.ts
+|   |   |   routing.ts
+|   |   |   
+|   |   \---components
+|   |           language-switcher.tsx
+|   |           
+|   +---navigation
+|   |       header.tsx
+|   |       sidebar.tsx
+|   |       top-loader.tsx
+|   |       topbar.tsx
+|   |       
+|   +---products
+|   |       data.ts
+|   |       
+|   +---site
+|   |       config.ts
+|   |       site.config.json
+|   |       
+|   +---theme
+|   |   +---components
+|   |   |       theme-toggle.tsx
+|   |   |       
+|   |   \---context
+|   |           theme-provider.tsx
+|   |           
+|   \---users
+|       |   api.ts
+|       |   
+|       +---hooks
+|       |       use-users.ts
+|       |       
+|       \---schemas
+|               user.test.ts
+|               user.ts
+|               
++---hooks
+|       use-mobile.ts
+|       use-scroll.ts
+|       
++---libs
+|       api-client.ts
+|       env.test.ts
+|       env.ts
+|       logger.ts
+|       query-client.ts
+|       rate-limit.ts
+|       utils.test.ts
+|       utils.ts
+|       
+\---schemas
+        api.test.ts
+        api.ts
