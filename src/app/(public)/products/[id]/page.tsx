@@ -1,23 +1,18 @@
-// de-pee/src/app/(public)/products/[id]/page.tsx
-import { MOCK_PRODUCTS } from '@/features/products/data';
+// src/app/(public)/products/[id]/page.tsx
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Shield, CheckCircle2, FileText, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getProducts } from '@/features/products/server/actions';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateStaticParams() {
-  return MOCK_PRODUCTS.map((product) => ({
-    id: product.id,
-  }));
-}
-
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-  const product = MOCK_PRODUCTS.find((p) => p.id === id);
+  const products = await getProducts();
+  const product = products.find((p) => p.id === id);
   
   if (!product) return {};
   
@@ -29,7 +24,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
-  const product = MOCK_PRODUCTS.find((p) => p.id === id);
+  
+  // Fetch real-time records from Neon database
+  const products = await getProducts();
+  const product = products.find((p) => p.id === id);
 
   if (!product) {
     notFound();
@@ -57,6 +55,9 @@ export default async function ProductDetailsPage({ params }: PageProps) {
               src={product.image} 
               alt={product.name} 
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80";
+              }}
             />
           </div>
 
@@ -64,7 +65,7 @@ export default async function ProductDetailsPage({ params }: PageProps) {
           <div className="space-y-6">
             <div className="space-y-2">
               <span className="text-[10px] uppercase font-bold text-primary tracking-wider bg-primary/10 px-2 py-1 rounded-sm inline-block">
-                {product.category} Inventory Item
+                {product.category_name} Inventory Item
               </span>
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
                 {product.name}
