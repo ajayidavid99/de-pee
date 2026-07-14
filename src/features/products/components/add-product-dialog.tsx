@@ -1,7 +1,7 @@
-//de-pee/src/features/products/components/add-product-dialog.tsx
+// src/features/products/components/add-product-dialog.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,13 +12,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Loader2 } from 'lucide-react';
-import { PRODUCT_CATEGORIES } from '../data';
-import { createProduct } from '../server/actions';
+import { createProduct, type DBCategory } from '../server/actions';
 import { toast } from 'sonner';
 
 const productFormSchema = z.object({
   name: z.string().min(2, 'Product name is required'),
-  categoryId: z.string().min(1, 'Please select a valid category'),
+  parentCategoryId: z.string().min(1, 'Please select a main category'),
+  subCategoryId: z.string().optional(),
   description: z.string().min(5, 'Provide a detailed description'),
   specification: z.string().min(3, 'Technical specification details are required'),
   image: z.string().url('Please provide a valid image URL'),
@@ -26,7 +26,11 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
-export function AddProductDialog() {
+interface AddProductDialogProps {
+  categories: DBCategory[];
+}
+
+export function AddProductDialog({ categories }: AddProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
@@ -34,17 +38,55 @@ export function AddProductDialog() {
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: '',
-      categoryId: '',
+      parentCategoryId: '',
+      subCategoryId: '',
       description: '',
       specification: '',
       image: '',
     },
   });
 
+  const selectedParentId = form.watch('parentCategoryId');
+
+  // Find root level categories (no parent_id)
+  const mainCategories = categories.filter((c) => c.parent_id === null);
+
+  // Find children belonging to the currently selected parent category
+  const availableSubCategories = categories.filter(
+    (c) => c.parent_id === selectedParentId && selectedParentId !== ''
+  );
+
+  const hasSubCategories = availableSubCategories.length > 0;
+
+  // Clear subcategory choice if parent changes
+  useEffect(() => {
+    form.setValue('subCategoryId', '');
+  }, [selectedParentId, form]);
+
   async function onSubmit(values: ProductFormValues) {
+    // If sub-categories exist, enforce selecting one
+    if (hasSubCategories && !values.subCategoryId) {
+      form.setError('subCategoryId', {
+        type: 'manual',
+        message: 'This category contains sub-categories. You must assign the product to a sub-category.',
+      });
+      return;
+    }
+
+    // Determine the final category leaf-node ID
+    const finalCategoryId = hasSubCategories && values.subCategoryId 
+      ? values.subCategoryId 
+      : values.parentCategoryId;
+
     setIsPending(true);
     try {
-      await createProduct(values);
+      await createProduct({
+        name: values.name,
+        description: values.description,
+        specification: values.specification,
+        image: values.image,
+        categoryId: finalCategoryId,
+      });
       toast.success('Equipment added to inventory successfully');
       form.reset();
       setOpen(false);
@@ -54,9 +96,6 @@ export function AddProductDialog() {
       setIsPending(false);
     }
   }
-
-  // Filter out the meta "all" tab variant from option definitions
-  const formCategories = PRODUCT_CATEGORIES.filter((c) => c.id !== 'all');
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -70,7 +109,7 @@ export function AddProductDialog() {
         <DialogHeader>
           <DialogTitle className="text-base font-bold">Add Equipment Catalog Entry</DialogTitle>
           <DialogDescription className="text-xs">
-            Populate details directly to the central Neon storage schema tracking De-Pee inventory layers.
+            Populate details directly to the central Neon database.
           </DialogDescription>
         </DialogHeader>
 
@@ -90,20 +129,21 @@ export function AddProductDialog() {
               )}
             />
 
+            {/* Parent Category Field */}
             <FormField
               control={form.control}
-              name="categoryId"
+              name="parentCategoryId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs">Category Allocation</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel className="text-xs">Main Category Allocation</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="h-9 text-xs">
                         <SelectValue placeholder="Assign a product family category" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {formCategories.map((category) => (
+                      {mainCategories.map((category) => (
                         <SelectItem key={category.id} value={category.id} className="text-xs">
                           {category.name}
                         </SelectItem>
@@ -114,6 +154,34 @@ export function AddProductDialog() {
                 </FormItem>
               )}
             />
+
+            {/* Sub-Category Field (Conditionally Rendered based on selected parent) */}
+            {hasSubCategories && (
+              <FormField
+                control={form.control}
+                name="subCategoryId"
+                render={({ field }) => (
+                  <FormItem className="bg-muted/30 p-3 rounded-lg border border-dashed border-border/60">
+                    <FormLabel className="text-xs font-semibold text-primary">Sub-category Required</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-9 text-xs bg-background">
+                          <SelectValue placeholder="Select specific sub-category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {availableSubCategories.map((sub) => (
+                          <SelectItem key={sub.id} value={sub.id} className="text-xs">
+                            {sub.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}

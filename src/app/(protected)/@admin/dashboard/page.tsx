@@ -1,4 +1,4 @@
-// de-pee/src/app/(protected)/@admin/dashboard/page.tsx
+// src/app/(protected)/@admin/dashboard/page.tsx
 import { PageHeader, PageLayout } from '@/components/shared/page-header';
 import { requirePermission } from '@/features/auth/rbac/require';
 import { getTranslations } from 'next-intl/server';
@@ -6,27 +6,25 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Layers, ClipboardList, Stethoscope } from 'lucide-react';
 import { AddProductDialog } from '@/features/products/components/add-product-dialog';
+import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
 import { getProducts, getCategories } from '@/features/products/server/actions';
 
 export default async function AdminDashboardPage() {
-  // 1. Strict RBAC middleware assertion protection
   await requirePermission('dashboard.view:admin');
   const t = await getTranslations('dashboard.admin');
 
-  // 2. Dual parallel data queries directly from Neon instance storage pools
+  // Parallel database calls
   const [products, categories] = await Promise.all([
     getProducts(),
     getCategories()
   ]);
 
-  // 3. Dynamic metric computations mapping over real row indicators
   const totalProducts = products.length;
   const totalCategories = categories.filter(c => c.parent_id === null).length;
 
   return (
     <PageLayout>
       <div className="space-y-6">
-        {/* Constrained Responsive Header block layout */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-4">
           <div className="min-w-0 flex-1">
             <PageHeader 
@@ -34,12 +32,13 @@ export default async function AdminDashboardPage() {
               subtitle={t('description') || 'Control and update De-Pee internal catalogs across Lagos and Ife hubs.'} 
             />
           </div>
-          <div className="shrink-0 w-full sm:w-auto">
-            <AddProductDialog />
+          {/* Admin Category Management and Product Dialogs side by side */}
+          <div className="shrink-0 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <AddCategoryDialog categories={categories} />
+            <AddProductDialog categories={categories} />
           </div>
         </div>
 
-        {/* Live Metrics Monitoring Blocks */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card className="p-4 flex items-center gap-4 border-border/60">
             <div className="p-3 bg-blue-500/10 text-blue-600 rounded-xl">
@@ -72,7 +71,6 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
 
-        {/* Live Real-time Inventory Data Grid */}
         <Card className="overflow-hidden border-border/80">
           <div className="p-4 border-b border-border/60 bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -108,7 +106,6 @@ export default async function AdminDashboardPage() {
                             alt={product.name} 
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              // Fallback broken image placeholder
                               e.currentTarget.src = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80";
                             }}
                           />
@@ -118,7 +115,7 @@ export default async function AdminDashboardPage() {
                         {product.name}
                       </td>
                       <td className="p-3">
-                        <span className="inline-flex items-center rounded-sm bg-blue-500/10 px-2 py-0.5 Jacks text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                        <span className="inline-flex items-center rounded-sm bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">
                           {product.category_name}
                         </span>
                       </td>
