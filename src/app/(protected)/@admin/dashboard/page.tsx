@@ -9,11 +9,9 @@ import { AddProductDialog } from '@/features/products/components/add-product-dia
 import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
 import { getProducts, getCategories, type DBProduct, type DBCategory } from '@/features/products/server/actions';
 
-
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  console.log("=== DEBUG: Dashboard Render Started ===");
   await requirePermission('dashboard.view:admin');
   
   const t = await getTranslations('dashboard.admin');
@@ -22,33 +20,22 @@ export default async function AdminDashboardPage() {
   let categories: DBCategory[] = [];
 
   try {
-    console.log("=== DEBUG: Fetching Products... ===");
+    // Single consolidated parallel fetch
     const [fetchedProducts, fetchedCategories] = await Promise.all([
       getProducts(),
       getCategories()
     ]);
     products = fetchedProducts || [];
     categories = fetchedCategories || [];
-    console.log(`=== DEBUG: Fetched ${products?.length || 0} Products ===`);
-    console.log("=== DEBUG: Sample Product Data:", JSON.stringify(products?.slice(0, 1), null, 2));
   } catch (dbError) {
-    console.error("Database connection failed during render:", dbError);
+    console.error("Database connection failed during admin render:", dbError);
   }
-  try {
-    console.log("=== DEBUG: Fetching Categories... ===");
-    categories = await getCategories();
-    console.log(`=== DEBUG: Fetched ${categories?.length || 0} Categories ===`);
-  } catch (err: any) {
-    console.error("=== DEBUG ERROR: getCategories failed ===", err.message, err.stack);
-  }
-  // Fallback: If categories/products fetch returns undefined/null, ensure arrays are defined
-  const safeProducts = products || [];
-  const safeCategories = categories || [];
 
-  console.log("=== DEBUG: Rendering Dashboard Page ===");
+  const safeProducts = products;
+  const safeCategories = categories;
 
-  const totalProducts = products.length;
-  const totalCategories = categories.filter(c => c && c.parent_id === null).length;
+  const totalProducts = safeProducts.length;
+  const totalCategories = safeCategories.filter(c => c && c.parent_id === null).length;
 
   return (
     <PageLayout>
@@ -58,8 +45,8 @@ export default async function AdminDashboardPage() {
             <PageHeader title={t('title')} subtitle={t('description')} />
           </div>
           <div className="shrink-0 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <AddCategoryDialog categories={categories} />
-            <AddProductDialog categories={categories} />
+            <AddCategoryDialog categories={safeCategories} />
+            <AddProductDialog categories={safeCategories} />
           </div>
         </div>
 
@@ -106,10 +93,10 @@ export default async function AdminDashboardPage() {
           </div>
 
           <div className="overflow-x-auto">
-            {products.length === 0 ? (
+            {safeProducts.length === 0 ? (
               <div className="text-center py-12 border-t border-border/40 text-muted-foreground space-y-2">
-                <Stethoscope className="h-8 w-8 mx-auto opacity-40 animate-pulse" />
-                <p className="text-xs">No equipment records stored in Neon yet. Use the action button above to add entries.</p>
+                <Stethoscope className="h-8 w-8 mx-auto opacity-40" />
+                <p className="text-xs">No equipment records stored in database yet.</p>
               </div>
             ) : (
               <table className="w-full text-left border-collapse text-xs">
@@ -123,12 +110,9 @@ export default async function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {products.map((product) => {
-                    // Safe default fallback image
+                  {safeProducts.map((product) => {
                     const fallbackImg = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80";
                     const imageUrl = product.image && product.image.startsWith('http') ? product.image : fallbackImg;
-
-                    // Use product.id with a absolute fallback to prevent map React key collisions
                     const rowKey = product.id || `temp-key-${Math.random()}`;
 
                     return (

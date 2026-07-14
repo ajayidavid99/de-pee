@@ -25,15 +25,8 @@ export interface DBCategory {
 /**
  * Fetches all products with joined category definitions directly from Neon
  */
-
 export async function getProducts(): Promise<DBProduct[]> {
-  console.log("=== DB DEBUG: getProducts execution ===");
   try {
-    // 1. Run a raw test count first to verify connection and table health
-    const countCheck = await db.query('SELECT COUNT(*) as count FROM products');
-    console.log("=== DB DEBUG: Product table check. Count is:", countCheck.rows[0]?.count);
-
-    // 2. Fetch products joining categories
     const result = await db.query(`
       SELECT 
         p.id,
@@ -47,9 +40,7 @@ export async function getProducts(): Promise<DBProduct[]> {
       LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.created_at DESC
     `);
-    console.log(`=== DB DEBUG: Query succeeded. Returning ${result.rows.length} rows ===`);
     
-    // Explicitly sanitize database output to prevent Next.js serialization bugs
     return (result.rows || []).map((row: any) => ({
       id: String(row.id || ''),
       name: String(row.name || ''),
@@ -60,10 +51,9 @@ export async function getProducts(): Promise<DBProduct[]> {
       category_name: String(row.category_name || 'Unassigned'),
       parent_category_id: row.parent_category_id ? String(row.parent_category_id) : null,
     }));
-  } catch (error: any) {
-    console.error("=== DB DEBUG ERROR: getProducts query failure ===");
-    console.error(error.message);
-    throw error; // Re-throw so the dashboard try/catch handles it
+  } catch (error) {
+    console.error("Failed to query products from Neon:", error);
+    return [];
   }
 }
 
@@ -97,7 +87,6 @@ export async function createCategory(formData: { name: string; parentId?: string
     throw new Error('Category name is required.');
   }
 
-  // Sluggify the name to generate a clean ID (e.g. "Surgical Equipment" -> "surgical-equipment")
   const id = formData.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -119,7 +108,7 @@ export async function createCategory(formData: { name: string; parentId?: string
 }
 
 /**
- * Commits a validated medical instrument entry into storage after validating permissions
+ * Commits a validated medical instrument entry into storage using the "prod_" prefixed ID standard
  */
 export async function createProduct(formData: {
   name: string;
@@ -134,14 +123,19 @@ export async function createProduct(formData: {
   }
 
   if (!formData.name || !formData.categoryId || !formData.image) {
-    throw new Error('Missing mandatory product definition strings.');
+    throw new Error('Missing mandatory product definition fields.');
   }
+
+  // Generate an industry-standard prefixed ID (e.g., prod_8f1a23...)
+  const crypto = require('crypto');
+  const uniqueId = `prod_${crypto.randomUUID()}`;
 
   try {
     await db.query(
-      `INSERT INTO products (name, description, specification, image, category_id) 
-       VALUES ($1, $2, $3, $4, $5)`,
+      `INSERT INTO products (id, name, description, specification, image, category_id) 
+       VALUES ($1, $2, $3, $4, $5, $6)`,
       [
+        uniqueId,
         formData.name,
         formData.description,
         formData.specification,
@@ -152,6 +146,7 @@ export async function createProduct(formData: {
 
     revalidatePath('/products');
     revalidatePath('/dashboard');
+    return { success: true };
   } catch (error: any) {
     console.error('Neon catalog insertion failure:', error);
     throw new Error(error.message || 'Database transaction anomaly encountered.');

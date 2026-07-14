@@ -9,17 +9,10 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Helper to sanitize incoming params by removing any "prod_" prefixes
-function cleanProductId(rawId: string): string {
-  return rawId.startsWith('prod_') ? rawId.replace('prod_', '') : rawId;
-}
-
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-  const targetId = cleanProductId(id);
-  
   const products = await getProducts();
-  const product = products.find((p) => String(p.id) === targetId || String(p.id) === id);
+  const product = products.find((p) => String(p.id) === id);
   
   if (!product) return {};
   
@@ -31,15 +24,9 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
-  const targetId = cleanProductId(id);
   
-  // Fetch real-time records from Neon database
   const products = await getProducts();
-  
-  // Clean comparison checking both raw ID and stripped ID
-  const product = products.find(
-    (p) => String(p.id) === targetId || String(p.id) === id
-  );
+  const product = products.find((p) => String(p.id) === id);
 
   if (!product) {
     notFound();
@@ -49,52 +36,55 @@ export default async function ProductDetailsPage({ params }: PageProps) {
     <div className="w-full bg-background pt-[var(--app-header-height)] pb-20">
       <div className="mx-auto max-w-5xl px-4 lg:px-6 py-8">
         
-        {/* Back Link */}
         <div className="mb-6">
-          <Link 
-            href="/products" 
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to Catalog
+          <Link href="/products" passHref>
+            <Button variant="ghost" size="sm" className="text-xs gap-1.5 pl-0 text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-3.5 w-3.5" /> Back to Product Portfolio
+            </Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
           
-          {/* Image & Overview Section */}
-          <div className="md:col-span-5 space-y-4">
-            <div className="aspect-square w-full rounded-md border border-border/40 overflow-hidden bg-muted flex items-center justify-center relative">
-              <img 
-                src={product.image} 
-                alt={product.name}
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <div>
-              <span className="inline-flex items-center rounded bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary uppercase tracking-wide">
-                {product.category_name || "Medical Catalog Item"}
-              </span>
-            </div>
+          <div className="w-full h-72 sm:h-96 bg-muted rounded-2xl overflow-hidden border border-border/80 shadow-xs">
+            <img 
+              src={product.image} 
+              alt={product.name} 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80";
+              }}
+            />
           </div>
 
-          {/* Details & Specifications */}
-          <div className="md:col-span-7 space-y-6">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">{product.name}</h1>
-              <p className="mt-2 text-sm text-muted-foreground/90 leading-relaxed">{product.description}</p>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase font-bold text-primary tracking-wider bg-primary/10 px-2 py-1 rounded-sm inline-block">
+                {product.category_name} Inventory Item
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
+                {product.name}
+              </h1>
             </div>
 
-            {/* Technical Specifications Block */}
-            <div className="space-y-2 border-t border-b border-border/40 py-4">
+            <div className="border-t border-b border-border/60 py-4 space-y-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <ClipboardList className="h-3.5 w-3.5" /> Core Description
+              </h3>
+              <p className="text-sm text-foreground leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+
+            <div className="bg-muted/40 rounded-xl p-4 border border-border/60 space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5" /> Technical Specifications
               </h3>
               <p className="text-xs font-mono text-foreground bg-background p-3 rounded border border-border/40 whitespace-pre-wrap">
-                {product.specification || "No custom specifications provided."}
+                {product.specification}
               </p>
             </div>
 
-            {/* Quality Standards & Trust Elements */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5" /> Quality Assurance Metrics
