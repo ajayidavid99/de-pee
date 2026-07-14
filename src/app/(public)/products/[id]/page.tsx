@@ -11,14 +11,14 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-  const decodedId = decodeURIComponent(id).trim(); // Normalize the ID from the URL
+  
+  // Clean the ID (e.g., strip "prod_" prefix if the DB uses plain UUIDs or numbers)
+  const cleanId = id.replace(/^prod_/, ''); 
+  
   const products = await getProducts();
+  const product = products.find((p) => String(p.id) === cleanId || String(p.id) === id);
   
-  const product = products.find(
-    (p) => String(p.id).trim() === decodedId
-  );
-  
-  if (!product) return { title: "Product Not Found" };
+  if (!product) return {};
   
   return {
     title: `${product.name} | De-Pee Medical Catalog`,
@@ -28,25 +28,28 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
-  const decodedId = decodeURIComponent(id).trim(); // Normalize the ID from the URL
   
-  const products = await getProducts();
-  const product = products.find(
-    (p) => String(p.id).trim() === decodedId
-  );
+  // Clean the ID
+  const cleanId = id.replace(/^prod_/, '');
 
-  // Fallback so it displays a graceful block instead of throwing a disruptive notFound()
+  const products = await getProducts();
+  
+  // Try to match with the raw parameter ID or the stripped ID
+  const product = products.find((p) => String(p.id) === cleanId || String(p.id) === id);
+
   if (!product) {
+    // Return a friendly fallback instead of calling notFound() to avoid parallel-route bugs
     return (
-      <div className="w-full text-center py-20 bg-background">
-        <h2 className="text-xl font-bold text-muted-foreground">Product Details Unavailable</h2>
-        <p className="text-sm text-muted-foreground/80 mt-1">The requested item ID ({decodedId}) could not be resolved.</p>
-        <Link href="/products" className="text-primary underline text-xs mt-4 inline-block">
+      <div className="w-full text-center py-20 bg-background pt-[var(--app-header-height)]">
+        <h2 className="text-xl font-bold text-muted-foreground">Product Not Found</h2>
+        <p className="text-sm text-muted-foreground/80 mt-1">We couldn't find a product matching ID: {id}</p>
+        <Link href="/products" className="text-blue-600 underline text-xs mt-4 inline-block">
           Return to portfolio
         </Link>
       </div>
     );
   }
+
   return (
     <div className="w-full bg-background pt-[var(--app-header-height)] pb-20">
       <div className="mx-auto max-w-5xl px-4 lg:px-6 py-8">
