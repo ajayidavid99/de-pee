@@ -9,17 +9,13 @@ import { AddProductDialog } from '@/features/products/components/add-product-dia
 import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
 import { getProducts, getCategories, type DBProduct, type DBCategory } from '@/features/products/server/actions';
 
-// Enforce runtime dynamic execution so Vercel builds cleanly without access to live database pools during compilation
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  // 1. Enforce RBAC permission checks
   await requirePermission('dashboard.view:admin');
   
-  // 2. Load translations matching your profile page pattern
   const t = await getTranslations('dashboard.admin');
 
-  // 3. Fetch relational tables safely with explicit TypeScript casting
   let products: DBProduct[] = [];
   let categories: DBCategory[] = [];
 
@@ -34,14 +30,12 @@ export default async function AdminDashboardPage() {
     console.error("Database connection failed during render:", dbError);
   }
 
-  // 4. Compute metrics
   const totalProducts = products.length;
   const totalCategories = categories.filter(c => c && c.parent_id === null).length;
 
   return (
     <PageLayout>
       <div className="space-y-6">
-        {/* Constrained Header matching the clean native translation pattern */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-4">
           <div className="min-w-0 flex-1">
             <PageHeader title={t('title')} subtitle={t('description')} />
@@ -52,7 +46,7 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Dynamic Metric Grid */}
+        {/* Metrics Grid */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card className="p-4 flex items-center gap-4 border-border/60">
             <div className="p-3 bg-blue-500/10 text-blue-600 rounded-xl">
@@ -85,7 +79,7 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
 
-        {/* Live Equipment Inventory */}
+        {/* Live Inventory */}
         <Card className="overflow-hidden border-border/80">
           <div className="p-4 border-b border-border/60 bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -112,41 +106,49 @@ export default async function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {products.map((product) => (
-                    <tr key={product.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="p-3">
-                        <div className="h-10 w-10 rounded-md overflow-hidden bg-muted border border-border/40 shrink-0">
-                          <img 
-                            src={product.image} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80";
-                            }}
-                          />
-                        </div>
-                      </td>
-                      <td className="p-3 font-bold text-foreground max-w-[180px] truncate">
-                        {product.name}
-                      </td>
-                      <td className="p-3">
-                        <span className="inline-flex items-center rounded-sm bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">
-                          {product.category_name}
-                        </span>
-                      </td>
-                      <td className="p-3 text-muted-foreground max-w-[240px] truncate font-mono text-[11px]">
-                        {product.specification}
-                      </td>
-                      <td className="p-3 text-right space-x-2 whitespace-nowrap">
-                        <Button variant="outline" size="sm" className="h-7 text-[11px] px-2.5">
-                          Edit
-                        </Button>
-                        <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2.5 text-destructive hover:bg-destructive/10">
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                  {products.map((product) => {
+                    // Safe lookup to prevent crash if database matches are missing
+                    const matchedCategory = categories.find(
+                      (cat) => cat && cat.id === (product?.category_id || (product as any)?.category)
+                    );
+                    const categoryDisplayName = matchedCategory?.name || (product as any)?.category_name || 'Unassigned';
+
+                    return (
+                      <tr key={product?.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="p-3">
+                          <div className="h-10 w-10 rounded-md overflow-hidden bg-muted border border-border/40 shrink-0">
+                            <img 
+                              src={product?.image || "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80"} 
+                              alt={product?.name || "Product Image"} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80";
+                              }}
+                            />
+                          </div>
+                        </td>
+                        <td className="p-3 font-bold text-foreground max-w-[180px] truncate">
+                          {product?.name || 'Unnamed Product'}
+                        </td>
+                        <td className="p-3">
+                          <span className="inline-flex items-center rounded-sm bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                            {categoryDisplayName}
+                          </span>
+                        </td>
+                        <td className="p-3 text-muted-foreground max-w-[240px] truncate font-mono text-[11px]">
+                          {product?.specification || 'No specs provided'}
+                        </td>
+                        <td className="p-3 text-right space-x-2 whitespace-nowrap">
+                          <Button variant="outline" size="sm" className="h-7 text-[11px] px-2.5">
+                            Edit
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2.5 text-destructive hover:bg-destructive/10">
+                            Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
