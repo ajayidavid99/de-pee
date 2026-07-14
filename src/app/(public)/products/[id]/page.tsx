@@ -11,10 +11,14 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
+  const decodedId = decodeURIComponent(id).trim(); // Normalize the ID from the URL
   const products = await getProducts();
-  const product = products.find((p) => p.id === id);
   
-  if (!product) return {};
+  const product = products.find(
+    (p) => String(p.id).trim() === decodedId
+  );
+  
+  if (!product) return { title: "Product Not Found" };
   
   return {
     title: `${product.name} | De-Pee Medical Catalog`,
@@ -24,15 +28,25 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
+  const decodedId = decodeURIComponent(id).trim(); // Normalize the ID from the URL
   
-  // Fetch real-time records from Neon database
   const products = await getProducts();
-  const product = products.find((p) => p.id === id);
+  const product = products.find(
+    (p) => String(p.id).trim() === decodedId
+  );
 
+  // Fallback so it displays a graceful block instead of throwing a disruptive notFound()
   if (!product) {
-    notFound();
+    return (
+      <div className="w-full text-center py-20 bg-background">
+        <h2 className="text-xl font-bold text-muted-foreground">Product Details Unavailable</h2>
+        <p className="text-sm text-muted-foreground/80 mt-1">The requested item ID ({decodedId}) could not be resolved.</p>
+        <Link href="/products" className="text-primary underline text-xs mt-4 inline-block">
+          Return to portfolio
+        </Link>
+      </div>
+    );
   }
-
   return (
     <div className="w-full bg-background pt-[var(--app-header-height)] pb-20">
       <div className="mx-auto max-w-5xl px-4 lg:px-6 py-8">
