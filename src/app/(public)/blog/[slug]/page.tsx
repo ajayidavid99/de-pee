@@ -1,24 +1,20 @@
-// de-pee/src/app/(public)/blog/[slug]/page.tsx
-import { MOCK_POSTS } from '@/features/blog/data';
+// src/app/(public)/blog/[slug]/page.tsx
 import { notFound } from 'next/navigation';
 import { Calendar, Clock, ArrowLeft, ShieldCheck, User } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getBlogPosts } from '@/features/blog/server/actions';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Generate static routes at build time for performance
-export async function generateStaticParams() {
-  return MOCK_POSTS.map((post) => ({
-    slug: post.slug,
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const post = MOCK_POSTS.find((p) => p.slug === slug);
+  const posts = await getBlogPosts();
+  const post = posts.find((p) => p.slug === slug);
   
   if (!post) return {};
   
@@ -30,9 +26,9 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = MOCK_POSTS.find((p) => p.slug === slug);
+  const posts = await getBlogPosts();
+  const post = posts.find((p) => p.slug === slug);
 
-  // Fallback to Next.js 404 page if slug doesn't exist
   if (!post) {
     notFound();
   }
@@ -53,10 +49,10 @@ export default async function BlogPostPage({ params }: PageProps) {
         {/* Article Meta Header */}
         <header className="space-y-4 mb-8">
           <span className="text-[10px] uppercase font-bold text-primary tracking-wider bg-primary/10 px-2 py-1 rounded-sm inline-block">
-            {post.categoryLabel}
+            {post.category_label}
           </span>
           
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight font-sans">
             {post.title}
           </h1>
 
@@ -70,14 +66,14 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <User className="h-3.5 w-3.5 text-muted-foreground" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">{post.author.name}</p>
-                <p className="text-[10px] text-muted-foreground/80">{post.author.role}</p>
+                <p className="font-semibold text-foreground">{post.author_name}</p>
+                <p className="text-[10px] text-muted-foreground/80">{post.author_role}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-4 text-[11px]">
-              <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {post.publishedAt}</span>
-              <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {post.readTime}</span>
+              <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {post.published_at}</span>
+              <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {post.read_time}</span>
             </div>
           </div>
         </header>
@@ -88,33 +84,15 @@ export default async function BlogPostPage({ params }: PageProps) {
             src={post.image} 
             alt={post.title} 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80";
+            }}
           />
         </div>
 
         {/* Article Core Content Body */}
-        <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-foreground leading-relaxed space-y-6">
-          <p>
-            In the current healthcare environment, facilities across regional ecosystems face mounting clinical pressures. Achieving standard delivery excellence hinges on consistent infrastructure dependability, asset tracking integrity, and protective supply layer reserves.
-          </p>
-          
-          <h3 className="text-lg font-bold text-foreground pt-4">1. Structural Resource Planning</h3>
-          <p>
-            When optimizing institutional operational frameworks, management units must differentiate between immediate operational consumables and longer lifecycle capital equipment acquisitions. Relying strictly on ad-hoc purchases introduces extreme procurement vulnerabilities, especially given modern supply line variations. 
-          </p>
-
-          <h3 className="text-lg font-bold text-foreground pt-4">2. Mitigating Equipment Down-Time</h3>
-          <p>
-            Whether managing localized point-of-care diagnostics or highly responsive biphasic life support machinery, calibration schedules protect clinical safety margins. Engineering documentation tracking indicates structured preventative intervals drop acute facility emergencies significantly.
-          </p>
-
-          <blockquote className="bg-muted/40 p-4 rounded-xl border border-border/60 my-6 font-medium text-sm text-muted-foreground">
-            "Clinical readiness is not a snapshot outcome; it is the continuous operational execution of supply line precision combined with defensive equipment engineering policies."
-          </blockquote>
-
-          <h3 className="text-lg font-bold text-foreground pt-4">3. Summary Guidelines</h3>
-          <p>
-            Moving forward, modern clinical hubs must integrate flexible digital request pipelines to evaluate pricing indicators early, keep technical specifications highly transparent, and establish strong strategic advisory alignments.
-          </p>
+        <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-foreground leading-relaxed space-y-6 whitespace-pre-wrap">
+          {post.content}
         </div>
 
         {/* Content Footer / Trust Banner */}
