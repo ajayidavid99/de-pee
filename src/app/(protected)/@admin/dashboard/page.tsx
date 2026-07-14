@@ -7,38 +7,52 @@ import { Button } from '@/components/ui/button';
 import { Layers, ClipboardList, Stethoscope } from 'lucide-react';
 import { AddProductDialog } from '@/features/products/components/add-product-dialog';
 import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
-import { getProducts, getCategories } from '@/features/products/server/actions';
+import { getProducts, getCategories, type DBProduct, type DBCategory } from '@/features/products/server/actions';
+
+// Enforce runtime dynamic execution so Vercel builds cleanly without access to live database pools during compilation
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  // 1. Enforce RBAC permission checks
   await requirePermission('dashboard.view:admin');
+  
+  // 2. Load translations matching your profile page pattern
   const t = await getTranslations('dashboard.admin');
 
-  // Parallel database calls
-  const [products, categories] = await Promise.all([
-    getProducts(),
-    getCategories()
-  ]);
+  // 3. Fetch relational tables safely with explicit TypeScript casting
+  let products: DBProduct[] = [];
+  let categories: DBCategory[] = [];
 
+  try {
+    const [fetchedProducts, fetchedCategories] = await Promise.all([
+      getProducts(),
+      getCategories()
+    ]);
+    products = fetchedProducts || [];
+    categories = fetchedCategories || [];
+  } catch (dbError) {
+    console.error("Database connection failed during render:", dbError);
+  }
+
+  // 4. Compute metrics
   const totalProducts = products.length;
-  const totalCategories = categories.filter(c => c.parent_id === null).length;
+  const totalCategories = categories.filter(c => c && c.parent_id === null).length;
 
   return (
     <PageLayout>
       <div className="space-y-6">
+        {/* Constrained Header matching the clean native translation pattern */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-4">
           <div className="min-w-0 flex-1">
-            <PageHeader 
-              title={t('title') || 'Medical Equipment Management'} 
-              subtitle={t('description') || 'Control and update De-Pee internal catalogs across Lagos and Ife hubs.'} 
-            />
+            <PageHeader title={t('title')} subtitle={t('description')} />
           </div>
-          {/* Admin Category Management and Product Dialogs side by side */}
           <div className="shrink-0 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <AddCategoryDialog categories={categories} />
             <AddProductDialog categories={categories} />
           </div>
         </div>
 
+        {/* Dynamic Metric Grid */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card className="p-4 flex items-center gap-4 border-border/60">
             <div className="p-3 bg-blue-500/10 text-blue-600 rounded-xl">
@@ -71,6 +85,7 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
 
+        {/* Live Equipment Inventory */}
         <Card className="overflow-hidden border-border/80">
           <div className="p-4 border-b border-border/60 bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
