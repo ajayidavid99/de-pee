@@ -107,36 +107,37 @@ export default async function AdminDashboardPage() {
                 </thead>
                 <tbody className="divide-y divide-border/40">
                   {products.map((product) => {
-                    // Safe lookup to prevent crash if database matches are missing
-                    const matchedCategory = categories.find(
-                      (cat) => cat && cat.id === (product?.category_id || (product as any)?.category)
-                    );
-                    const categoryDisplayName = matchedCategory?.name || (product as any)?.category_name || 'Unassigned';
+                    // Safe default fallback image
+                    const fallbackImg = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80";
+                    const imageUrl = product.image && product.image.startsWith('http') ? product.image : fallbackImg;
+
+                    // Use product.id with a absolute fallback to prevent map React key collisions
+                    const rowKey = product.id || `temp-key-${Math.random()}`;
 
                     return (
-                      <tr key={product?.id} className="hover:bg-muted/30 transition-colors">
+                      <tr key={rowKey} className="hover:bg-muted/30 transition-colors">
                         <td className="p-3">
                           <div className="h-10 w-10 rounded-md overflow-hidden bg-muted border border-border/40 shrink-0">
                             <img 
-                              src={product?.image || "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80"} 
-                              alt={product?.name || "Product Image"} 
+                              src={imageUrl} 
+                              alt={product.name || "Equipment"} 
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                e.currentTarget.src = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=100&q=80";
+                                e.currentTarget.src = fallbackImg;
                               }}
                             />
                           </div>
                         </td>
                         <td className="p-3 font-bold text-foreground max-w-[180px] truncate">
-                          {product?.name || 'Unnamed Product'}
+                          {product.name || 'Unnamed Product'}
                         </td>
                         <td className="p-3">
                           <span className="inline-flex items-center rounded-sm bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">
-                            {categoryDisplayName}
+                            {product.category_name || 'Unassigned'}
                           </span>
                         </td>
                         <td className="p-3 text-muted-foreground max-w-[240px] truncate font-mono text-[11px]">
-                          {product?.specification || 'No specs provided'}
+                          {product.specification || 'No technical specifications provided'}
                         </td>
                         <td className="p-3 text-right space-x-2 whitespace-nowrap">
                           <Button variant="outline" size="sm" className="h-7 text-[11px] px-2.5">
