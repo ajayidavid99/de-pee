@@ -25,24 +25,37 @@ export interface DBCategory {
 /**
  * Fetches all products with joined category definitions directly from Neon
  */
+
 export async function getProducts(): Promise<DBProduct[]> {
   try {
+    // We use LEFT JOIN so products with orphaned or missing categories still return rather than breaking the query
     const query = `
       SELECT 
         p.id,
-        p.name,
-        p.description,
-        p.specification,
-        p.image,
-        p.category_id,
-        c.name as category_name,
+        COALESCE(p.name, 'Unnamed Product') as name,
+        COALESCE(p.description, '') as description,
+        COALESCE(p.specification, '') as specification,
+        COALESCE(p.image, '') as image,
+        COALESCE(p.category_id, '') as category_id,
+        COALESCE(c.name, 'Unassigned') as category_name,
         c.parent_id as parent_category_id
       FROM products p
-      JOIN categories c ON p.category_id = c.id
+      LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.created_at DESC
     `;
     const result = await db.query(query);
-    return result.rows;
+    
+    // Explicitly sanitize database output to prevent Next.js serialization bugs
+    return (result.rows || []).map((row: any) => ({
+      id: String(row.id || ''),
+      name: String(row.name || ''),
+      description: String(row.description || ''),
+      specification: String(row.specification || ''),
+      image: String(row.image || ''),
+      category_id: String(row.category_id || ''),
+      category_name: String(row.category_name || 'Unassigned'),
+      parent_category_id: row.parent_category_id ? String(row.parent_category_id) : null,
+    }));
   } catch (error) {
     console.error('Failed to query products from Neon:', error);
     return [];
@@ -55,7 +68,11 @@ export async function getProducts(): Promise<DBProduct[]> {
 export async function getCategories(): Promise<DBCategory[]> {
   try {
     const result = await db.query('SELECT id, name, parent_id FROM categories ORDER BY name ASC');
-    return result.rows;
+    return (result.rows || []).map((row: any) => ({
+      id: String(row.id || ''),
+      name: String(row.name || ''),
+      parent_id: row.parent_id ? String(row.parent_id) : null,
+    }));
   } catch (error) {
     console.error('Failed to query categories from Neon:', error);
     return [];
