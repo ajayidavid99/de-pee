@@ -27,23 +27,27 @@ export interface DBCategory {
  */
 
 export async function getProducts(): Promise<DBProduct[]> {
+  console.log("=== DB DEBUG: getProducts execution ===");
   try {
-    // We use LEFT JOIN so products with orphaned or missing categories still return rather than breaking the query
-    const query = `
+    // 1. Run a raw test count first to verify connection and table health
+    const countCheck = await db.query('SELECT COUNT(*) as count FROM products');
+    console.log("=== DB DEBUG: Product table check. Count is:", countCheck.rows[0]?.count);
+
+    // 2. Fetch products joining categories
+    const result = await db.query(`
       SELECT 
         p.id,
-        COALESCE(p.name, 'Unnamed Product') as name,
-        COALESCE(p.description, '') as description,
-        COALESCE(p.specification, '') as specification,
-        COALESCE(p.image, '') as image,
-        COALESCE(p.category_id, '') as category_id,
-        COALESCE(c.name, 'Unassigned') as category_name,
-        c.parent_id as parent_category_id
+        p.name,
+        p.description,
+        p.specification,
+        p.image,
+        p.category_id,
+        c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.created_at DESC
-    `;
-    const result = await db.query(query);
+    `);
+    console.log(`=== DB DEBUG: Query succeeded. Returning ${result.rows.length} rows ===`);
     
     // Explicitly sanitize database output to prevent Next.js serialization bugs
     return (result.rows || []).map((row: any) => ({
@@ -56,9 +60,10 @@ export async function getProducts(): Promise<DBProduct[]> {
       category_name: String(row.category_name || 'Unassigned'),
       parent_category_id: row.parent_category_id ? String(row.parent_category_id) : null,
     }));
-  } catch (error) {
-    console.error('Failed to query products from Neon:', error);
-    return [];
+  } catch (error: any) {
+    console.error("=== DB DEBUG ERROR: getProducts query failure ===");
+    console.error(error.message);
+    throw error; // Re-throw so the dashboard try/catch handles it
   }
 }
 

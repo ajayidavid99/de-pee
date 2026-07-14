@@ -9,9 +9,11 @@ import { AddProductDialog } from '@/features/products/components/add-product-dia
 import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
 import { getProducts, getCategories, type DBProduct, type DBCategory } from '@/features/products/server/actions';
 
+
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  console.log("=== DEBUG: Dashboard Render Started ===");
   await requirePermission('dashboard.view:admin');
   
   const t = await getTranslations('dashboard.admin');
@@ -20,15 +22,30 @@ export default async function AdminDashboardPage() {
   let categories: DBCategory[] = [];
 
   try {
+    console.log("=== DEBUG: Fetching Products... ===");
     const [fetchedProducts, fetchedCategories] = await Promise.all([
       getProducts(),
       getCategories()
     ]);
     products = fetchedProducts || [];
     categories = fetchedCategories || [];
+    console.log(`=== DEBUG: Fetched ${products?.length || 0} Products ===`);
+    console.log("=== DEBUG: Sample Product Data:", JSON.stringify(products?.slice(0, 1), null, 2));
   } catch (dbError) {
     console.error("Database connection failed during render:", dbError);
   }
+  try {
+    console.log("=== DEBUG: Fetching Categories... ===");
+    categories = await getCategories();
+    console.log(`=== DEBUG: Fetched ${categories?.length || 0} Categories ===`);
+  } catch (err: any) {
+    console.error("=== DEBUG ERROR: getCategories failed ===", err.message, err.stack);
+  }
+  // Fallback: If categories/products fetch returns undefined/null, ensure arrays are defined
+  const safeProducts = products || [];
+  const safeCategories = categories || [];
+
+  console.log("=== DEBUG: Rendering Dashboard Page ===");
 
   const totalProducts = products.length;
   const totalCategories = categories.filter(c => c && c.parent_id === null).length;
