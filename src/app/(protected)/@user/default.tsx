@@ -1,5 +1,4 @@
-const Default = () => {
-  return null;
-};
 
-export default Default;
+export default function DefaultSlotFallback() {
+  return null;
+}
