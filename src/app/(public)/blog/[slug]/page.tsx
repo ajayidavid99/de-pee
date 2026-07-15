@@ -15,12 +15,10 @@ export async function generateMetadata({ params }: PageProps) {
   try {
     const { slug } = await params;
     const posts = await getBlogPosts();
-    const post = posts.find((p) => p.slug === slug);
+    const post = posts?.find((p) => p.slug === slug);
     
     if (!post) {
-      return {
-        title: 'Article Not Found | De-Pee Medical',
-      };
+      return { title: 'Article Not Found | De-Pee Medical' };
     }
     
     return {
@@ -29,16 +27,20 @@ export async function generateMetadata({ params }: PageProps) {
     };
   } catch (error) {
     console.error("Error generating blog metadata:", error);
-    return {
-      title: 'Insights | De-Pee Medical',
-    };
+    return { title: 'Insights | De-Pee Medical' };
   }
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const posts = await getBlogPosts();
-  const post = posts.find((p) => p.slug === slug);
+  
+  let post = null;
+  try {
+    const posts = await getBlogPosts();
+    post = posts?.find((p) => p.slug === slug);
+  } catch (error) {
+    console.error("Failed to fetch blog post from database:", error);
+  }
 
   if (!post) {
     notFound();
