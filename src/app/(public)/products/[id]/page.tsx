@@ -9,32 +9,55 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Helper to safely compare IDs with or without the prefix
-function isMatchingId(dbId: string, routeId: string): boolean {
-  const cleanDbId = dbId.replace('prod_', '').trim();
-  const cleanRouteId = routeId.replace('prod_', '').trim();
-  return cleanDbId === cleanRouteId;
+/**
+ * Extracts a standard UUID from any incoming route param.
+ * Handles: "prod_2ccef732-2701-49c9-bd31-683c10f49757" -> "2ccef732-2701-49c9-bd31-683c10f49757"
+ * Also gracefully accepts standard un-prefixed IDs.
+ */
+function cleanProductId(rawId: string): string {
+  if (!rawId) return '';
+  return rawId.startsWith('prod_') ? rawId.replace('prod_', '') : rawId;
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { id } = await params;
-  const products = await getProducts();
-  const product = products.find((p) => isMatchingId(String(p.id), id));
-  
-  if (!product) return {};
-  
-  return {
-    title: `${product.name} | De-Pee Medical Catalog`,
-    description: product.description,
-  };
+  try {
+    const { id } = await params;
+    const targetId = cleanProductId(id);
+    
+    const products = await getProducts();
+    const product = products.find(
+      (p) => String(p.id) === targetId || String(p.id) === id
+    );
+    
+    if (!product) {
+      return {
+        title: 'Product Not Found | De-Pee Medical',
+      };
+    }
+    
+    return {
+      title: `${product.name} | De-Pee Medical Catalog`,
+      description: product.description,
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: 'Medical Catalog | De-Pee Medical',
+    };
+  }
 }
 
 export default async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
+  const targetId = cleanProductId(id);
   
+  // Fetch real-time records from Neon database
   const products = await getProducts();
-  const product = products.find((p) => isMatchingId(String(p.id), id));
+  const product = products.find(
+    (p) => String(p.id) === targetId || String(p.id) === id
+  );
 
+  // Instead of crashing, gracefully drop to 404
   if (!product) {
     notFound();
   }
@@ -83,14 +106,16 @@ export default async function ProductDetailsPage({ params }: PageProps) {
               </p>
             </div>
 
-            <div className="bg-muted/40 rounded-xl p-4 border border-border/60 space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5" /> Technical Specifications
-              </h3>
-              <p className="text-xs font-mono text-foreground bg-background p-3 rounded border border-border/40 whitespace-pre-wrap">
-                {product.specification}
-              </p>
-            </div>
+            {product.specification && (
+              <div className="bg-muted/40 rounded-xl p-4 border border-border/60 space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <FileText className="h-3.5 w-3.5" /> Technical Specifications
+                </h3>
+                <p className="text-xs font-mono text-foreground bg-background p-3 rounded border border-border/40 whitespace-pre-wrap">
+                  {product.specification}
+                </p>
+              </div>
+            )}
 
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
