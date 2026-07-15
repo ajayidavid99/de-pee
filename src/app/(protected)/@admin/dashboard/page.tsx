@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Layers, ClipboardList, Stethoscope, FileText } from 'lucide-react';
+import { Layers, Stethoscope, FileText } from 'lucide-react';
 import { AddProductDialog } from '@/features/products/components/add-product-dialog';
 import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
 import { AddPostDialog } from '@/features/blog/components/add-post-dialog';
@@ -18,22 +18,21 @@ export default async function AdminDashboardPage() {
   await requirePermission('dashboard.view:admin');
   const t = await getTranslations('dashboard.admin');
 
+  // Safely initialize with fallback arrays
   let products: DBProduct[] = [];
   let categories: DBCategory[] = [];
   let posts: BlogPost[] = [];
 
-  try {
-    const [fetchedProducts, fetchedCategories, fetchedPosts] = await Promise.all([
-      getProducts(),
-      getCategories(),
-      getBlogPosts(),
-    ]);
-    products = fetchedProducts || [];
-    categories = fetchedCategories || [];
-    posts = fetchedPosts || [];
-  } catch (dbError) {
-    console.error("Database connection failed during admin render:", dbError);
-  }
+  // Use Promise.allSettled to guarantee the page never crashes due to a single database table error
+  const results = await Promise.allSettled([
+    getProducts(),
+    getCategories(),
+    getBlogPosts(),
+  ]);
+
+  if (results[0].status === 'fulfilled') products = results[0].value || [];
+  if (results[1].status === 'fulfilled') categories = results[1].value || [];
+  if (results[2].status === 'fulfilled') posts = results[2].value || [];
 
   const totalProducts = products.length;
   const totalCategories = categories.filter(c => c && c.parent_id === null).length;
@@ -86,7 +85,7 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
 
-        {/* Tabs for segmented workspace views */}
+        {/* Tabs */}
         <Tabs defaultValue="equipment" className="space-y-4">
           <TabsList className="bg-muted/60 p-1 border border-border/40 h-9">
             <TabsTrigger value="equipment" className="text-xs px-4 h-7">Equipment Portfolio</TabsTrigger>

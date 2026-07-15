@@ -9,10 +9,17 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+// Helper to safely compare IDs with or without the prefix
+function isMatchingId(dbId: string, routeId: string): boolean {
+  const cleanDbId = dbId.replace('prod_', '').trim();
+  const cleanRouteId = routeId.replace('prod_', '').trim();
+  return cleanDbId === cleanRouteId;
+}
+
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const products = await getProducts();
-  const product = products.find((p) => String(p.id) === id);
+  const product = products.find((p) => isMatchingId(String(p.id), id));
   
   if (!product) return {};
   
@@ -26,7 +33,7 @@ export default async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
   
   const products = await getProducts();
-  const product = products.find((p) => String(p.id) === id);
+  const product = products.find((p) => isMatchingId(String(p.id), id));
 
   if (!product) {
     notFound();

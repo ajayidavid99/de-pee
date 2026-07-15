@@ -75,9 +75,8 @@ export async function createBlogPost(formData: {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
 
-  // Generate an industry-standard prefixed ID (e.g., post_8f1a23...)
-  const crypto = require('crypto');
-  const uniqueId = `post_${crypto.randomUUID()}`;
+//Standard, environment-agnostic generation:
+const uniqueId = `post_${globalThis.crypto ? globalThis.crypto.randomUUID() : Math.random().toString(36).substring(2, 15)}`;
 
   const publishedAt = new Intl.DateTimeFormat('en-US', {
     month: 'long',
