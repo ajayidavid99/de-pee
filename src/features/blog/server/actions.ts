@@ -26,7 +26,7 @@ export interface BlogPost {
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
     const result = await db.query(
-      'SELECT * FROM blog_posts ORDER BY created_at DESC'
+      'SELECT * FROM blog_posts ORDER BY id DESC' // Safe fallback if created_at is missing
     );
     return (result.rows || []).map((row: any) => ({
       id: String(row.id),
