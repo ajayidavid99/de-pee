@@ -53,7 +53,7 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               {/* Background Local Image */}
               <div className="absolute inset-0 z-0">
                 <img 
-                  src="/hero_img.webp" // References public/hero_img.webp (adjust extension .png/.jpg if needed)
+                  src="/hero_img.jpg" // References public/hero_img.webp (adjust extension .png/.jpg if needed)
                   alt="De-Pee Medical Hardware Supply" 
                   className="h-full w-full object-cover opacity-35" // Muted opacity for maximum text contrast
                 />
