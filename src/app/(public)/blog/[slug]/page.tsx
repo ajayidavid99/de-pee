@@ -80,7 +80,11 @@ export default async function BlogPostPage({ params }: PageProps) {
         </header>
 
         <div className="w-full h-64 sm:h-96 bg-muted rounded-2xl overflow-hidden border border-border/80 mb-10 shadow-xs">
-          
+          <img 
+            src={post.image} 
+            alt={post.title} 
+            className="w-full h-full object-cover"
+          />
         </div>
 
         <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-foreground leading-relaxed space-y-6 whitespace-pre-wrap">
