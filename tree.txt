@@ -1,3 +1,24 @@
+C:.
+|   global.d.ts
+|   instrumentation-client.ts
+|   instrumentation.ts
+|   
++---app
+|   |   error.tsx
+|   |   fonts.ts
+|   |   globals.css
+|   |   layout.tsx
+|   |   manifest.ts
+|   |   not-found.tsx
+|   |   providers.tsx
+|   |   robots.ts
+|   |   sitemap.ts
+|   |   
+|   +---(auth)
+|   |   |   layout.tsx
+|   |   |   
+|   |   +---login
+|   |   |       page.tsx
 |   |   |       
 |   |   +---password-reset
 |   |   |       page.tsx
@@ -152,8 +173,14 @@
 |   |           get-current-user.ts
 |   |           
 |   +---blog
-|   |       data.tsx
-|   |       
+|   |   |   data.tsx
+|   |   |   
+|   |   +---components
+|   |   |       add-post-dialog.tsx
+|   |   |       
+|   |   \---server
+|   |           actions.ts
+|   |           
 |   +---i18n
 |   |   |   locale-actions.ts
 |   |   |   request.ts
