@@ -1,4 +1,4 @@
-// de-pee/src/components/shared/hero-section.tsx
+// src/components/shared/hero-section.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,6 @@ interface HeroSectionProps {
   posts: BlogPost[];
 }
 
-// B2B Rich Description Mapping tied directly to database category names
 const B2B_METADATA: Record<string, { icon: any; description: string; b2bBadge: string }> = {
   'Diagnostics': {
     icon: Stethoscope,
@@ -36,13 +35,8 @@ const B2B_METADATA: Record<string, { icon: any; description: string; b2bBadge: s
 };
 
 export default function HeroSection({ locale, products, categories, posts }: HeroSectionProps) {
-  // Get latest 3 blog posts or default to empty
   const latestPosts = posts.slice(0, 3);
-
-  // Get 3 random/latest products for the sidebar
   const featuredProducts = products.slice(0, 3);
-
-  // Filter root categories (parent_id is null) for the 3 visual boxes
   const rootCategories = categories.filter((c) => !c.parent_id).slice(0, 3);
 
   return (
@@ -50,7 +44,7 @@ export default function HeroSection({ locale, products, categories, posts }: Her
       <div className="mx-auto max-w-6xl px-4 lg:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
-          {/* LEFT COLUMN: Main Hero Action & E-commerce Showcase */}
+          {/* LEFT COLUMN: Hero Actions & Categories */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-8">
             <div className="space-y-4 max-w-2xl">
               <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary tracking-wide">
@@ -72,7 +66,7 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               </div>
             </div>
 
-            {/* B2B CATEGORY CHANNELS GRID (The 3 Boxed Elements redesigned) */}
+            {/* B2B CATEGORY CHANNELS GRID */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -83,7 +77,6 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {rootCategories.map((cat) => {
-                  // Fallback metadata if names don't match the hardcoded map keys exactly
                   const meta = B2B_METADATA[cat.name] || {
                     icon: Briefcase,
                     b2bBadge: 'Wholesale Catalog',
@@ -124,37 +117,24 @@ export default function HeroSection({ locale, products, categories, posts }: Her
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Interactive Store Sidebar */}
+          {/* RIGHT COLUMN: Interactive Sidebar (Hero Image -> Latest Advisories -> Featured Products) */}
           <aside className="space-y-6 lg:border-l lg:border-border/60 lg:pl-6">
             
-            {/* Real-time Featured Store Catalog Items */}
-            <div className="space-y-4">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Featured Products</h2>
-              <div className="flex flex-col gap-3">
-                {featuredProducts.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No products found in stock.</p>
-                ) : (
-                  featuredProducts.map((p) => (
-                    <Link 
-                      href={`/products/${p.id}`} 
-                      key={p.id} 
-                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 group"
-                    >
-                      <div className="relative h-12 w-12 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{p.name}</h4>
-                        <p className="text-[10px] text-muted-foreground truncate uppercase">{p.category_name}</p>
-                      </div>
-                    </Link>
-                  ))
-                )}
+            {/* 1. HERO IMAGE CONTAINER */}
+            <div className="hero-image-container relative h-40 w-full rounded-2xl border border-border/60 overflow-hidden bg-muted shadow-sm">
+              <img 
+                src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=1000&auto=format&fit=crop" 
+                alt="Medical Diagnostic Hardware Supply" 
+                className="h-full w-full object-cover transition-all duration-300 hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-3.5">
+                <p className="text-[9px] font-mono font-bold text-blue-400 uppercase tracking-widest">Supply Hub</p>
+                <h4 className="text-xs font-bold text-white">Advanced Surgical & Lab Ware</h4>
               </div>
             </div>
 
-            {/* Real-time Latest News & Advisories */}
-            <div className="space-y-4 pt-4 border-t border-border/60">
+            {/* 2. LATEST ADVISORIES (Top) */}
+            <div className="space-y-4">
               <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Latest Advisories</h2>
               <div className="flex flex-col gap-3">
                 {latestPosts.length === 0 ? (
@@ -176,6 +156,32 @@ export default function HeroSection({ locale, products, categories, posts }: Her
                         <p className="text-[10px] text-muted-foreground flex items-center gap-1 font-mono">
                           <Clock className="h-2.5 w-2.5" /> {post.read_time}
                         </p>
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* 3. FEATURED PRODUCTS (Moved below Advisories) */}
+            <div className="space-y-4 pt-4 border-t border-border/60">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Featured Products</h2>
+              <div className="flex flex-col gap-3">
+                {featuredProducts.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No products found in stock.</p>
+                ) : (
+                  featuredProducts.map((p) => (
+                    <Link 
+                      href={`/products/${p.id}`} 
+                      key={p.id} 
+                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 group"
+                    >
+                      <div className="relative h-11 w-11 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
+                        <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{p.name}</h4>
+                        <p className="text-[10px] text-muted-foreground truncate uppercase">{p.category_name}</p>
                       </div>
                     </Link>
                   ))

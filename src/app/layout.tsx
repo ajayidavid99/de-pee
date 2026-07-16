@@ -1,3 +1,4 @@
+//src/app/layout.tsx
 import { fontSans } from '@/app/fonts';
 import Providers from '@/app/providers';
 import { getCurrentUser } from '@/features/auth/server/get-current-user';
