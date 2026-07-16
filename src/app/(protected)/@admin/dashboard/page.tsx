@@ -129,7 +129,6 @@ export default async function AdminDashboardPage() {
                                   src={imageUrl} 
                                   alt={product.name} 
                                   className="w-full h-full object-cover"
-                                  onError={(e) => { e.currentTarget.src = fallbackImg; }}
                                 />
                               </div>
                             </td>
