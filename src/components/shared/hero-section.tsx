@@ -44,25 +44,42 @@ export default function HeroSection({ locale, products, categories, posts }: Her
       <div className="mx-auto max-w-6xl px-4 lg:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
-          {/* LEFT COLUMN: Hero Actions & Categories */}
+          {/* LEFT COLUMN: Main Hero Action (With Local Hero Background Image Overlay) */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-8">
-            <div className="space-y-4 max-w-2xl">
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary tracking-wide">
-                🏥 Premium Hospital Supply & B2B Procurement
-              </span>
-              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground leading-[1.1]">
-                Equipping West African Healthcare with Precision Hardware
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl">
-                Streamlining high-volume supply chains and medical procurement contracts. Select instruments to build your RFQ quotation cart instantly.
-              </p>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Button size="sm" asChild className="h-10 text-xs font-bold px-6">
-                  <Link href="/products">Browse Store Catalog</Link>
-                </Button>
-                <Button size="sm" variant="outline" asChild className="h-10 text-xs font-bold px-6">
-                  <a href="#quote-form">Submit Direct Tender</a>
-                </Button>
+            
+            {/* HERO CANVAS CARD - Rich overlay layout featuring your local image */}
+            <div className="relative w-full rounded-2xl overflow-hidden border border-border/80 bg-slate-950 p-6 sm:p-10 shadow-lg min-h-[380px] flex flex-col justify-between">
+              
+              {/* Background Local Image */}
+              <div className="absolute inset-0 z-0">
+                <img 
+                  src="/hero_img.webp" // References public/hero_img.webp (adjust extension .png/.jpg if needed)
+                  alt="De-Pee Medical Hardware Supply" 
+                  className="h-full w-full object-cover opacity-35" // Muted opacity for maximum text contrast
+                />
+                {/* Smooth gradient scrim to ensure extreme legibility */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/80 to-transparent" />
+              </div>
+
+              {/* Foreground Text & Action Content */}
+              <div className="relative z-10 space-y-4 max-w-2xl">
+                <span className="inline-flex items-center rounded-full bg-primary/20 border border-primary/30 px-3 py-1 text-xs font-bold text-primary tracking-wide">
+                  🏥 Premium Hospital Supply & B2B Procurement
+                </span>
+                <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
+                  Equipping West African Healthcare with Precision Hardware
+                </h1>
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
+                  Streamlining high-volume supply chains and medical procurement contracts. Select instruments to build your RFQ quotation cart instantly.
+                </p>
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <Button size="sm" asChild className="h-10 text-xs font-bold px-6 bg-primary hover:bg-primary/90 text-white">
+                    <Link href="/products">Browse Store Catalog</Link>
+                  </Button>
+                  <Button size="sm" variant="outline" asChild className="h-10 text-xs font-bold px-6 text-white border-white/20 hover:bg-white/10">
+                    <a href="#quote-form">Submit Direct Tender</a>
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -117,23 +134,10 @@ export default function HeroSection({ locale, products, categories, posts }: Her
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Interactive Sidebar (Hero Image -> Latest Advisories -> Featured Products) */}
+          {/* RIGHT COLUMN: Interactive Sidebar (No image sidebar, only content) */}
           <aside className="space-y-6 lg:border-l lg:border-border/60 lg:pl-6">
             
-            {/* 1. HERO IMAGE CONTAINER */}
-            <div className="hero-image-container relative h-40 w-full rounded-2xl border border-border/60 overflow-hidden bg-muted shadow-sm">
-              <img 
-                src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=1000&auto=format&fit=crop" 
-                alt="Medical Diagnostic Hardware Supply" 
-                className="h-full w-full object-cover transition-all duration-300 hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-3.5">
-                <p className="text-[9px] font-mono font-bold text-blue-400 uppercase tracking-widest">Supply Hub</p>
-                <h4 className="text-xs font-bold text-white">Advanced Surgical & Lab Ware</h4>
-              </div>
-            </div>
-
-            {/* 2. LATEST ADVISORIES (Top) */}
+            {/* 1. LATEST ADVISORIES (Top of the sidebar) */}
             <div className="space-y-4">
               <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Latest Advisories</h2>
               <div className="flex flex-col gap-3">
@@ -163,7 +167,7 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               </div>
             </div>
 
-            {/* 3. FEATURED PRODUCTS (Moved below Advisories) */}
+            {/* 2. FEATURED PRODUCTS (Directly below Latest Advisories) */}
             <div className="space-y-4 pt-4 border-t border-border/60">
               <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Featured Products</h2>
               <div className="flex flex-col gap-3">
