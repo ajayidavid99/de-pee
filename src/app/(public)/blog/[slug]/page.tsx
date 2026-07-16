@@ -80,14 +80,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         </header>
 
         <div className="w-full h-64 sm:h-96 bg-muted rounded-2xl overflow-hidden border border-border/80 mb-10 shadow-xs">
-          <img 
-            src={post.image} 
-            alt={post.title} 
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80";
-            }}
-          />
+          
         </div>
 
         <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-foreground leading-relaxed space-y-6 whitespace-pre-wrap">
