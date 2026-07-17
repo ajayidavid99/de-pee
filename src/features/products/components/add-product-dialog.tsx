@@ -11,17 +11,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Loader2 } from 'lucide-react';
-import { createProduct, type DBCategory } from '../server/actions';
+import { Plus, Loader2, UploadCloud } from 'lucide-react';
+import { createProduct, uploadImageAction, type DBCategory } from '../server/actions';
 import { toast } from 'sonner';
 
+// Schema to accept either a File object or an existing URL string (fallback)
 const productFormSchema = z.object({
   name: z.string().min(2, 'Product name is required'),
   parentCategoryId: z.string().min(1, 'Please select a main category'),
   subCategoryId: z.string().optional(),
   description: z.string().min(5, 'Provide a detailed description'),
   specification: z.string().min(3, 'Technical specification details are required'),
-  image: z.string().url('Please provide a valid image URL'),
+  imageFile: z.any().refine((files) => files?.[0] instanceof File, "An image file upload is required"),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -30,9 +31,10 @@ interface AddProductDialogProps {
   categories: DBCategory[];
 }
 
-export function AddProductDialog({ categories }: AddProductDialogProps) {
+export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -42,79 +44,74 @@ export function AddProductDialog({ categories }: AddProductDialogProps) {
       subCategoryId: '',
       description: '',
       specification: '',
-      image: '',
     },
   });
 
-  const selectedParentId = form.watch('parentCategoryId');
+    const selectedParentId = form.watch('parentCategoryId');
+  
+    // Find root level categories (no parent_id)
+    const mainCategories = categories.filter((c) => c.parent_id === null);
+  
+    // Find children belonging to the currently selected parent category
+    const availableSubCategories = categories.filter(
+      (c) => c.parent_id === selectedParentId && selectedParentId !== ''
+    );
+  
+    const hasSubCategories = availableSubCategories.length > 0;
+  
+    // Clear subcategory choice if parent changes
+    useEffect(() => {
+      form.setValue('subCategoryId', '');
+    }, [selectedParentId, form]);
 
-  // Find root level categories (no parent_id)
-  const mainCategories = categories.filter((c) => c.parent_id === null);
-
-  // Find children belonging to the currently selected parent category
-  const availableSubCategories = categories.filter(
-    (c) => c.parent_id === selectedParentId && selectedParentId !== ''
-  );
-
-  const hasSubCategories = availableSubCategories.length > 0;
-
-  // Clear subcategory choice if parent changes
-  useEffect(() => {
-    form.setValue('subCategoryId', '');
-  }, [selectedParentId, form]);
-
-  async function onSubmit(values: ProductFormValues) {
-    // If sub-categories exist, enforce selecting one
-    if (hasSubCategories && !values.subCategoryId) {
-      form.setError('subCategoryId', {
-        type: 'manual',
-        message: 'This category contains sub-categories. You must assign the product to a sub-category.',
-      });
-      return;
-    }
-
-    // Determine the final category leaf-node ID
-    const finalCategoryId = hasSubCategories && values.subCategoryId 
-      ? values.subCategoryId 
-      : values.parentCategoryId;
-
+  const onSubmit = async (values: ProductFormValues) => {
     setIsPending(true);
     try {
+      // 1. Prepare file payload for Server Action
+      const imageFile = values.imageFile[0];
+      const uploadData = new FormData();
+      uploadData.append('file', imageFile);
+
+      // 2. Upload to Vercel Blob and retrieve URL
+      const uploadedImageUrl = await uploadImageAction(uploadData);
+
+      // 3. Create product row using the uploaded secure URL
       await createProduct({
         name: values.name,
         description: values.description,
         specification: values.specification,
-        image: values.image,
-        categoryId: finalCategoryId,
+        image: uploadedImageUrl, // Passes the newly hosted blob URL
+        categoryId: values.subCategoryId || values.parentCategoryId,
       });
-      toast.success('Equipment added to inventory successfully');
-      form.reset();
+
+      toast.success('Product added successfully!');
       setOpen(false);
+      form.reset();
+      setPreviewUrl(null);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to populate inventory');
+      toast.error(error.message || 'Something went wrong');
     } finally {
       setIsPending(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto text-xs gap-2 h-9 shadow-xs">
-          <Plus className="h-4 w-4" />
-          Add New Product
+        <Button size="sm" className="h-8 text-xs gap-1">
+          <Plus className="h-3.5 w-3.5" /> New Product
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-base font-bold">Add Equipment Catalog Entry</DialogTitle>
+          <DialogTitle className="text-sm font-bold">Add New Medical Instrument</DialogTitle>
           <DialogDescription className="text-xs">
-            Populate details directly to the central Neon database.
+            Upload asset imagery and log category parameters.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormField
               control={form.control}
               name="name"
@@ -185,12 +182,38 @@ export function AddProductDialog({ categories }: AddProductDialogProps) {
 
             <FormField
               control={form.control}
-              name="image"
-              render={({ field }) => (
+              name="imageFile"
+              render={({ field: { onChange, ref, ...field } }) => (
                 <FormItem>
-                  <FormLabel className="text-xs">Image URL Reference</FormLabel>
+                  <FormLabel className="text-xs">Product Image Asset</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://images.unsplash.com/..." {...field} className="h-9 text-xs" />
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <label className="flex flex-col items-center justify-center border border-dashed border-border/100 rounded-lg p-4 cursor-pointer hover:bg-muted/40 transition">
+                          <UploadCloud className="h-5 w-5 text-muted-foreground mb-1" />
+                          <span className="text-[11px] font-medium text-muted-foreground">Select file (JPEG, PNG, WEBP)</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            ref={ref}
+                            onChange={(e) => {
+                              const files = e.target.files;
+                              if (files && files[0]) {
+                                onChange(files);
+                                setPreviewUrl(URL.createObjectURL(files[0]));
+                              }
+                            }}
+                            {...field}
+                          />
+                        </label>
+                      </div>
+                      {previewUrl && (
+                        <div className="h-16 w-16 border rounded-lg overflow-hidden shrink-0 bg-muted">
+                          <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage className="text-[10px]" />
                 </FormItem>

@@ -1,4 +1,4 @@
-// src/features/products/components/add-post-dialog.tsx
+// src/features/blog/components/add-post-dialog.tsx
 'use client';
 
 import { useState } from 'react';
@@ -8,13 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, Plus } from 'lucide-react';
-import { createBlogPost } from '@/features/blog/server/actions';
+import { FileText, Plus, UploadCloud } from 'lucide-react';
+import { createBlogPost, uploadBlogImageAction } from '@/features/blog/server/actions';
+import { toast } from 'sonner';
 
 export function AddPostDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -23,16 +25,31 @@ export function AddPostDialog() {
     categoryLabel: '',
     authorName: '',
     authorRole: '',
-    image: '',
     readTime: '5 min read',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedFile) {
+      toast.error("Please upload an image banner.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await createBlogPost(formData);
+      // 1. Upload file to Vercel Blob
+      const uploadData = new FormData();
+      uploadData.append('file', selectedFile);
+      const uploadedImageUrl = await uploadBlogImageAction(uploadData);
+
+      // 2. Submit blog post with hosted image url
+      await createBlogPost({
+        ...formData,
+        image: uploadedImageUrl,
+      });
+
+      toast.success("Blog post published!");
       setOpen(false);
       setFormData({
         title: '',
@@ -41,12 +58,12 @@ export function AddPostDialog() {
         categoryLabel: '',
         authorName: '',
         authorRole: '',
-        image: '',
         readTime: '5 min read',
       });
-      router.refresh();
+      setSelectedFile(null);
+      setPreviewUrl(null);
     } catch (err: any) {
-      alert(err.message || 'An error occurred');
+      toast.error(err.message || "Failed to publish post.");
     } finally {
       setLoading(false);
     }
@@ -55,21 +72,19 @@ export function AddPostDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 text-xs font-bold gap-1">
-          <Plus className="h-3 w-3" /> New Blog Post
+        <Button size="sm" className="h-8 text-xs gap-1">
+          <FileText className="h-3.5 w-3.5" /> Write Post
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-sm font-bold flex items-center gap-1.5">
-            <FileText className="h-4 w-4" /> Create Blog Article
-          </DialogTitle>
+          <DialogTitle className="text-sm font-bold">Write Insights & Resources Entry</DialogTitle>
           <DialogDescription className="text-xs">
-            Publish educational procurement logs or strategic clinical guides.
+            Draft education notes or regional procurement announcements.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="title" className="text-xs">Article Title</Label>
             <Input
@@ -119,28 +134,33 @@ export function AddPostDialog() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2 space-y-1.5">
-              <Label htmlFor="image" className="text-xs">Cover Banner URL</Label>
-              <Input
-                id="image"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                placeholder="https://unsplash.com/..."
-                required
-                className="h-8 text-xs"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="readTime" className="text-xs">Est. Read Time</Label>
-              <Input
-                id="readTime"
-                value={formData.readTime}
-                onChange={(e) => setFormData({ ...formData, readTime: e.target.value })}
-                placeholder="5 min read"
-                required
-                className="h-8 text-xs"
-              />
+          <div className="space-y-1.5">
+            <Label className="text-xs">Banner Image Asset</Label>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <label className="flex flex-col items-center justify-center border border-dashed border-border/100 rounded-lg p-4 cursor-pointer hover:bg-muted/40 transition">
+                  <UploadCloud className="h-5 w-5 text-muted-foreground mb-1" />
+                  <span className="text-[11px] font-medium text-muted-foreground">Select banner image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (files && files[0]) {
+                        setSelectedFile(files[0]);
+                        setPreviewUrl(URL.createObjectURL(files[0]));
+                      }
+                    }}
+                    required
+                  />
+                </label>
+              </div>
+              {previewUrl && (
+                <div className="h-16 w-16 border rounded-lg overflow-hidden shrink-0 bg-muted">
+                  <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
+                </div>
+              )}
             </div>
           </div>
 
