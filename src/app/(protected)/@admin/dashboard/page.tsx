@@ -1,4 +1,5 @@
 // src/app/(protected)/@admin/dashboard/page.tsx
+import { DashboardActions } from '@/components/shared/dashboard-actions';
 import { PageHeader, PageLayout } from '@/components/shared/page-header';
 import { requirePermission } from '@/features/auth/rbac/require';
 import { getTranslations } from 'next-intl/server';
@@ -9,8 +10,8 @@ import { Layers, Stethoscope, FileText } from 'lucide-react';
 import { AddProductDialog } from '@/features/products/components/add-product-dialog';
 import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
 import { AddPostDialog } from '@/features/blog/components/add-post-dialog';
-import { getProducts, getCategories, type DBProduct, type DBCategory } from '@/features/products/server/actions';
-import { getBlogPosts, type BlogPost } from '@/features/blog/server/actions';
+import { deleteProduct, getProducts, getCategories, type DBProduct, type DBCategory } from '@/features/products/server/actions';
+import { deleteBlogPost, getBlogPosts, type BlogPost } from '@/features/blog/server/actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -143,9 +144,13 @@ export default async function AdminDashboardPage() {
                             <td className="p-3 text-muted-foreground max-w-[240px] truncate font-mono text-[11px]">
                               {product.specification || 'No technical specifications provided'}
                             </td>
-                            <td className="p-3 text-right space-x-2 whitespace-nowrap">
-                              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2.5">Edit</Button>
-                              <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2.5 text-destructive hover:bg-destructive/10">Delete</Button>
+                            <td className="p-3 text-right">
+                              <DashboardActions 
+                                id={product.id} 
+                                onDelete={deleteProduct} 
+                                itemName={product.name} 
+                                type="product" 
+                              />
                             </td>
                           </tr>
                         );
@@ -208,9 +213,13 @@ export default async function AdminDashboardPage() {
                             <td className="p-3 text-muted-foreground font-medium text-[11px]">
                               {post.author_name} ({post.author_role})
                             </td>
-                            <td className="p-3 text-right space-x-2 whitespace-nowrap">
-                              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2.5">Edit</Button>
-                              <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2.5 text-destructive hover:bg-destructive/10">Delete</Button>
+                            <td className="p-3 text-right">
+                              <DashboardActions 
+                                id={post.id} 
+                                onDelete={deleteBlogPost} 
+                                itemName={post.title} 
+                                type="post" 
+                              />
                             </td>
                           </tr>
                         );
