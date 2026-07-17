@@ -202,3 +202,22 @@ export async function deleteProduct(id: string) {
     throw new Error(error.message || 'Error occurred during deletion.');
   }
 }
+
+export async function updateProductAction(
+  id: string, 
+  data: { name: string; description: string; specification: string; image: string }
+) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized');
+  }
+  
+  await db.query(
+    `UPDATE products SET name = $1, description = $2, specification = $3, image = $4 WHERE id = $5`,
+    [data.name, data.description, data.specification, data.image, id]
+  );
+  
+  revalidatePath('/products');
+  revalidatePath('/dashboard');
+  return { success: true };
+}

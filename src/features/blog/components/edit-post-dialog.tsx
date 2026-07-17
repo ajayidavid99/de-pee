@@ -7,25 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, UploadCloud } from 'lucide-react';
-import { uploadBlogImageAction } from '@/features/blog/server/actions';
+import { updateBlogPostAction, uploadBlogImageAction } from '@/features/blog/server/actions';
 import { toast } from 'sonner';
-
-import { getCurrentUser } from '@/features/auth/server/get-current-user';
-
-export async function updateBlogPostAction(id: string, data: any) {
-  const user = await getCurrentUser();
-  if (!user || user.role !== 'admin') throw new Error('Unauthorized');
-  
-  const { db } = require('@/libs/db');
-  const { revalidatePath } = require('next/cache');
-  
-  await db.query(
-    `UPDATE blog_posts SET title = $1, excerpt = $2, content = $3, category_label = $4, author_name = $5, author_role = $6, image = $7 WHERE id = $8`,
-    [data.title, data.excerpt, data.content, data.categoryLabel, data.authorName, data.authorRole, data.image, id]
-  );
-  revalidatePath('/blog');
-  revalidatePath('/dashboard');
-}
 
 interface EditPostDialogProps {
   post: any;

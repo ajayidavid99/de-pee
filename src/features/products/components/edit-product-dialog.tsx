@@ -10,29 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Loader2, UploadCloud } from 'lucide-react';
-import { uploadImageAction, type DBProduct } from '../server/actions';
+import { updateProductAction, uploadImageAction, type DBProduct } from '../server/actions';
 import { db } from '@/libs/db';
 import { revalidatePath } from 'next/cache';
 import { toast } from 'sonner';
 
-// Server action wrapper for updating (Put this directly inside your server action file or run it inline securely)
-import { getCurrentUser } from '@/features/auth/server/get-current-user';
-
-export async function updateProductAction(id: string, data: { name: string; description: string; specification: string; image: string }) {
-  const user = await getCurrentUser();
-  if (!user || user.role !== 'admin') throw new Error('Unauthorized');
-  
-  // Dynamic import or layout to execute inside client file boundary cleanly
-  const { db } = require('@/libs/db');
-  const { revalidatePath } = require('next/cache');
-  
-  await db.query(
-    `UPDATE products SET name = $1, description = $2, specification = $3, image = $4 WHERE id = $5`,
-    [data.name, data.description, data.specification, data.image, id]
-  );
-  revalidatePath('/products');
-  revalidatePath('/dashboard');
-}
 
 const editProductSchema = z.object({
   name: z.string().min(2, 'Product name is required'),

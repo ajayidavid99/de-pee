@@ -162,3 +162,19 @@ export async function deleteBlogPost(id: string) {
     throw new Error(error.message || 'Error occurred during deletion.');
   }
 }
+
+export async function updateBlogPostAction(id: string, data: any) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized');
+  }
+  
+  await db.query(
+    `UPDATE blog_posts SET title = $1, excerpt = $2, content = $3, category_label = $4, author_name = $5, author_role = $6, image = $7 WHERE id = $8`,
+    [data.title, data.excerpt, data.content, data.categoryLabel, data.authorName, data.authorRole, data.image, id]
+  );
+  
+  revalidatePath('/blog');
+  revalidatePath('/dashboard');
+  return { success: true };
+}
