@@ -183,7 +183,7 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
             <FormField
               control={form.control}
               name="imageFile"
-              render={({ field: { onChange, ref, ...field } }) => (
+              render={({ field: { onChange, ref, value, ...field } }) => ( // Pulling "value" out here safely
                 <FormItem>
                   <FormLabel className="text-xs">Product Image Asset</FormLabel>
                   <FormControl>
@@ -200,11 +200,11 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
                             onChange={(e) => {
                               const files = e.target.files;
                               if (files && files[0]) {
-                                onChange(files);
+                                onChange(files); // Pass the FileList to hook-form
                                 setPreviewUrl(URL.createObjectURL(files[0]));
                               }
                             }}
-                            {...field}
+                            {...field} // Spreads name, onBlur, etc. safely WITHOUT the value property
                           />
                         </label>
                       </div>
