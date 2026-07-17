@@ -1,7 +1,7 @@
 // src/features/blog/server/actions.ts
 'use server';
 
-import { put } from '@vercel/blob';
+import { put, del } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/features/auth/server/get-current-user';
 import { db } from '@/libs/db';
@@ -94,8 +94,8 @@ export async function createBlogPost(formData: {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
 
-//Standard, environment-agnostic generation:
-const uniqueId = `post_${globalThis.crypto ? globalThis.crypto.randomUUID() : Math.random().toString(36).substring(2, 15)}`;
+  //Standard, environment-agnostic generation:
+  const uniqueId = `post_${globalThis.crypto ? globalThis.crypto.randomUUID() : Math.random().toString(36).substring(2, 15)}`;
 
   const publishedAt = new Intl.DateTimeFormat('en-US', {
     month: 'long',
@@ -128,5 +128,37 @@ const uniqueId = `post_${globalThis.crypto ? globalThis.crypto.randomUUID() : Ma
   } catch (error: any) {
     console.error('Failed to insert blog post:', error);
     throw new Error(error.message || 'Database transaction error.');
+  }
+}
+
+export async function deleteBlogPost(id: string) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized operational action.');
+  }
+
+  try {
+    // 1. Fetch the post to retrieve the attached banner image URL
+    const postResult = await db.query('SELECT image FROM blog_posts WHERE id = $1', [id]);
+    const post = postResult.rows[0];
+
+    if (post && post.image) {
+      // 2. Purge asset from Vercel Blob storage
+      try {
+        await del(post.image);
+      } catch (error) {
+        console.error('Failed to delete blog image asset:', error);
+      }
+    }
+
+    // 3. Drop the row from database storage
+    await db.query('DELETE FROM blog_posts WHERE id = $1', [id]);
+
+    revalidatePath('/blog');
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Failed to delete blog post and asset:', error);
+    throw new Error(error.message || 'Error occurred during deletion.');
   }
 }

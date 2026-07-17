@@ -1,7 +1,7 @@
 // src/features/products/server/actions.ts
 'use server';
 
-import { put } from '@vercel/blob';
+import { put, del } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/features/auth/server/get-current-user';
 import { db } from '@/libs/db';
@@ -93,7 +93,7 @@ export async function getCategories(): Promise<DBCategory[]> {
 }
 
 /**
- * Creates a new category or sub-category dynamically
+ * Create a new category or sub-category dynamically
  */
 export async function createCategory(formData: { name: string; parentId?: string | null }) {
   const user = await getCurrentUser();
@@ -168,5 +168,37 @@ export async function createProduct(formData: {
   } catch (error: any) {
     console.error('Neon catalog insertion failure:', error);
     throw new Error(error.message || 'Database transaction anomaly encountered.');
+  }
+}
+
+export async function deleteProduct(id: string) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized operational action.');
+  }
+
+  try {
+    // 1. Fetch the product first to get the image URL
+    const productResult = await db.query('SELECT image FROM products WHERE id = $1', [id]);
+    const product = productResult.rows[0];
+
+    if (product && product.image) {
+      // 2. Delete the file from Vercel Blob storage bucket
+      try {
+        await del(product.image);        
+      } catch (error) {
+        console.error('Failed to delete product image asset:', error);
+      }
+    }
+
+    // 3. Delete the product row from the Neon database
+    await db.query('DELETE FROM products WHERE id = $1', [id]);
+
+    revalidatePath('/products');
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Failed to delete product and asset:', error);
+    throw new Error(error.message || 'Error occurred during deletion.');
   }
 }
