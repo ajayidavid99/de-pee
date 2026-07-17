@@ -7,15 +7,20 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Import Edit dialog implementations
+import { EditProductDialog } from '@/features/products/components/edit-product-dialog';
+import { EditPostDialog } from '@/features/blog/components/edit-post-dialog';
+
 interface DashboardActionsProps {
   id: string;
   onDelete: (id: string) => Promise<any>;
-  itemName: string;
+  rawItem: any; // Full entity block object injected from the DB iterator
   type: 'product' | 'post';
 }
 
-export function DashboardActions({ id, onDelete, itemName, type }: DashboardActionsProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function DashboardActions({ id, onDelete, rawItem, type }: DashboardActionsProps) {
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
@@ -23,30 +28,46 @@ export function DashboardActions({ id, onDelete, itemName, type }: DashboardActi
       try {
         await onDelete(id);
         toast.success(`${type === 'product' ? 'Product' : 'Article'} successfully purged.`);
-        setIsOpen(false);
+        setIsDeleteOpen(false);
       } catch (err: any) {
         toast.error(err.message || 'Failed to complete deletion process.');
       }
     });
   };
 
+  const itemName = type === 'product' ? rawItem.name : rawItem.title;
+
   return (
     <>
       <div className="flex items-center justify-end space-x-2 whitespace-nowrap">
-        <Button variant="outline" size="sm" className="h-7 text-[11px] px-2.5">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-7 text-[11px] px-2.5"
+          onClick={() => setIsEditOpen(true)}
+        >
           Edit
         </Button>
         <Button 
           variant="ghost" 
           size="sm" 
           className="h-7 text-[11px] px-2.5 text-destructive hover:bg-destructive/10"
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsDeleteOpen(true)}
         >
           Delete
         </Button>
       </div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {/* CONDITIONAL RENDER FOR EDIT OVERLAYS */}
+      {type === 'product' && isEditOpen && (
+        <EditProductDialog product={rawItem} open={isEditOpen} setOpen={setIsEditOpen} />
+      )}
+      {type === 'post' && isEditOpen && (
+        <EditPostDialog post={rawItem} open={isEditOpen} setOpen={setIsEditOpen} />
+      )}
+
+      {/* CONFIRMATION DELETION DIALOG */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2 text-destructive">
@@ -61,7 +82,7 @@ export function DashboardActions({ id, onDelete, itemName, type }: DashboardActi
               variant="outline" 
               size="sm" 
               className="h-8 text-xs" 
-              onClick={() => setIsOpen(false)}
+              onClick={() => setIsDeleteOpen(false)}
               disabled={isPending}
             >
               Cancel

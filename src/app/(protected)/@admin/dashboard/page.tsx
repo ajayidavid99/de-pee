@@ -148,7 +148,7 @@ export default async function AdminDashboardPage() {
                               <DashboardActions 
                                 id={product.id} 
                                 onDelete={deleteProduct} 
-                                itemName={product.name} 
+                                rawItem={product} // Pass full item down cleanly
                                 type="product" 
                               />
                             </td>
@@ -217,7 +217,7 @@ export default async function AdminDashboardPage() {
                               <DashboardActions 
                                 id={post.id} 
                                 onDelete={deleteBlogPost} 
-                                itemName={post.title} 
+                                rawItem={post} // Pass full item down cleanly
                                 type="post" 
                               />
                             </td>
