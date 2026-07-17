@@ -1,6 +1,7 @@
 // src/features/blog/server/actions.ts
 'use server';
 
+import { put } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/features/auth/server/get-current-user';
 import { db } from '@/libs/db';
@@ -20,9 +21,27 @@ export interface BlogPost {
   created_at?: string;
 }
 
+export async function uploadBlogImageAction(formData: FormData): Promise<string> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized operational action.');
+  }
+
+  const file = formData.get('file') as File;
+  if (!file) {
+    throw new Error('No file provided');
+  }
+
+  const blob = await put(`blog/${file.name}`, file, {
+    access: 'public',
+  });
+
+  return blob.url;
+}
+
 /**
- * Fetches all blog posts from the Postgres database
- */
+ * Fetches all blog posts
+ */ 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
     const result = await db.query(

@@ -1,9 +1,11 @@
 // src/features/products/server/actions.ts
 'use server';
 
+import { put } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/features/auth/server/get-current-user';
 import { db } from '@/libs/db';
+
 
 export interface DBProduct {
   id: string;
@@ -22,9 +24,25 @@ export interface DBCategory {
   parent_id: string | null;
 }
 
-/**
- * Fetches all products with joined category definitions directly from Neon
- */
+export async function uploadImageAction(formData: FormData): Promise<string> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized operational action.');
+  }
+
+  const file = formData.get('file') as File;
+  if (!file) {
+    throw new Error('No file provided');
+  }
+
+  // Upload to Vercel Blob with public access and random suffix to avoid collisions
+  const blob = await put(`products/${file.name}`, file, {
+    access: 'public',
+  });
+
+  return blob.url;
+}
+
 export async function getProducts(): Promise<DBProduct[]> {
   try {
     const result = await db.query(`
