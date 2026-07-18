@@ -11,8 +11,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Loader2, UploadCloud } from 'lucide-react';
 import { updateProductAction, uploadImageAction, type DBProduct } from '../server/actions';
-import { db } from '@/libs/db';
-import { revalidatePath } from 'next/cache';
 import { toast } from 'sonner';
 
 
