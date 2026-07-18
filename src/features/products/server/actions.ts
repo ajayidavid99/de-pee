@@ -184,7 +184,11 @@ export async function deleteProduct(id: string) {
 
     if (product && product.image) {
       // 2. Delete the file from Vercel Blob storage bucket
-      await del(product.image);  
+      try {
+        await del(product.image);        
+      } catch (error) {
+        console.error('Failed to delete product image asset:', error);
+      }
     }
 
     // 3. Delete the product row from the Neon database

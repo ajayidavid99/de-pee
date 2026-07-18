@@ -144,8 +144,11 @@ export async function deleteBlogPost(id: string) {
 
     if (post && post.image) {
       // 2. Purge asset from Vercel Blob storage
-      await del(post.image);
-      
+      try {
+        await del(post.image);
+      } catch (error) {
+        console.error('Failed to delete blog image asset:', error);
+      }
     }
 
     // 3. Drop the row from database storage
