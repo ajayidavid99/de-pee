@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { type Locale } from '@/features/site/config';
 import type { DBProduct } from '@/features/products/server/actions';
 import type { BlogPost } from '@/features/blog/server/actions';
+// If needed for mapping types, import your DBCategory type here or use any
 import { Activity, ArrowRight, Clock, ShieldAlert, Stethoscope } from 'lucide-react';
 import Link from 'next/link';
 
@@ -35,10 +36,11 @@ function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
 interface HeroSectionProps {
   locale: Locale;
   products: DBProduct[];
+  categories: any[]; // Explicitly added to fix the IntrinsicAttributes type assignment error
   posts: BlogPost[];
 }
 
-export default function HeroSection({ locale, products, posts }: HeroSectionProps) {
+export default function HeroSection({ locale, products, categories, posts }: HeroSectionProps) {
   return (
     <div className="w-full bg-background pt-[calc(var(--app-header-height)/2)]">
       <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4">
