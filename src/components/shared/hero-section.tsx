@@ -1,202 +1,153 @@
-// src/components/shared/hero-section.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { type Locale } from '@/features/site/config';
-import { Activity, ArrowRight, Clock, ShieldAlert, Stethoscope, Briefcase, FileText } from 'lucide-react';
-import Link from 'next/link';
-import type { DBProduct, DBCategory } from '@/features/products/server/actions';
+import type { DBProduct } from '@/features/products/server/actions';
 import type { BlogPost } from '@/features/blog/server/actions';
+// If needed for mapping types, import your DBCategory type here or use any
+import { Activity, ArrowRight, Clock, ShieldAlert, Stethoscope } from 'lucide-react';
+import Link from 'next/link';
+
+interface CategoryCardProps {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}
+
+function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
+  return (
+    <Card hover className="relative flex min-h-[14rem] flex-col justify-between overflow-hidden rounded-2xl border border-border/80 p-6 shadow-xs">
+      <div>
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
+          <Icon className="h-6 w-6" />
+        </div>
+        <h3 className="mb-2 text-base font-extrabold tracking-tight text-foreground">{title}</h3>
+        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
+      </div>
+      <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-primary group cursor-pointer">
+        <span>Learn more</span>
+        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+      </div>
+    </Card>
+  );
+}
 
 interface HeroSectionProps {
   locale: Locale;
   products: DBProduct[];
-  categories: DBCategory[];
+  categories: any[]; // Explicitly added to fix the IntrinsicAttributes type assignment error
   posts: BlogPost[];
 }
 
-const B2B_METADATA: Record<string, { icon: any; description: string; b2bBadge: string }> = {
-  'Diagnostics': {
-    icon: Stethoscope,
-    b2bBadge: 'WHO / ISO Certified',
-    description: 'Bulk procurement channels for primary health clinics, public diagnostic labs, and radiology centers.',
-  },
-  'Surgical': {
-    icon: Activity,
-    b2bBadge: 'High-Alloy Autoclavable',
-    description: 'Stainless steel operating theater kits, surgical tools, and custom instrumentation cases.',
-  },
-  'Consumables': {
-    icon: ShieldAlert,
-    b2bBadge: 'Logistics Contracts',
-    description: 'High-volume clinical protective wear, gloves, sterile dressings, and laboratory consumables.',
-  }
-};
-
 export default function HeroSection({ locale, products, categories, posts }: HeroSectionProps) {
-  const latestPosts = posts.slice(0, 3);
-  const featuredProducts = products.slice(0, 3);
-  const rootCategories = categories.filter((c) => !c.parent_id).slice(0, 3);
-
   return (
-    <section className="relative w-full bg-background pt-24 pb-12">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div className="w-full bg-background pt-[calc(var(--app-header-height)/2)]">
+      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           
-          {/* LEFT COLUMN: Main Hero Action (With Local Hero Background Image Overlay) */}
-          <div className="lg:col-span-3 flex flex-col justify-between space-y-8">
-            
-            {/* HERO CANVAS CARD - Rich overlay layout featuring your local image */}
-            <div className="relative w-full rounded-2xl overflow-hidden border border-border/80 bg-slate-950 p-6 sm:p-10 shadow-lg min-h-[380px] flex flex-col justify-between">
+          {/* LEFT MAIN CONTENT AREA */}
+          <div className="col-span-1 lg:col-span-3 flex flex-col gap-10">
+            {/* Retained raw sharp square edges canvas layout */}
+            <div className="relative w-full h-[380px] md:h-[460px] bg-slate-900 rounded-none overflow-hidden group border border-border/40">
+              <div 
+                className="absolute inset-0 bg-cover bg-center rounded-2xl md:rounded-none hero-image-container" 
+                style={{ backgroundImage: `url('/hero_img.jpg')` }}
+              />
               
-              {/* Background Local Image */}
-              <div className="absolute inset-0 z-0">
-                <img 
-                  src="/hero_img.jpg" // References public/hero_img.webp (adjust extension .png/.jpg if needed)
-                  alt="De-Pee Medical Hardware Supply" 
-                  className="h-full w-full object-cover opacity-35" // Muted opacity for maximum text contrast
-                />
-                {/* Smooth gradient scrim to ensure extreme legibility */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/80 to-transparent" />
-              </div>
+              {/* Layout wording and soft transparent background plates preserved exactly */}
+              <div className="absolute bottom-6 left-6 right-6 md:left-8 md:bottom-8 z-10 flex flex-col items-start text-left text-white/60 max-w-xl gap-3">
+                
+                <div className="bg-slate-950/45 backdrop-blur-xs px-4 py-3 rounded-lg border border-white/5 shadow-xs">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug text-white">
+                    Your Trusted Source for Medical Supplies. Quality and Reliability Guaranteed.
+                  </h1>
+                </div>
 
-              {/* Foreground Text & Action Content */}
-              <div className="relative z-10 space-y-4 max-w-2xl">
-                <span className="inline-flex items-center rounded-full bg-primary/20 border border-primary/30 px-3 py-1 text-xs font-bold text-primary tracking-wide">
-                  🏥 Premium Hospital Supply & B2B Procurement
-                </span>
-                <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
-                  Equipping West African Healthcare with Precision Hardware
-                </h1>
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
-                  Streamlining high-volume supply chains and medical procurement contracts. Select instruments to build your RFQ quotation cart instantly.
-                </p>
-                <div className="flex flex-wrap gap-3 pt-2">
-                  <Button size="sm" asChild className="h-10 text-xs font-bold px-6 bg-primary hover:bg-primary/90 text-white">
-                    <Link href="/products">Browse Store Catalog</Link>
+                <div className="bg-slate-950/45 backdrop-blur-xs px-4 py-2.5 rounded-lg border border-white/5 shadow-xs">
+                  <p className="text-xs sm:text-sm text-slate-100 font-normal opacity-95 leading-relaxed">
+                    Providing healthcare facilities globally with premium clinical-grade consumables, diagnostics, and surgical instrumentation built on compliance.
+                  </p>
+                </div>
+
+                <div className="mt-2 flex flex-wrap gap-3">
+                  <Button asChild variant="primary" size="sm" className="rounded-md font-semibold px-5 bg-white text-slate-900 hover:bg-slate-100 text-xs shadow-xs">
+                    <Link href="/products">View Products</Link>
                   </Button>
-                  <Button size="sm" variant="outline" asChild className="h-10 text-xs font-bold px-6 text-white border-white/20 hover:bg-white/10">
-                    <a href="#quote-form">Submit Direct Tender</a>
+                  
+                  <Button asChild variant="outline" size="sm" className="rounded-md font-semibold px-5 bg-transparent border-white text-white hover:bg-white/10 text-xs shadow-xs">
+                    <Link href="/contact">Inquire Now</Link>
                   </Button>
                 </div>
+
               </div>
             </div>
 
-            {/* B2B CATEGORY CHANNELS GRID */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Bulk B2B Procurement Categories
-                </h3>
-                <span className="text-[11px] text-primary font-medium">Lagos & Ife Distribution hubs</span>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {rootCategories.map((cat) => {
-                  const meta = B2B_METADATA[cat.name] || {
-                    icon: Briefcase,
-                    b2bBadge: 'Wholesale Catalog',
-                    description: `Access complete institutional catalog inventories for the ${cat.name} department.`
-                  };
-                  const Icon = meta.icon;
-
-                  return (
-                    <Card 
-                      key={cat.id} 
-                      hover 
-                      className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-border/80 p-5 shadow-xs bg-card/50"
-                    >
-                      <div>
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <Icon className="h-5 w-5" />
-                          </div>
-                          <span className="text-[9px] font-mono font-bold bg-muted text-muted-foreground px-2 py-0.5 rounded-full uppercase">
-                            {meta.b2bBadge}
-                          </span>
-                        </div>
-                        <h3 className="mb-1 text-sm font-bold tracking-tight text-foreground">{cat.name}</h3>
-                        <p className="text-[11px] leading-relaxed text-muted-foreground">{meta.description}</p>
-                      </div>
-                      
-                      <Link 
-                        href={`/products?category=${cat.id}`} 
-                        className="mt-4 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline group"
-                      >
-                        <span>Configure Tender</span>
-                        <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                      </Link>
-                    </Card>
-                  );
-                })}
+            {/* Product Portfolio Grid */}
+            <div className="w-full flex flex-col gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <CategoryCard icon={Stethoscope} title="Diagnostic Tools" description="Advanced primary patient checking instruments and portable diagnostic tools built for clean medical evolutions." />
+                <CategoryCard icon={Activity} title="Surgical Instruments" description="High grade surgical implements engineered directly from durable alloys for premium operational performance." />
+                <CategoryCard icon={ShieldAlert} title="Hospital Consumables" description="Sterile protective apparel, clinical single-use needles, procedural sets, and high-volume sanitization tools." />
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Interactive Sidebar (No image sidebar, only content) */}
-          <aside className="space-y-6 lg:border-l lg:border-border/60 lg:pl-6">
-            
-            {/* 1. LATEST ADVISORIES (Top of the sidebar) */}
+          {/* RIGHT SIDEBAR PANEL - FULLY DYNAMIC */}
+          <aside className="hidden lg:flex lg:col-span-1 flex-col gap-8 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)]">
             <div className="space-y-4">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Latest Advisories</h2>
-              <div className="flex flex-col gap-3">
-                {latestPosts.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No updates available at this time.</p>
-                ) : (
-                  latestPosts.map((post) => (
-                    <Link 
-                      href={`/blog/${post.slug}`} 
-                      key={post.id} 
-                      className="flex gap-2 group cursor-pointer"
-                    >
-                      <div className="h-8 w-8 rounded-lg bg-muted/60 border border-border/40 shrink-0 flex items-center justify-center text-muted-foreground">
-                        <FileText className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 space-y-0.5">
-                        <h4 className="text-xs font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                          {post.title}
-                        </h4>
-                        <p className="text-[10px] text-muted-foreground flex items-center gap-1 font-mono">
-                          <Clock className="h-2.5 w-2.5" /> {post.read_time}
-                        </p>
-                      </div>
-                    </Link>
-                  ))
-                )}
+              <h2 className="text-lg font-bold tracking-tight text-foreground border-b border-border pb-2">Latest News</h2>
+              <div className="space-y-4">
+                {posts.slice(0, 2).map((post, index) => (
+                  <Link 
+                    key={post.id} 
+                    href={`/blog/${post.slug}`} 
+                    className={`block space-y-1 group cursor-pointer ${index > 0 ? 'border-t border-border/50 pt-3' : ''}`}
+                  >
+                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
+                      {post.title}
+                    </h3>
+                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>{post.published_at || post.read_time || 'Recent'}</span>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
 
-            {/* 2. FEATURED PRODUCTS (Directly below Latest Advisories) */}
-            <div className="space-y-4 pt-4 border-t border-border/60">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Featured Products</h2>
+            <div className="space-y-4 pt-2">
+              <h2 className="text-lg font-bold tracking-tight text-foreground border-b border-border pb-2">Featured Products</h2>
               <div className="flex flex-col gap-3">
-                {featuredProducts.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No products found in stock.</p>
-                ) : (
-                  featuredProducts.map((p) => (
-                    <Link 
-                      href={`/products/${p.id}`} 
-                      key={p.id} 
-                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 group"
-                    >
-                      <div className="relative h-11 w-11 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{p.name}</h4>
-                        <p className="text-[10px] text-muted-foreground truncate uppercase">{p.category_name}</p>
-                      </div>
-                    </Link>
-                  ))
-                )}
+                {products.slice(0, 3).map((product) => (
+                  <Link 
+                    key={product.id} 
+                    href={`/products/${product.id}`}
+                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 cursor-pointer group"
+                  >
+                    <div className="relative h-12 w-12 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
+                      {product.image ? (
+                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Stethoscope className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                        {product.name}
+                      </h4>
+                      <p className="text-[10px] text-muted-foreground truncate">
+                        {product.category_name}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
-
           </aside>
-          
+
         </div>
       </div>
-    </section>
+    </div>
   );
 }
