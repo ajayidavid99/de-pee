@@ -74,7 +74,7 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                 href={`/products?category=${category.id}`}
                 className={`group ${index >= 6 ? 'hidden lg:block' : 'block'}`}
               >
-                {/* Fully borderless card frame */}
+                {/* Borderless card frame */}
                 <Card className="overflow-hidden border-0 shadow-none rounded-xl bg-slate-900 transition-all duration-300">
                   
                   <div className="relative w-full h-32 sm:h-36 isolate">
@@ -86,13 +86,13 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                         alt={category.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {/* Dark overlay completely fades out to opacity-0 on hover */}
+                      {/* Dark overlay completely fades out on hover */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent transition-opacity duration-300 group-hover:opacity-0" />
                     </div>
 
                     {/* Text and Actions Overlay Container */}
                     <div className="absolute inset-0 z-10 flex flex-col justify-between p-3 sm:p-3.5">
-                      {/* Top Content: Soft pill title */}
+                      {/* Top Content: Pill title changes background on hover */}
                       <div>
                         <div className="inline-block rounded-lg bg-black/30 backdrop-blur-xs px-2.5 py-1 transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground max-w-full">
                           <h3 className="text-xs sm:text-sm font-bold text-white transition-colors line-clamp-2 leading-snug">
@@ -101,8 +101,8 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                         </div>
                       </div>
 
-                      {/* Bottom Action: Exploration tag */}
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-white group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                      {/* Bottom Action: Pure white text with arrow shift */}
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-white group-hover:translate-x-1 transition-transform drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         <span>Explore</span>
                         <ArrowRight className="h-3 w-3" />
                       </div>
