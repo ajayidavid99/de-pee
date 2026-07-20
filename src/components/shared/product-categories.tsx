@@ -73,35 +73,39 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                 href={`/products?category=${category.id}`}
                 className={`group ${index >= 6 ? 'hidden lg:block' : 'block'}`}
               >
-                {/* 1. Added explicit h-32 sm:h-36 layout isolation properties directly to the Card wrapper */}
-                <Card
-                  hover
-                  className="relative overflow-hidden rounded-xl border border-border/80 bg-slate-950 shadow-xs transition-all duration-300 group-hover:border-primary/60 h-32 sm:h-36 isolate"
-                >
-                  {/* Background Image Layer (z-0) */}
-                  <div className="absolute inset-0 z-0 overflow-hidden">
-                    <img
-                      src={imageUrl}
-                      alt={category.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/75 to-slate-950/50 group-hover:from-slate-950 transition-colors duration-300" />
-                  </div>
-
-                  {/* 2. New Wrapper: Completely fills the Card area via position absolute, housing layout styling without interfering with the parent flex values */}
-                  <div className="absolute inset-0 z-20 flex flex-col justify-between p-3.5 sm:p-4 pointer-events-none">
-                    {/* Top Content */}
-                    <div className="space-y-1">
-                      <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-md">
-                        {category.name}
-                      </h3>
+                {/* 1. We keep Card standard and unstyled so it doesn't smash layouts */}
+                <Card hover className="overflow-hidden border border-border/80 bg-slate-950 shadow-xs transition-all duration-300 group-hover:border-primary/60 rounded-xl">
+                  
+                  {/* 2. Custom Outer Frame: This firmly locks down the exact block heights regardless of Card properties */}
+                  <div className="relative w-full h-32 sm:h-36 isolate">
+                    
+                    {/* Background Image Container */}
+                    <div className="absolute inset-0 z-0">
+                      <img
+                        src={imageUrl}
+                        alt={category.name}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {/* Gradient Tint Mask to make text highly readable */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40 group-hover:via-slate-950/85 transition-colors duration-300" />
                     </div>
 
-                    {/* Bottom Action */}
-                    <div className="flex items-center gap-1 text-[11px] font-bold text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-sm">
-                      <span>Explore</span>
-                      <ArrowRight className="h-3 w-3" />
+                    {/* Text and Actions Overlay Container */}
+                    <div className="absolute inset-0 z-10 flex flex-col justify-between p-3.5 sm:p-4">
+                      {/* Top Content */}
+                      <div className="space-y-1">
+                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-md">
+                          {category.name}
+                        </h3>
+                      </div>
+
+                      {/* Bottom Action */}
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-sm">
+                        <span>Explore</span>
+                        <ArrowRight className="h-3 w-3" />
+                      </div>
                     </div>
+
                   </div>
                 </Card>
               </Link>
