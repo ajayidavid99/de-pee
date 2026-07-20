@@ -73,10 +73,8 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                 href={`/products?category=${category.id}`}
                 className={`group ${index >= 6 ? 'hidden lg:block' : 'block'}`}
               >
-                {/* 1. We keep Card standard and unstyled so it doesn't smash layouts */}
                 <Card hover className="overflow-hidden border border-border/80 bg-slate-950 shadow-xs transition-all duration-300 group-hover:border-primary/60 rounded-xl">
                   
-                  {/* 2. Custom Outer Frame: This firmly locks down the exact block heights regardless of Card properties */}
                   <div className="relative w-full h-32 sm:h-36 isolate">
                     
                     {/* Background Image Container */}
@@ -86,8 +84,8 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                         alt={category.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {/* Gradient Tint Mask to make text highly readable */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40 group-hover:via-slate-950/85 transition-colors duration-300" />
+                      {/* FIXED GRADIENT MASK: Replaced dark custom slate hex codes with safe, highly readable Tailwind v3 standard opacities */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black bg-opacity-40 via-black bg-opacity-20 to-transparent transition-all duration-300 group-hover:bg-opacity-30" />
                     </div>
 
                     {/* Text and Actions Overlay Container */}
