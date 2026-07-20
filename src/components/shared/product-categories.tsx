@@ -13,12 +13,12 @@ interface DBCategory {
 }
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  diagnostic: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=800&auto=format&fit=crop',
-  consumables: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800&auto=format&fit=crop',
-  surgical: 'https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop',
-  laboratory: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=800&auto=format&fit=crop',
-  equipment: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
-  default: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=800&auto=format&fit=crop',
+  diagnostic: 'https://unsplash.com',
+  consumables: 'https://unsplash.com',
+  surgical: 'https://unsplash.com',
+  laboratory: 'https://unsplash.com',
+  equipment: 'https://unsplash.com',
+  default: 'https://unsplash.com',
 };
 
 function getCategoryImageUrl(category: DBCategory): string {
@@ -84,8 +84,12 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                         alt={category.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {/* FIXED GRADIENT MASK: Replaced dark custom slate hex codes with safe, highly readable Tailwind v3 standard opacities */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black bg-opacity-40 via-black bg-opacity-20 to-transparent transition-all duration-300 group-hover:bg-opacity-30" />
+                      
+                      {/* 1. INITIAL LIGHT STATE (rgba black at 45% at the bottom, 15% in the middle) */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.45)] via-[rgba(0,0,0,0.15)] to-transparent transition-opacity duration-300 opacity-100 group-hover:opacity-0" />
+                      
+                      {/* 2. HOVER DARKER STATE (rgba black climbs up to 75% at the bottom, 40% in the middle) */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.75)] via-[rgba(0,0,0,0.40)] to-transparent transition-opacity duration-300 opacity-0 group-hover:opacity-100" />
                     </div>
 
                     {/* Text and Actions Overlay Container */}
