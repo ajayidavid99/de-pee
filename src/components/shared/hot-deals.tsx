@@ -8,7 +8,7 @@ import Link from 'next/link';
 import type { DBProduct } from '@/features/products/server/actions';
 
 export function HotDeals({ products }: { products: DBProduct[] }) {
-  // Pass up to 6 deal items for a clean 3x2 grid on tablet / 4x1 or 4x2 on desktop
+  // Pass up to 6 deal items for a clean grid
   const dealProducts = products.slice(0, 6);
 
   return (
@@ -33,7 +33,7 @@ export function HotDeals({ products }: { products: DBProduct[] }) {
           </Link>
         </div>
 
-        {/* Grid Layout: 2 Cols Mobile | 3 Cols Tablet | 4 Cols Desktop */}
+        {/* Grid Layout */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {dealProducts.map((item, index) => (
             <Card
@@ -43,14 +43,15 @@ export function HotDeals({ products }: { products: DBProduct[] }) {
                 index >= 4 ? 'hidden lg:block' : 'block'
               }`}
             >
-              {/* Special Batch Badge */}
-              <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-amber-500 text-slate-950 font-bold text-[9px] uppercase px-2 py-0.5 rounded-full shadow-xs">
-                <Tag className="h-2.5 w-2.5" />
-                <span>Special Batch</span>
-              </div>
-
-              {/* Product Thumbnail */}
+              {/* Product Thumbnail Container */}
               <div className="relative h-24 sm:h-28 w-full rounded-lg bg-muted overflow-hidden border border-border/40 shrink-0">
+                
+                {/* Special Batch Badge - Anchored directly to image frame */}
+                <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-amber-500 text-slate-950 font-bold text-[9px] uppercase px-2 py-0.5 rounded-full shadow-xs">
+                  <Tag className="h-2.5 w-2.5" />
+                  <span>Special Batch</span>
+                </div>
+
                 <img
                   src={item.image}
                   alt={item.name}
