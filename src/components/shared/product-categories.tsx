@@ -1,4 +1,3 @@
-// src/components/shared/product-categories.tsx
 'use client';
 
 import { Card } from '@/components/ui/card';
@@ -13,7 +12,6 @@ interface DBCategory {
   parent_id?: string | null;
 }
 
-// Fallback images based on common category keywords if DB image is empty/null
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   diagnostic: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=800&auto=format&fit=crop',
   consumables: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800&auto=format&fit=crop',
@@ -23,14 +21,12 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   default: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=800&auto=format&fit=crop',
 };
 
-// Update the return type signature to include undefined
-function getCategoryImageUrl(category: DBCategory): string | null | undefined {
-  // 1. If DB image exists and is non-empty, use it
+// Strict string return guaranteed
+function getCategoryImageUrl(category: DBCategory): string {
   if (category.image && category.image.trim() !== '') {
     return category.image;
   }
 
-  // 2. Try matching name/slug keywords for a relevant image
   const nameLower = category.name.toLowerCase();
   for (const [key, url] of Object.entries(CATEGORY_FALLBACK_IMAGES)) {
     if (key !== 'default' && nameLower.includes(key)) {
@@ -38,10 +34,8 @@ function getCategoryImageUrl(category: DBCategory): string | null | undefined {
     }
   }
 
-  // 3. Fall back to default medical background image
-  return CATEGORY_FALLBACK_IMAGES.default;
+  return CATEGORY_FALLBACK_IMAGES.default ?? '';
 }
-
 
 export function ProductCategories({ categories }: { categories: DBCategory[] }) {
   const displayCategories = (
@@ -70,7 +64,6 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
           </Link>
         </div>
 
-        {/* Responsive Grid: 2 cols mobile, 3 cols tablet, 4 cols desktop */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {displayCategories.map((category, index) => {
             const imageUrl = getCategoryImageUrl(category);
@@ -83,35 +76,27 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
               >
                 <Card
                   hover
-                  className="relative overflow-hidden rounded-xl border border-border/80 bg-slate-900 shadow-xs transition-all duration-300 group-hover:border-primary/60 flex flex-col justify-between h-32 sm:h-36 p-3.5 sm:p-4"
+                  className="relative overflow-hidden rounded-xl border border-border/80 bg-slate-950 shadow-xs transition-all duration-300 group-hover:border-primary/60 flex flex-col justify-between h-32 sm:h-36 p-3.5 sm:p-4 isolate"
                 >
-                  {/* Background Image Layer */}
-                  {imageUrl ? (
-                    <>
-                      <img
-                        src={imageUrl}
-                        alt={category.name}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-slate-950/40 group-hover:from-slate-950 transition-colors duration-300" />
-                    </>
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
-                      <div className="absolute top-3 right-3 text-white/10">
-                        <Layers className="h-10 w-10" />
-                      </div>
-                    </>
-                  )}
+                  {/* Background Image Layer (z-0) */}
+                  <div className="absolute inset-0 z-0 overflow-hidden">
+                    <img
+                      src={imageUrl}
+                      alt={category.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/75 to-slate-950/50 group-hover:from-slate-950 transition-colors duration-300" />
+                  </div>
 
-                  {/* Content Overlay */}
-                  <div className="relative z-10 space-y-1">
-                    <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-xs">
+                  {/* Top Content (z-20) */}
+                  <div className="relative z-20 space-y-1">
+                    <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-md">
                       {category.name}
                     </h3>
                   </div>
 
-                  <div className="relative z-10 flex items-center gap-1 text-[11px] font-bold text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all">
+                  {/* Bottom Action (z-20) */}
+                  <div className="relative z-20 flex items-center gap-1 text-[11px] font-bold text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-sm">
                     <span>Explore</span>
                     <ArrowRight className="h-3 w-3" />
                   </div>
