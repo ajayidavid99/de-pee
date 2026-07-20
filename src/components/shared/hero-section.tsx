@@ -18,7 +18,7 @@ interface ValueCardProps {
 
 function ValueCard({ icon: Icon, title, description }: ValueCardProps) {
   return (
-    <Card hover className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-border/80 p-4 shadow-xs">
+    <Card hover className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl border border-border/80 p-4 shadow-xs">
       <div>
         <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
           <Icon className="h-4.5 w-4.5" />
@@ -81,30 +81,37 @@ export default function HeroSection({ locale, products, categories, posts }: Her
             </div>
 
             {/* Our Value Proposition */}
-            <div className="w-full flex flex-col gap-3">
+            <div className="w-full flex flex-col gap-3 overflow-hidden">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-primary">
                 Why Partner With Us
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <ValueCard 
-                  icon={ShieldCheck} 
-                  title="Our Commitment" 
-                  description="Certified, clinical-grade medical equipment compliant with strict international health standards." 
-                />
-                <ValueCard 
-                  icon={Globe} 
-                  title="Global Sourcing" 
-                  description="Direct partnerships with top global manufacturers for dependable inventory and competitive pricing." 
-                />
-                <ValueCard 
-                  icon={Headphones} 
-                  title="Expert Support" 
-                  description="Dedicated technical advice and rapid response quote processing tailored for healthcare facilities." 
-                />
+
+              {/* Mobile: Horizontal scroll container with peek offset | Desktop: 3-column grid */}
+              <div className="flex sm:grid sm:grid-cols-3 gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0">
+                <div className="w-[82%] sm:w-auto shrink-0 snap-start">
+                  <ValueCard 
+                    icon={ShieldCheck} 
+                    title="Our Commitment" 
+                    description="Certified, clinical-grade medical equipment compliant with strict international health standards." 
+                  />
+                </div>
+                <div className="w-[82%] sm:w-auto shrink-0 snap-start">
+                  <ValueCard 
+                    icon={Globe} 
+                    title="Global Sourcing" 
+                    description="Direct partnerships with top global manufacturers for dependable inventory and competitive pricing." 
+                  />
+                </div>
+                <div className="w-[82%] sm:w-auto shrink-0 snap-start">
+                  <ValueCard 
+                    icon={Headphones} 
+                    title="Expert Support" 
+                    description="Dedicated technical advice and rapid response quote processing tailored for healthcare facilities." 
+                  />
+                </div>
               </div>
             </div>
           </div>
-
           {/* RIGHT SIDEBAR PANEL - FULLY DYNAMIC */}
           <aside className="hidden lg:flex lg:col-span-1 flex-col gap-8 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)]">
             <div className="space-y-4">
