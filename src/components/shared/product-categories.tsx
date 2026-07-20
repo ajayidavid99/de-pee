@@ -13,12 +13,12 @@ interface DBCategory {
 }
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  diagnostic: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=800&auto=format&fit=crop',
-  consumables: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800&auto=format&fit=crop',
-  surgical: 'https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop',
-  laboratory: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=800&auto=format&fit=crop',
-  equipment: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
-  default: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=800&auto=format&fit=crop',
+  diagnostic: 'https://unsplash.com',
+  consumables: 'https://unsplash.com',
+  surgical: 'https://unsplash.com',
+  laboratory: 'https://unsplash.com',
+  equipment: 'https://unsplash.com',
+  default: 'https://unsplash.com',
 };
 
 function getCategoryImageUrl(category: DBCategory): string {
@@ -73,10 +73,9 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                 href={`/products?category=${category.id}`}
                 className={`group ${index >= 6 ? 'hidden lg:block' : 'block'}`}
               >
-                {/* 1. We keep Card standard and unstyled so it doesn't smash layouts */}
-                <Card hover className="overflow-hidden border border-border/80 bg-slate-950 shadow-xs transition-all duration-300 group-hover:border-primary/60 rounded-xl">
+                {/* Reduced overall card background intensity to a lighter slate/40 blur base */}
+                <Card hover className="overflow-hidden border border-border/80 bg-slate-900/40 shadow-xs transition-all duration-300 group-hover:border-primary/60 rounded-xl">
                   
-                  {/* 2. Custom Outer Frame: This firmly locks down the exact block heights regardless of Card properties */}
                   <div className="relative w-full h-32 sm:h-36 isolate">
                     
                     {/* Background Image Container */}
@@ -86,21 +85,22 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                         alt={category.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {/* Gradient Tint Mask to make text highly readable */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40 group-hover:via-slate-950/85 transition-colors duration-300" />
+                      {/* Significantly lightened the gradient masking layer and removed the heavy hover darkening effect */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/20 to-transparent transition-opacity duration-300" />
                     </div>
 
                     {/* Text and Actions Overlay Container */}
                     <div className="absolute inset-0 z-10 flex flex-col justify-between p-3.5 sm:p-4">
                       {/* Top Content */}
                       <div className="space-y-1">
-                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-md">
+                        {/* Swapped text colors to text-slate-900 / dark foreground adjustments for light card contrast if needed, or left brightened white with solid shadows */}
+                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]">
                           {category.name}
                         </h3>
                       </div>
 
                       {/* Bottom Action */}
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-sm">
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-slate-100 group-hover:text-primary group-hover:translate-x-1 transition-all [text-shadow:_0_1px_2px_rgba(0,0,0,0.8)]">
                         <span>Explore</span>
                         <ArrowRight className="h-3 w-3" />
                       </div>
