@@ -1,6 +1,7 @@
 // src/app/(public)/page.tsx
 import HeroSection from '@/components/shared/hero-section';
 import { ProductCategories } from '@/components/shared/product-categories';
+import { HotDeals } from '@/components/shared/hot-deals';
 import { 
   NewArrivals, 
   MobileFeaturedProducts, 
@@ -34,24 +35,27 @@ const HomePage = async () => {
         posts={posts}
       />
       
-      {/* 2. Categories Grid (2x3 on Mobile, 4x2 on Desktop) */}
+      {/* 2. Product Categories Grid */}
       <ProductCategories categories={categories} />
 
-      {/* 3. New Arrivals / Premium Additions */}
+      {/* 3. Premium Additions / New Arrivals */}
       <NewArrivals products={products.slice(0, 4)} />
+
+      {/* 4. Hot Procurement Deals Section */}
+      <HotDeals products={products.slice(4, 8)} />
       
-      {/* 4. Fast-Moving Procurement Items (Mobile Slider) */}
+      {/* 5. Fast-Moving Consumables Slider (Mobile) */}
       <MobileFeaturedProducts products={products.slice(0, 6)} />
       
-      {/* 5. Engineered for Clinical & Laboratory Integrity */}
+      {/* 6. Engineered for Clinical & Laboratory Integrity */}
       <WhyChooseUs />
       
-      {/* 6. Mobile/Tablet Resources & News */}
+      {/* 7. Mobile/Tablet News */}
       <MobileLatestNews posts={posts.slice(0, 3)} />
       
       <div className="flex-1" />
       
-      {/* 7. Quote Form & Footer */}
+      {/* 8. Quote Form & Footer */}
       <CompanyFooter />
     </div>
   );
