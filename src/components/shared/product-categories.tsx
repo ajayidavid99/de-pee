@@ -13,12 +13,12 @@ interface DBCategory {
 }
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  diagnostic: 'https://unsplash.com',
-  consumables: 'https://unsplash.com',
-  surgical: 'https://unsplash.com',
-  laboratory: 'https://unsplash.com',
-  equipment: 'https://unsplash.com',
-  default: 'https://unsplash.com',
+  diagnostic: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=800&auto=format&fit=crop',
+  consumables: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800&auto=format&fit=crop',
+  surgical: 'https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop',
+  laboratory: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=800&auto=format&fit=crop',
+  equipment: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
+  default: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=800&auto=format&fit=crop',
 };
 
 function getCategoryImageUrl(category: DBCategory): string {
@@ -73,8 +73,10 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                 href={`/products?category=${category.id}`}
                 className={`group ${index >= 6 ? 'hidden lg:block' : 'block'}`}
               >
+                {/* 1. We keep Card standard and unstyled so it doesn't smash layouts */}
                 <Card hover className="overflow-hidden border border-border/80 bg-slate-950 shadow-xs transition-all duration-300 group-hover:border-primary/60 rounded-xl">
                   
+                  {/* 2. Custom Outer Frame: This firmly locks down the exact block heights regardless of Card properties */}
                   <div className="relative w-full h-32 sm:h-36 isolate">
                     
                     {/* Background Image Container */}
@@ -84,12 +86,8 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                         alt={category.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      
-                      {/* 1. INITIAL LIGHT STATE (rgba black at 45% at the bottom, 15% in the middle) */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.45)] via-[rgba(0,0,0,0.15)] to-transparent transition-opacity duration-300 opacity-100 group-hover:opacity-0" />
-                      
-                      {/* 2. HOVER DARKER STATE (rgba black climbs up to 75% at the bottom, 40% in the middle) */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.75)] via-[rgba(0,0,0,0.40)] to-transparent transition-opacity duration-300 opacity-0 group-hover:opacity-100" />
+                      {/* Gradient Tint Mask to make text highly readable */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40 group-hover:via-slate-950/85 transition-colors duration-300" />
                     </div>
 
                     {/* Text and Actions Overlay Container */}
