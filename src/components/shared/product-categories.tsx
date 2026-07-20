@@ -1,7 +1,8 @@
+// src/components/shared/product-categories.tsx
 'use client';
 
 import { Card } from '@/components/ui/card';
-import { ArrowRight, Layers } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface DBCategory {
@@ -44,9 +45,9 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
   ).slice(0, 8);
 
   return (
-    <section className="w-full bg-background py-10 border-t border-border/60">
+    <section className="w-full bg-background my-4">
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-wider">
               Browse Inventory
@@ -73,10 +74,8 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                 href={`/products?category=${category.id}`}
                 className={`group ${index >= 6 ? 'hidden lg:block' : 'block'}`}
               >
-                {/* 1. We keep Card standard and unstyled so it doesn't smash layouts */}
-                <Card hover className="overflow-hidden border border-border/80 bg-slate-950 shadow-xs transition-all duration-300 group-hover:border-primary/60 rounded-xl">
+                <Card hover className="overflow-hidden border border-border/60 bg-slate-900 shadow-xs transition-all duration-300 group-hover:border-primary/60 rounded-xl">
                   
-                  {/* 2. Custom Outer Frame: This firmly locks down the exact block heights regardless of Card properties */}
                   <div className="relative w-full h-32 sm:h-36 isolate">
                     
                     {/* Background Image Container */}
@@ -84,23 +83,23 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                       <img
                         src={imageUrl}
                         alt={category.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105"
                       />
-                      {/* Gradient Tint Mask to make text highly readable */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40 group-hover:via-slate-950/85 transition-colors duration-300" />
+                      {/* Significantly lighter gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10 group-hover:from-black/60 transition-colors duration-300" />
                     </div>
 
                     {/* Text and Actions Overlay Container */}
                     <div className="absolute inset-0 z-10 flex flex-col justify-between p-3.5 sm:p-4">
                       {/* Top Content */}
                       <div className="space-y-1">
-                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-md">
+                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                           {category.name}
                         </h3>
                       </div>
 
                       {/* Bottom Action */}
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-sm">
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-white/90 group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         <span>Explore</span>
                         <ArrowRight className="h-3 w-3" />
                       </div>
