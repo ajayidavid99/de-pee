@@ -1,5 +1,6 @@
 // src/app/(public)/page.tsx
 import HeroSection from '@/components/shared/hero-section';
+import { ProductCategories } from '@/components/shared/product-categories';
 import { 
   NewArrivals, 
   MobileFeaturedProducts, 
@@ -17,7 +18,6 @@ export const dynamic = 'force-dynamic';
 const HomePage = async () => {
   const locale = await getLocale();
 
-  // Query actual live database assets in parallel
   const [products, categories, posts] = await Promise.all([
     getProducts(),
     getCategories(),
@@ -26,7 +26,7 @@ const HomePage = async () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Hero Block Frame - Now receiving database items */}
+      {/* 1. Hero Block */}
       <HeroSection 
         locale={locale as Locale} 
         products={products} 
@@ -34,21 +34,24 @@ const HomePage = async () => {
         posts={posts}
       />
       
-      {/* 2. New Arrivals Grid Block - Powered by live database items */}
+      {/* 2. Categories Grid (2x3 on Mobile, 4x2 on Desktop) */}
+      <ProductCategories categories={categories} />
+
+      {/* 3. New Arrivals / Premium Additions */}
       <NewArrivals products={products.slice(0, 4)} />
       
-      {/* 3. Mobile responsive slides */}
+      {/* 4. Fast-Moving Procurement Items (Mobile Slider) */}
       <MobileFeaturedProducts products={products.slice(0, 6)} />
       
-      {/* 4. Brand Value Statement Segment */}
+      {/* 5. Engineered for Clinical & Laboratory Integrity */}
       <WhyChooseUs />
       
-      {/* 5. Mobile/Tablet News - Powered by your actual DB posts */}
+      {/* 6. Mobile/Tablet Resources & News */}
       <MobileLatestNews posts={posts.slice(0, 3)} />
       
       <div className="flex-1" />
       
-      {/* 6. Footer Layout */}
+      {/* 7. Quote Form & Footer */}
       <CompanyFooter />
     </div>
   );

@@ -112,21 +112,24 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               </div>
             </div>
           </div>
-          {/* RIGHT SIDEBAR PANEL - FULLY DYNAMIC */}
-          <aside className="hidden lg:flex lg:col-span-1 flex-col gap-8 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)]">
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold tracking-tight text-foreground border-b border-border pb-2">Latest News</h2>
-              <div className="space-y-4">
+          {/* RIGHT SIDEBAR PANEL - STRICTLY LIMITED & NON-SCROLLING */}
+          <aside className="hidden lg:flex lg:col-span-1 flex-col gap-6 lg:sticky lg:top-[calc(var(--app-header-height)+1.5rem)]">
+            {/* Latest News (Max 2) */}
+            <div className="space-y-3">
+              <h2 className="text-sm font-bold tracking-tight uppercase text-muted-foreground border-b border-border pb-2">
+                Latest News
+              </h2>
+              <div className="space-y-3">
                 {posts.slice(0, 2).map((post, index) => (
                   <Link 
                     key={post.id} 
                     href={`/blog/${post.slug}`} 
-                    className={`block space-y-1 group cursor-pointer ${index > 0 ? 'border-t border-border/50 pt-3' : ''}`}
+                    className={`block space-y-1 group cursor-pointer ${index > 0 ? 'border-t border-border/50 pt-2.5' : ''}`}
                   >
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
+                    <h3 className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
                       {post.title}
                     </h3>
-                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <Clock className="h-3 w-3" />
                       <span>{post.published_at || post.read_time || 'Recent'}</span>
                     </div>
@@ -135,20 +138,23 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               </div>
             </div>
 
-            <div className="space-y-4 pt-2">
-              <h2 className="text-lg font-bold tracking-tight text-foreground border-b border-border pb-2">Featured Products</h2>
-              <div className="flex flex-col gap-3">
+            {/* Featured Products (Max 3) */}
+            <div className="space-y-3 pt-1">
+              <h2 className="text-sm font-bold tracking-tight uppercase text-muted-foreground border-b border-border pb-2">
+                Featured Products
+              </h2>
+              <div className="flex flex-col gap-2.5">
                 {products.slice(0, 3).map((product) => (
                   <Link 
                     key={product.id} 
                     href={`/products/${product.id}`}
-                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 cursor-pointer group"
+                    className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-muted/50 border border-transparent hover:border-border/40 transition duration-200 cursor-pointer group"
                   >
-                    <div className="relative h-12 w-12 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
+                    <div className="relative h-10 w-10 rounded-lg bg-muted border border-border/60 shrink-0 flex items-center justify-center overflow-hidden">
                       {product.image ? (
                         <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                       ) : (
-                        <Stethoscope className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <Stethoscope className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -164,7 +170,6 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               </div>
             </div>
           </aside>
-
         </div>
       </div>
     </div>
