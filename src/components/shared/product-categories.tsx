@@ -74,7 +74,8 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                 href={`/products?category=${category.id}`}
                 className={`group ${index >= 6 ? 'hidden lg:block' : 'block'}`}
               >
-                <Card hover className="overflow-hidden border border-border/40 bg-slate-900 shadow-xs transition-all duration-300 group-hover:border-primary/80 rounded-xl">
+                {/* Fully borderless card frame */}
+                <Card className="overflow-hidden border-0 shadow-none rounded-xl bg-slate-900 transition-all duration-300">
                   
                   <div className="relative w-full h-32 sm:h-36 isolate">
                     
@@ -83,16 +84,17 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                       <img
                         src={imageUrl}
                         alt={category.name}
-                        className="h-full w-full object-cover opacity-85 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent transition-colors duration-300" />
+                      {/* Dark overlay completely fades out to opacity-0 on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent transition-opacity duration-300 group-hover:opacity-0" />
                     </div>
 
                     {/* Text and Actions Overlay Container */}
                     <div className="absolute inset-0 z-10 flex flex-col justify-between p-3 sm:p-3.5">
-                      {/* Top Content: Softened pre-hover backdrop */}
+                      {/* Top Content: Soft pill title */}
                       <div>
-                        <div className="inline-block rounded-lg bg-black/25 backdrop-blur-xs px-2.5 py-1 transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground max-w-full">
+                        <div className="inline-block rounded-lg bg-black/30 backdrop-blur-xs px-2.5 py-1 transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground max-w-full">
                           <h3 className="text-xs sm:text-sm font-bold text-white transition-colors line-clamp-2 leading-snug">
                             {category.name}
                           </h3>
@@ -100,7 +102,7 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                       </div>
 
                       {/* Bottom Action: Exploration tag */}
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-white group-hover:translate-x-1 transition-all drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-white group-hover:text-primary group-hover:translate-x-1 transition-all drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         <span>Explore</span>
                         <ArrowRight className="h-3 w-3" />
                       </div>
