@@ -8,26 +8,23 @@ import type { BlogPost } from '@/features/blog/server/actions';
 // If needed for mapping types, import your DBCategory type here or use any
 import { Activity, ArrowRight, Clock, ShieldAlert, Stethoscope } from 'lucide-react';
 import Link from 'next/link';
+import { Globe, Headphones, ShieldCheck } from 'lucide-react';
 
-interface CategoryCardProps {
+interface ValueCardProps {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
 }
 
-function CategoryCard({ icon: Icon, title, description }: CategoryCardProps) {
+function ValueCard({ icon: Icon, title, description }: ValueCardProps) {
   return (
-    <Card hover className="relative flex min-h-[14rem] flex-col justify-between overflow-hidden rounded-2xl border border-border/80 p-6 shadow-xs">
+    <Card hover className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-border/80 p-4 shadow-xs">
       <div>
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
-          <Icon className="h-6 w-6" />
+        <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
+          <Icon className="h-4.5 w-4.5" />
         </div>
-        <h3 className="mb-2 text-base font-extrabold tracking-tight text-foreground">{title}</h3>
-        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
-      </div>
-      <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-primary group cursor-pointer">
-        <span>Learn more</span>
-        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+        <h3 className="mb-1 text-sm font-extrabold tracking-tight text-foreground">{title}</h3>
+        <p className="text-[11px] leading-snug text-muted-foreground">{description}</p>
       </div>
     </Card>
   );
@@ -83,12 +80,27 @@ export default function HeroSection({ locale, products, categories, posts }: Her
               </div>
             </div>
 
-            {/* Product Portfolio Grid */}
-            <div className="w-full flex flex-col gap-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <CategoryCard icon={Stethoscope} title="Diagnostic Tools" description="Advanced primary patient checking instruments and portable diagnostic tools built for clean medical evolutions." />
-                <CategoryCard icon={Activity} title="Surgical Instruments" description="High grade surgical implements engineered directly from durable alloys for premium operational performance." />
-                <CategoryCard icon={ShieldAlert} title="Hospital Consumables" description="Sterile protective apparel, clinical single-use needles, procedural sets, and high-volume sanitization tools." />
+            {/* Our Value Proposition */}
+            <div className="w-full flex flex-col gap-3">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-primary">
+                Why Partner With Us
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <ValueCard 
+                  icon={ShieldCheck} 
+                  title="Our Commitment" 
+                  description="Certified, clinical-grade medical equipment compliant with strict international health standards." 
+                />
+                <ValueCard 
+                  icon={Globe} 
+                  title="Global Sourcing" 
+                  description="Direct partnerships with top global manufacturers for dependable inventory and competitive pricing." 
+                />
+                <ValueCard 
+                  icon={Headphones} 
+                  title="Expert Support" 
+                  description="Dedicated technical advice and rapid response quote processing tailored for healthcare facilities." 
+                />
               </div>
             </div>
           </div>
