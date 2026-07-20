@@ -39,7 +39,7 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
           </Link>
         </div>
 
-        {/* Responsive Grid: 2x3 Mobile | 3x2 Tablet | 4x2 Desktop */}
+        {/* Responsive Grid: 2 cols mobile, 3 cols tablet, 4 cols desktop */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {displayCategories.map((category, index) => (
             <Link
@@ -49,31 +49,35 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
             >
               <Card
                 hover
-                className="relative overflow-hidden rounded-xl border border-border/80 bg-slate-900 shadow-xs transition-all duration-300 group-hover:border-primary/60 flex flex-col justify-between h-28 sm:h-32 p-3 sm:p-4"
+                className="relative overflow-hidden rounded-xl border border-border/80 bg-slate-900 shadow-xs transition-all duration-300 group-hover:border-primary/60 flex flex-col justify-between h-32 sm:h-36 p-3.5 sm:p-4"
               >
-                {/* Image Layer with Dark Gradient Tint */}
+                {/* Background Image Layer */}
                 {category.image ? (
                   <>
-                    <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                      style={{ backgroundImage: `url('${category.image}')` }}
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/60 to-slate-950/30 group-hover:from-slate-950/95 transition-colors" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-slate-950/40 group-hover:from-slate-950 transition-colors duration-300" />
                   </>
                 ) : (
-                  <div className="absolute top-3 right-3 text-white/20">
-                    <Layers className="h-8 w-8" />
-                  </div>
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
+                    <div className="absolute top-3 right-3 text-white/10">
+                      <Layers className="h-10 w-10" />
+                    </div>
+                  </>
                 )}
 
-                {/* Content */}
+                {/* Content Overlay */}
                 <div className="relative z-10 space-y-1">
-                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 drop-shadow-xs">
+                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-xs">
                     {category.name}
                   </h3>
                 </div>
 
-                <div className="relative z-10 flex items-center gap-1 text-[10px] font-bold text-white/80 group-hover:text-primary group-hover:translate-x-1 transition-all">
+                <div className="relative z-10 flex items-center gap-1 text-[11px] font-bold text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all">
                   <span>Explore</span>
                   <ArrowRight className="h-3 w-3" />
                 </div>

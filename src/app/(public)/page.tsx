@@ -42,7 +42,7 @@ const HomePage = async () => {
       <NewArrivals products={products.slice(0, 4)} />
 
       {/* 4. Hot Procurement Deals Section */}
-      <HotDeals products={products.slice(4, 8)} />
+      <HotDeals products={products.slice(4, 10)} />
       
       {/* 5. Fast-Moving Consumables Slider (Mobile) */}
       <MobileFeaturedProducts products={products.slice(0, 6)} />
