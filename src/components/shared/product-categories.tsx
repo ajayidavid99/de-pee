@@ -93,9 +93,11 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
                     <div className="absolute inset-0 z-10 flex flex-col justify-between p-3.5 sm:p-4">
                       {/* Top Content */}
                       <div className="space-y-1">
-                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                          {category.name}
-                        </h3>
+                        <span className="inline-block rounded-md bg-slate-950/60 px-2 py-1 backdrop-blur-xs transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                          <h3 className="text-xs sm:text-sm font-bold text-white transition-colors line-clamp-2 leading-snug">
+                            {category.name}
+                          </h3>
+                        </span>
                       </div>
 
                       {/* Bottom Action */}
