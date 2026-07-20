@@ -1,18 +1,21 @@
-// de-pee/src/components/shared/product-catalog.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { DBProduct } from '@/features/products/server/actions';
-import { ShoppingBag, FileText, CheckCircle, Package, Layers, Info, ChevronDown, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { ShoppingBag, FileText, CheckCircle, Package, Layers, Info, ChevronDown, ChevronRight, SlidersHorizontal, Plus, Minus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface ProductCatalogProps {
   initialProducts: DBProduct[];
   initialCategories: Array<{ id: string; name: string; parent_id: string | null }>;
+}
+
+interface CartItem {
+  product: DBProduct;
+  quantity: number;
 }
 
 export default function ProductCatalog({ initialProducts, initialCategories }: ProductCatalogProps) {
@@ -21,34 +24,45 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [quantities, setQuantities] = useState<Record<string, string>>({});
-  const [quoteCart, setQuoteCart] = useState<Array<{ product: DBProduct; quantity: number }>>([]);
+  const [quoteCart, setQuoteCart] = useState<CartItem[]>([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 1. Parse live self-referencing SQL nodes cleanly into Root and Child groups
+  // Load basket from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('depee_quote_basket');
+    if (savedCart) {
+      try {
+        setQuoteCart(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Failed to parse quote basket data:', e);
+      }
+    }
+  }, []);
+
+  // Sync basket changes to localStorage
+  const updateCartState = (newCart: CartItem[]) => {
+    setQuoteCart(newCart);
+    localStorage.setItem('depee_quote_basket', JSON.stringify(newCart));
+  };
+
   const mainCategories = initialCategories.filter((c) => c.parent_id === null);
   
   const getSubCategories = (parentId: string) => 
     initialCategories.filter((c) => c.parent_id === parentId);
 
-  // 2. Multilayered Dynamic Catalog Filter Engine
   const filteredProducts = initialProducts.filter((product) => {
-    // Apply search query criteria first
     if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
-
     if (activeTab === 'all') return true;
-    
-    // If specific sub-tab selection is made, strict match the child row ID
     if (activeSubTab) return product.category_id === activeSubTab;
     
-    // If parent tab is selected, include both explicit parent matches and all underlying child sub-categories
     const associatedChildIds = getSubCategories(activeTab).map((c) => c.id);
     return product.category_id === activeTab || associatedChildIds.includes(product.category_id);
   });
 
-  const handleQuantityChange = (productId: string, val: string) => {
+  const handleQuantityInputChange = (productId: string, val: string) => {
     if (val === '' || /^\d+$/.test(val)) {
       setQuantities((prev) => ({ ...prev, [productId]: val }));
     }
@@ -58,16 +72,42 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
     const qty = parseInt(quantities[product.id] || '1', 10);
     if (isNaN(qty) || qty <= 0) return;
 
-    setQuoteCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + qty } : item
-        );
-      }
-      return [...prev, { product, quantity: qty }];
-    });
+    const existing = quoteCart.find((item) => item.product.id === product.id);
+    let newCart: CartItem[];
+    
+    if (existing) {
+      newCart = quoteCart.map((item) =>
+        item.product.id === product.id ? { ...item, quantity: item.quantity + qty } : item
+      );
+    } else {
+      newCart = [...quoteCart, { product, quantity: qty }];
+    }
+
+    updateCartState(newCart);
     setQuantities((prev) => ({ ...prev, [product.id]: '' }));
+  };
+
+  // Adjust basket totals from inside the basket view
+  const adjustBasketQuantity = (productId: string, delta: number) => {
+    const newCart = quoteCart.map((item) => {
+      if (item.product.id === productId) {
+        const nextQty = item.quantity + delta;
+        return nextQty > 0 ? { ...item, quantity: nextQty } : null;
+      }
+      return item;
+    }).filter(Boolean) as CartItem[];
+
+    updateCartState(newCart);
+  };
+
+  const deleteBasketItem = (productId: string) => {
+    const newCart = quoteCart.filter((item) => item.product.id !== productId);
+    updateCartState(newCart);
+  };
+
+  const handleSubmitRequest = () => {
+    setFormSubmitted(true);
+    updateCartState([]); // Clear memory safely
   };
 
   const toggleCategoryExpand = (categoryId: string) => {
@@ -76,7 +116,7 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
 
   const handleTabSelect = (tabId: string) => {
     setActiveTab(tabId);
-    setActiveSubTab(null); // Reset child selection when structural branch changes
+    setActiveSubTab(null);
   };
 
   return (
@@ -110,7 +150,7 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
         {/* Core Layout Interface Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
           
-          {/* Navigation Sidebar Layer (Hidden on mobile via responsive layouts) */}
+          {/* Navigation Sidebar Layer */}
           <div className={`md:block space-y-2 ${isMobileMenuOpen ? 'block bg-muted/30 p-3 rounded-lg border' : 'hidden'}`}>
             <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground px-2 mb-2 flex items-center gap-1.5">
               <Layers className="h-3.5 w-3.5" /> Department Families
@@ -154,7 +194,6 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
                     )}
                   </div>
 
-                  {/* Nested Subcategory Navigation rendering loop */}
                   {hasSubs && expandedCategories[category.id] && (
                     <div className="pl-4 border-l border-border/60 ml-2 space-y-0.5 mt-0.5">
                       {subCats.map((sub) => (
@@ -206,12 +245,12 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
 
                     <div className="p-3 pt-0 space-y-2 border-t border-border/30 mt-2 bg-muted/10">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center border border-border rounded-md bg-background overflow-hidden h-7 max-w-[70px]">
+                        <div className="flex items-center border border-border rounded-md bg-background overflow-hidden h-7 max-w-[75px]">
                           <Input
                             type="text"
                             placeholder="1"
                             value={quantities[product.id] ?? ''}
-                            onChange={(e) => handleQuantityChange(product.id, e.target.value)}
+                            onChange={(e) => handleQuantityInputChange(product.id, e.target.value)}
                             className="h-full border-0 focus-visible:ring-0 text-center text-xs p-0 w-full font-bold"
                           />
                         </div>
@@ -231,7 +270,7 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
             )}
           </div>
 
-          {/* Quotation Procurement Basket Area (Right Container Layout) */}
+          {/* Quotation Procurement Basket Area */}
           <div className="space-y-4">
             <Card className="p-4 border-border/80 shadow-xs">
               <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3 flex items-center gap-1.5">
@@ -251,23 +290,56 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="max-h-[200px] overflow-y-auto space-y-2 pr-1 divide-y divide-border/40">
+                  <div className="max-h-[320px] overflow-y-auto space-y-3 pr-1">
                     {quoteCart.map((item) => (
-                      <div key={item.product.id} className="flex justify-between items-start text-[11px] pt-2 first:pt-0">
-                        <div className="min-w-0 pr-2">
-                          <p className="font-semibold text-foreground truncate">{item.product.name}</p>
-                          <p className="text-[9px] text-muted-foreground uppercase">{item.product.category_name}</p>
+                      <div key={item.product.id} className="flex flex-col gap-1.5 pb-2 border-b border-border/40 last:border-0 last:pb-0">
+                        <div className="flex justify-between items-start text-[11px]">
+                          <div className="min-w-0 pr-2">
+                            <p className="font-semibold text-foreground truncate">{item.product.name}</p>
+                            <p className="text-[9px] text-muted-foreground uppercase">{item.product.category_name}</p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => deleteBasketItem(item.product.id)}
+                            className="h-5 w-5 text-muted-foreground hover:text-destructive shrink-0 rounded"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </div>
-                        <span className="font-bold text-primary shrink-0 bg-primary/10 px-1.5 py-0.5 rounded text-[9px]">
-                          {item.quantity} u
-                        </span>
+                        
+                        {/* Stepper Control Layer */}
+                        <div className="flex items-center justify-between bg-muted/50 p-1 rounded-md border border-border/40">
+                          <span className="text-[10px] font-medium px-1 text-muted-foreground">Quantity</span>
+                          <div className="flex items-center gap-1 bg-background border border-border/60 rounded p-0.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => adjustBasketQuantity(item.product.id, -1)}
+                              className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
+                            >
+                              <Minus className="h-2.5 w-2.5" />
+                            </Button>
+                            <span className="font-bold text-foreground text-center min-w-[20px] text-xs">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => adjustBasketQuantity(item.product.id, 1)}
+                              className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
+                            >
+                              <Plus className="h-2.5 w-2.5" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
 
                   <div className="pt-2 border-t border-border/60">
                     <Button 
-                      onClick={() => setFormSubmitted(true)} 
+                      onClick={handleSubmitRequest} 
                       className="w-full text-xs h-8 gap-1 bg-blue-600 hover:bg-blue-700 text-white font-bold"
                     >
                       <FileText className="h-3 w-3" />
