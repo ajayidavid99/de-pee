@@ -13,12 +13,11 @@ interface DBCategory {
 }
 
 export function ProductCategories({ categories }: { categories: DBCategory[] }) {
-  // Prefer parent categories (top-level), fallback to all if not structured
   const displayCategories = (
     categories.filter((c) => !c.parent_id).length > 0
       ? categories.filter((c) => !c.parent_id)
       : categories
-  ).slice(0, 8); // Max 8 for desktop 4x2 grid
+  ).slice(0, 8);
 
   return (
     <section className="w-full bg-background py-10 border-t border-border/60">
@@ -40,11 +39,7 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
           </Link>
         </div>
 
-        {/* 
-          - Mobile (< sm): 2 cols x 3 rows (Max 6 shown via CSS/slice)
-          - Tablet (sm -> lg): 3 cols x 2 rows
-          - Desktop (lg+): 4 cols x 2 rows
-        */}
+        {/* Responsive Grid: 2x3 Mobile | 3x2 Tablet | 4x2 Desktop */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {displayCategories.map((category, index) => (
             <Link
@@ -54,27 +49,31 @@ export function ProductCategories({ categories }: { categories: DBCategory[] }) 
             >
               <Card
                 hover
-                className="relative overflow-hidden rounded-xl border border-border/80 p-3 sm:p-4 bg-card/40 transition-all duration-200 group-hover:border-primary/50 flex flex-col justify-between h-28 sm:h-32"
+                className="relative overflow-hidden rounded-xl border border-border/80 bg-slate-900 shadow-xs transition-all duration-300 group-hover:border-primary/60 flex flex-col justify-between h-28 sm:h-32 p-3 sm:p-4"
               >
-                {/* Background image overlay with soft gradient */}
+                {/* Image Layer with Dark Gradient Tint */}
                 {category.image ? (
-                  <div
-                    className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 group-hover:scale-105 transition-all duration-300"
-                    style={{ backgroundImage: `url('${category.image}')` }}
-                  />
+                  <>
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                      style={{ backgroundImage: `url('${category.image}')` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/60 to-slate-950/30 group-hover:from-slate-950/95 transition-colors" />
+                  </>
                 ) : (
-                  <div className="absolute top-3 right-3 text-muted-foreground/20">
-                    <Layers className="h-10 w-10" />
+                  <div className="absolute top-3 right-3 text-white/20">
+                    <Layers className="h-8 w-8" />
                   </div>
                 )}
 
+                {/* Content */}
                 <div className="relative z-10 space-y-1">
-                  <h3 className="text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 drop-shadow-xs">
                     {category.name}
                   </h3>
                 </div>
 
-                <div className="relative z-10 flex items-center gap-1 text-[10px] font-bold text-primary group-hover:translate-x-1 transition-transform">
+                <div className="relative z-10 flex items-center gap-1 text-[10px] font-bold text-white/80 group-hover:text-primary group-hover:translate-x-1 transition-all">
                   <span>Explore</span>
                   <ArrowRight className="h-3 w-3" />
                 </div>

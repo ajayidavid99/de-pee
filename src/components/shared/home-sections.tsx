@@ -11,45 +11,67 @@ import type { DBProduct } from '@/features/products/server/actions';
 import type { BlogPost } from '@/features/blog/server/actions';
 
 /* ==========================================================================\
-   3. NEW ARRIVALS COMPONENT (Now fully dynamic)
+   3. NEW ARRIVALS / PREMIUM ADDITIONS (Compact Card Layout)
    ========================================================================== */
 export function NewArrivals({ products }: { products: DBProduct[] }) {
   return (
-    <div className="w-full bg-background py-12 border-t border-border/60">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6">
-        <div className="flex items-center justify-between mb-8">
+    <section className="w-full bg-background py-10 border-t border-border/60">
+      <div className="mx-auto max-w-7xl px-4 lg:px-6">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-wider">Recently Cataloged</span>
-            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">Premium Additions</h2>
+            <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-wider">
+              Recently Cataloged
+            </span>
+            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+              Premium Additions
+            </h2>
           </div>
-          <Link href="/products" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+          <Link 
+            href="/products" 
+            className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+          >
             Browse Store <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Compact Grid matching Product Categories style */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {products.map((item) => (
-            <Card key={item.id} hover className="overflow-hidden border border-border/80 flex flex-col justify-between h-full bg-card/30">
-              <div className="aspect-video bg-muted relative overflow-hidden border-b border-border/60">
-                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+            <Card 
+              key={item.id} 
+              hover 
+              className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 transition-all duration-300 group hover:border-primary/50 flex flex-col justify-between h-44 sm:h-48 p-3"
+            >
+              {/* Product Image Box */}
+              <div className="relative h-20 sm:h-24 w-full rounded-lg bg-muted overflow-hidden border border-border/40 shrink-0">
+                <img 
+                  src={item.image} 
+                  alt={item.name} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                />
               </div>
-              <div className="p-4 flex-1 flex flex-col justify-between">
-                <div className="space-y-1">
-                  <span className="text-[9px] font-bold text-primary uppercase tracking-wider font-mono">{item.category_name}</span>
-                  <h3 className="text-xs font-bold text-foreground line-clamp-1">{item.name}</h3>
-                  <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-border/40">
-                  <Button size="sm" asChild className="w-full text-[10px] h-7 font-bold">
-                    <Link href={`/products/${item.id}`}>Request Quote</Link>
-                  </Button>
-                </div>
+
+              {/* Product Info */}
+              <div className="space-y-0.5 mt-2 min-w-0 flex-1">
+                <span className="text-[9px] font-bold text-primary uppercase tracking-wider font-mono block truncate">
+                  {item.category_name}
+                </span>
+                <h3 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                  {item.name}
+                </h3>
+              </div>
+
+              {/* Action Link */}
+              <div className="mt-2 pt-2 border-t border-border/40">
+                <Button size="sm" asChild className="w-full text-[10px] h-6 font-bold rounded-md">
+                  <Link href={`/products/${item.id}`}>Request Quote</Link>
+                </Button>
               </div>
             </Card>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
