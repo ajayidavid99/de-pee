@@ -127,6 +127,50 @@ export async function createCategory(formData: { name: string; parentId?: string
 }
 
 /**
+ * Update an existing category or sub-category
+ */
+export async function updateCategory(
+  id: string,
+  data: { name: string; parentId?: string | null; image?: string | null }
+) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized');
+  }
+
+  await db.query(
+    `UPDATE categories SET name = $1, parent_id = $2, image = $3 WHERE id = $4`,
+    [data.name, data.parentId || null, data.image || null, id]
+  );
+
+  revalidatePath('/products');
+  revalidatePath('/dashboard');
+  return { success: true };
+}
+
+/**
+ * Delete a category or sub-category
+ */
+export async function deleteCategory(id: string) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized');
+  }
+
+  // Check if any product depends on this category
+  const check = await db.query('SELECT id FROM products WHERE category_id = $1 LIMIT 1', [id]);
+  if (check.rows.length > 0) {
+    throw new Error('Cannot delete category because active products are assigned to it.');
+  }
+
+  await db.query('DELETE FROM categories WHERE id = $1', [id]);
+
+  revalidatePath('/products');
+  revalidatePath('/dashboard');
+  return { success: true };
+}
+
+/**
  * Commits a validated medical instrument entry into storage using the "prod_" prefixed ID standard
  */
 export async function createProduct(formData: {

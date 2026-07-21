@@ -7,18 +7,19 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Import Edit dialog implementations
 import { EditProductDialog } from '@/features/products/components/edit-product-dialog';
 import { EditPostDialog } from '@/features/blog/components/edit-post-dialog';
+import { EditCategoryDialog } from '@/features/products/components/edit-category-dialog';
 
 interface DashboardActionsProps {
   id: string;
   onDelete: (id: string) => Promise<any>;
-  rawItem: any; // Full entity block object injected from the DB iterator
-  type: 'product' | 'post';
+  rawItem: any;
+  type: 'product' | 'post' | 'category';
+  categories?: any[]; // Passed down when editing categories
 }
 
-export function DashboardActions({ id, onDelete, rawItem, type }: DashboardActionsProps) {
+export function DashboardActions({ id, onDelete, rawItem, type, categories = [] }: DashboardActionsProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -27,15 +28,15 @@ export function DashboardActions({ id, onDelete, rawItem, type }: DashboardActio
     startTransition(async () => {
       try {
         await onDelete(id);
-        toast.success(`${type === 'product' ? 'Product' : 'Article'} successfully purged.`);
+        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} successfully deleted.`);
         setIsDeleteOpen(false);
       } catch (err: any) {
-        toast.error(err.message || 'Failed to complete deletion process.');
+        toast.error(err.message || 'Failed to delete item.');
       }
     });
   };
 
-  const itemName = type === 'product' ? rawItem.name : rawItem.title;
+  const itemName = rawItem.name || rawItem.title;
 
   return (
     <>
@@ -58,15 +59,16 @@ export function DashboardActions({ id, onDelete, rawItem, type }: DashboardActio
         </Button>
       </div>
 
-      {/* CONDITIONAL RENDER FOR EDIT OVERLAYS */}
       {type === 'product' && isEditOpen && (
         <EditProductDialog product={rawItem} open={isEditOpen} setOpen={setIsEditOpen} />
       )}
       {type === 'post' && isEditOpen && (
         <EditPostDialog post={rawItem} open={isEditOpen} setOpen={setIsEditOpen} />
       )}
+      {type === 'category' && isEditOpen && (
+        <EditCategoryDialog category={rawItem} categories={categories} open={isEditOpen} setOpen={setIsEditOpen} />
+      )}
 
-      {/* CONFIRMATION DELETION DIALOG */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -74,28 +76,15 @@ export function DashboardActions({ id, onDelete, rawItem, type }: DashboardActio
               <Trash2 className="h-4 w-4" /> Confirm Deletion
             </DialogTitle>
             <DialogDescription className="text-xs pt-1">
-              Are you sure you want to delete <span className="font-bold text-foreground">"{itemName}"</span>? This will permanently remove the database record and purge its attached image asset from Vercel Blob storage.
+              Are you sure you want to delete <span className="font-bold text-foreground">"{itemName}"</span>?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/40">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-8 text-xs" 
-              onClick={() => setIsDeleteOpen(false)}
-              disabled={isPending}
-            >
+            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsDeleteOpen(false)} disabled={isPending}>
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
-              size="sm" 
-              className="h-8 text-xs font-bold gap-1"
-              onClick={handleDelete}
-              disabled={isPending}
-            >
-              {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
-              Delete Permanently
+            <Button variant="destructive" size="sm" className="h-8 text-xs font-bold gap-1" onClick={handleDelete} disabled={isPending}>
+              {isPending && <Loader2 className="h-3 w-3 animate-spin" />} Delete Permanently
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -4,13 +4,19 @@ import { PageHeader, PageLayout } from '@/components/shared/page-header';
 import { requirePermission } from '@/features/auth/rbac/require';
 import { getTranslations } from 'next-intl/server';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Layers, Stethoscope, FileText } from 'lucide-react';
 import { AddProductDialog } from '@/features/products/components/add-product-dialog';
 import { AddCategoryDialog } from '@/features/products/components/add-category-dialog';
 import { AddPostDialog } from '@/features/blog/components/add-post-dialog';
-import { deleteProduct, getProducts, getCategories, type DBProduct, type DBCategory } from '@/features/products/server/actions';
+import { 
+  deleteProduct, 
+  deleteCategory, 
+  getProducts, 
+  getCategories, 
+  type DBProduct, 
+  type DBCategory 
+} from '@/features/products/server/actions';
 import { deleteBlogPost, getBlogPosts, type BlogPost } from '@/features/blog/server/actions';
 
 export const dynamic = 'force-dynamic';
@@ -19,12 +25,10 @@ export default async function AdminDashboardPage() {
   await requirePermission('dashboard.view:admin');
   const t = await getTranslations('dashboard.admin');
 
-  // Safely initialize with fallback arrays
   let products: DBProduct[] = [];
   let categories: DBCategory[] = [];
   let posts: BlogPost[] = [];
 
-  // Use Promise.allSettled to guarantee the page never crashes due to a single database table error
   const results = await Promise.allSettled([
     getProducts(),
     getCategories(),
@@ -86,13 +90,15 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
 
-        {/* Tabs */}
+        {/* Dynamic Admin Tabs */}
         <Tabs defaultValue="equipment" className="space-y-4">
           <TabsList className="bg-muted/60 p-1 border border-border/40 h-9">
             <TabsTrigger value="equipment" className="text-xs px-4 h-7">Equipment Portfolio</TabsTrigger>
+            <TabsTrigger value="categories" className="text-xs px-4 h-7">Category Hierarchy</TabsTrigger>
             <TabsTrigger value="blog" className="text-xs px-4 h-7">Article Workspace</TabsTrigger>
           </TabsList>
 
+          {/* Equipment Tab */}
           <TabsContent value="equipment">
             <Card className="overflow-hidden border-border/80">
               <div className="p-4 border-b border-border/60 bg-muted/20">
@@ -126,16 +132,10 @@ export default async function AdminDashboardPage() {
                           <tr key={product.id} className="hover:bg-muted/30 transition-colors">
                             <td className="p-3">
                               <div className="h-10 w-10 rounded-md overflow-hidden bg-muted border border-border/40 shrink-0">
-                                <img 
-                                  src={imageUrl} 
-                                  alt={product.name} 
-                                  className="w-full h-full object-cover"
-                                />
+                                <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
                               </div>
                             </td>
-                            <td className="p-3 font-bold text-foreground max-w-[180px] truncate">
-                              {product.name}
-                            </td>
+                            <td className="p-3 font-bold text-foreground max-w-[180px] truncate">{product.name}</td>
                             <td className="p-3">
                               <span className="inline-flex items-center rounded-sm bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">
                                 {product.category_name}
@@ -145,11 +145,85 @@ export default async function AdminDashboardPage() {
                               {product.specification || 'No technical specifications provided'}
                             </td>
                             <td className="p-3 text-right">
-                              <DashboardActions 
-                                id={product.id} 
-                                onDelete={deleteProduct} 
-                                rawItem={product} // Pass full item down cleanly
-                                type="product" 
+                              <DashboardActions id={product.id} onDelete={deleteProduct} rawItem={product} type="product" />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* CATEGORY MANAGEMENT TAB */}
+          <TabsContent value="categories">
+            <Card className="overflow-hidden border-border/80">
+              <div className="p-4 border-b border-border/60 bg-muted/20">
+                <h3 className="text-sm font-bold text-foreground">Categories & Sub-Categories</h3>
+                <p className="text-[11px] text-muted-foreground">Manage hierarchy, optional cover imagery, and dynamic classifications.</p>
+              </div>
+
+              <div className="overflow-x-auto">
+                {categories.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground space-y-2">
+                    <Layers className="h-8 w-8 mx-auto opacity-40" />
+                    <p className="text-xs">No categories created yet.</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/40 text-muted-foreground font-medium">
+                        <th className="p-3 font-semibold">Banner</th>
+                        <th className="p-3 font-semibold">Category Name</th>
+                        <th className="p-3 font-semibold">Type / Parent</th>
+                        <th className="p-3 font-semibold">System Slug / ID</th>
+                        <th className="p-3 font-semibold text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/40">
+                      {categories.map((category) => {
+                        const parent = categories.find((c) => c.id === category.parent_id);
+                        const isSub = !!category.parent_id;
+
+                        return (
+                          <tr key={category.id} className="hover:bg-muted/30 transition-colors">
+                            <td className="p-3">
+                              <div className="h-9 w-9 rounded-md overflow-hidden bg-muted border border-border/40 shrink-0">
+                                {category.image ? (
+                                  <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-[9px] text-muted-foreground font-mono uppercase bg-muted/60">
+                                    No Img
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 font-bold text-foreground max-w-[180px] truncate">
+                              {category.name}
+                            </td>
+                            <td className="p-3">
+                              {isSub ? (
+                                <span className="inline-flex items-center rounded-sm bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 uppercase tracking-wider">
+                                  Sub of {parent?.name || 'Parent'}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center rounded-sm bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                                  Root Category
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3 text-muted-foreground font-mono text-[11px]">
+                              {category.id}
+                            </td>
+                            <td className="p-3 text-right">
+                              <DashboardActions
+                                id={category.id}
+                                onDelete={deleteCategory}
+                                rawItem={category}
+                                categories={categories}
+                                type="category"
                               />
                             </td>
                           </tr>
@@ -162,18 +236,19 @@ export default async function AdminDashboardPage() {
             </Card>
           </TabsContent>
 
+          {/* Blog Tab */}
           <TabsContent value="blog">
             <Card className="overflow-hidden border-border/80">
               <div className="p-4 border-b border-border/60 bg-muted/20">
                 <h3 className="text-sm font-bold text-foreground">Live Insights Feed</h3>
-                <p className="text-[11px] text-muted-foreground">Manage editorial clinical advice columns and strategic hardware procurement papers.</p>
+                <p className="text-[11px] text-muted-foreground">Manage editorial clinical advice columns and hardware articles.</p>
               </div>
 
               <div className="overflow-x-auto">
                 {posts.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground space-y-2">
                     <FileText className="h-8 w-8 mx-auto opacity-40" />
-                    <p className="text-xs">No articles published to the database yet.</p>
+                    <p className="text-xs">No articles published yet.</p>
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse text-xs">
@@ -195,16 +270,10 @@ export default async function AdminDashboardPage() {
                           <tr key={post.id} className="hover:bg-muted/30 transition-colors">
                             <td className="p-3">
                               <div className="h-10 w-10 rounded-md overflow-hidden bg-muted border border-border/40 shrink-0">
-                                <img 
-                                  src={imageUrl} 
-                                  alt={post.title} 
-                                  className="w-full h-full object-cover"
-                                />
+                                <img src={imageUrl} alt={post.title} className="w-full h-full object-cover" />
                               </div>
                             </td>
-                            <td className="p-3 font-bold text-foreground max-w-[200px] truncate">
-                              {post.title}
-                            </td>
+                            <td className="p-3 font-bold text-foreground max-w-[200px] truncate">{post.title}</td>
                             <td className="p-3">
                               <span className="inline-flex items-center rounded-sm bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-600 uppercase tracking-wider">
                                 {post.category_label}
@@ -214,12 +283,7 @@ export default async function AdminDashboardPage() {
                               {post.author_name} ({post.author_role})
                             </td>
                             <td className="p-3 text-right">
-                              <DashboardActions 
-                                id={post.id} 
-                                onDelete={deleteBlogPost} 
-                                rawItem={post} // Pass full item down cleanly
-                                type="post" 
-                              />
+                              <DashboardActions id={post.id} onDelete={deleteBlogPost} rawItem={post} type="post" />
                             </td>
                           </tr>
                         );
