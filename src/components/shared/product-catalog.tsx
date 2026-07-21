@@ -21,9 +21,8 @@ import {
   Trash2, 
   X,
   Headphones,
-  MessageCircle,
-  PhoneCall,
-  Mail
+  Mail,
+  PhoneCall
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -144,11 +143,9 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
 
   // Support Trigger Handler (Prepared for Tawk.to integration)
   const handleSupportClick = () => {
-    // Check if Tawk.to API is attached to window
     if (typeof window !== 'undefined' && (window as any).Tawk_API?.maximize) {
       (window as any).Tawk_API.maximize();
     } else {
-      // Fallback to internal support popover panel
       setIsSupportOpen(!isSupportOpen);
       setIsBasketOpen(false);
     }
@@ -311,18 +308,18 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
 
       </div>
 
-      {/* Split 2-Column Floating Action Box */}
+      {/* Floating Action Box (Stacked on Mobile, Horizontal on Desktop) */}
       <div className="fixed bottom-6 right-6 z-50">
-        <div className="flex items-center bg-card border border-border/80 shadow-2xl rounded-full p-1.5 gap-1 backdrop-blur-md bg-card/95">
+        <div className="flex flex-col sm:flex-row items-center bg-card border border-border/80 shadow-2xl rounded-2xl sm:rounded-full p-1.5 gap-1 backdrop-blur-md bg-card/95">
           
-          {/* Column 1: Inquiry Basket Button + Popover */}
+          {/* Inquiry Basket Button + Popover */}
           <Popover open={isBasketOpen} onOpenChange={(open) => { setIsBasketOpen(open); if (open) setIsSupportOpen(false); }}>
             <PopoverTrigger asChild>
-              <button className="relative flex items-center gap-2 px-3.5 py-2 rounded-full hover:bg-accent transition-colors text-xs font-medium text-foreground">
-                <ShoppingBag className="h-4 w-4 text-blue-600" />
+              <button className="relative flex items-center justify-center gap-2 p-2.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-full hover:bg-accent transition-colors text-xs font-medium text-foreground w-full sm:w-auto">
+                <ShoppingBag className="h-5 w-5 sm:h-4 sm:w-4 text-blue-600" />
                 <span className="hidden sm:inline">Quote Basket</span>
                 {totalBasketItemCount > 0 ? (
-                  <span className="bg-blue-600 text-white text-[10px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center animate-in zoom-in">
+                  <span className="absolute -top-1 -right-1 sm:relative sm:top-0 sm:right-0 bg-blue-600 text-white text-[10px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center animate-in zoom-in">
                     {totalBasketItemCount}
                   </span>
                 ) : (
@@ -417,17 +414,17 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
             </PopoverContent>
           </Popover>
 
-          {/* Divider between columns */}
-          <div className="h-5 w-[1px] bg-border/80 my-auto" />
+          {/* Divider: Horizontal line on mobile, vertical line on desktop */}
+          <div className="w-full h-[1px] sm:w-[1px] sm:h-5 bg-border/80 my-0.5 sm:my-auto" />
 
-          {/* Column 2: Admin Support Button + Popover */}
+          {/* Admin Support Button + Popover */}
           <Popover open={isSupportOpen} onOpenChange={(open) => { setIsSupportOpen(open); if (open) setIsBasketOpen(false); }}>
             <PopoverTrigger asChild>
               <button 
                 onClick={handleSupportClick}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-full hover:bg-accent transition-colors text-xs font-medium text-foreground"
+                className="flex items-center justify-center gap-2 p-2.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-full hover:bg-accent transition-colors text-xs font-medium text-foreground w-full sm:w-auto"
               >
-                <Headphones className="h-4 w-4 text-emerald-600" />
+                <Headphones className="h-5 w-5 sm:h-4 sm:w-4 text-emerald-600" />
                 <span className="hidden sm:inline">Support</span>
               </button>
             </PopoverTrigger>
