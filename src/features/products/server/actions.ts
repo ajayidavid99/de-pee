@@ -6,7 +6,6 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/features/auth/server/get-current-user';
 import { db } from '@/libs/db';
 
-
 export interface DBProduct {
   id: string;
   name: string;
@@ -22,6 +21,7 @@ export interface DBCategory {
   id: string;
   name: string;
   parent_id: string | null;
+  image?: string | null; // Make image optional / nullable
 }
 
 export async function uploadImageAction(formData: FormData): Promise<string> {
@@ -76,15 +76,16 @@ export async function getProducts(): Promise<DBProduct[]> {
 }
 
 /**
- * Fetches all categories and sub-categories to populate layout selectors and filters
+ * Fetches all categories and sub-categories including optional image path
  */
 export async function getCategories(): Promise<DBCategory[]> {
   try {
-    const result = await db.query('SELECT id, name, parent_id FROM categories ORDER BY name ASC');
+    const result = await db.query('SELECT id, name, parent_id, image FROM categories ORDER BY name ASC');
     return (result.rows || []).map((row: any) => ({
       id: String(row.id || ''),
       name: String(row.name || ''),
       parent_id: row.parent_id ? String(row.parent_id) : null,
+      image: row.image ? String(row.image) : null,
     }));
   } catch (error) {
     console.error('Failed to query categories from Neon:', error);
@@ -93,9 +94,9 @@ export async function getCategories(): Promise<DBCategory[]> {
 }
 
 /**
- * Create a new category or sub-category dynamically
+ * Create a new category or sub-category dynamically with optional image
  */
-export async function createCategory(formData: { name: string; parentId?: string | null }) {
+export async function createCategory(formData: { name: string; parentId?: string | null; image?: string | null }) {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
     throw new Error('Unauthorized');
@@ -112,8 +113,8 @@ export async function createCategory(formData: { name: string; parentId?: string
 
   try {
     await db.query(
-      `INSERT INTO categories (id, name, parent_id) VALUES ($1, $2, $3)`,
-      [id, formData.name, formData.parentId || null]
+      `INSERT INTO categories (id, name, parent_id, image) VALUES ($1, $2, $3, $4)`,
+      [id, formData.name, formData.parentId || null, formData.image || null]
     );
 
     revalidatePath('/products');
