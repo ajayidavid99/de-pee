@@ -206,7 +206,7 @@ export default async function AdminDashboardPage() {
                             <td className="p-3">
                               {isSub ? (
                                 <span className="inline-flex items-center rounded-sm bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 uppercase tracking-wider">
-                                  Sub of {parent?.name || 'Parent'}
+                                  {parent?.name || 'Sub-category'}
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center rounded-sm bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
