@@ -1,3 +1,5 @@
+Folder PATH listing
+Volume serial number is 00000068 C493:B52A
 C:.
 |   global.d.ts
 |   instrumentation-client.ts
@@ -92,9 +94,11 @@ C:.
 |   |       dashboard-actions.tsx
 |   |       hero-section.tsx
 |   |       home-sections.tsx
+|   |       hot-deals.tsx
 |   |       logo.tsx
 |   |       page-header.tsx
 |   |       product-catalog.tsx
+|   |       product-categories.tsx
 |   |       text-link.tsx
 |   |       theme-overlay.tsx
 |   |       
@@ -203,6 +207,7 @@ C:.
 |   |   +---components
 |   |   |       add-category-dialog.tsx
 |   |   |       add-product-dialog.tsx
+|   |   |       edit-category-dialog.tsx
 |   |   |       edit-product-dialog.tsx
 |   |   |       
 |   |   \---server
