@@ -1,3 +1,4 @@
+// src/features/products/components/edit-product-dialog.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,53 +14,74 @@ import { Loader2, UploadCloud } from 'lucide-react';
 import { updateProductAction, uploadImageAction, type DBProduct } from '../server/actions';
 import { toast } from 'sonner';
 
-
 const editProductSchema = z.object({
   name: z.string().min(2, 'Product name is required'),
   description: z.string().min(5, 'Provide a detailed description'),
   specification: z.string().min(3, 'Technical specifications are required'),
   imageFile: z.any().optional(),
+  is_featured: z.boolean().default(false),
+  is_hot_deal: z.boolean().default(false),
+  is_premium: z.boolean().default(false),
 });
 
-type EditProductValues = z.infer<typeof editProductSchema>;
+type EditProductInput = z.input<typeof editProductSchema>;
+type EditProductOutput = z.output<typeof editProductSchema>;
 
 interface EditProductDialogProps {
-  product: any; 
+  product: DBProduct; 
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
 export function EditProductDialog({ product, open, setOpen }: EditProductDialogProps) {
   const [isPending, setIsPending] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(product.image || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(product?.image || null);
 
-  const form = useForm<EditProductValues>({
+  const form = useForm<EditProductInput, any, EditProductOutput>({
     resolver: zodResolver(editProductSchema),
     defaultValues: {
-      name: product.name || '',
-      description: product.description || '',
-      specification: product.specification || '',
+      name: product?.name || '',
+      description: product?.description || '',
+      specification: product?.specification || '',
+      is_featured: product?.is_featured ?? false,
+      is_hot_deal: product?.is_hot_deal ?? false,
+      is_premium: product?.is_premium ?? false,
     },
   });
 
-  const onSubmit = async (values: EditProductValues) => {
+  useEffect(() => {
+    if (product) {
+      form.reset({
+        name: product.name || '',
+        description: product.description || '',
+        specification: product.specification || '',
+        is_featured: product.is_featured ?? false,
+        is_hot_deal: product.is_hot_deal ?? false,
+        is_premium: product.is_premium ?? false,
+      });
+      setPreviewUrl(product.image || null);
+    }
+  }, [product, form]);
+
+  const onSubmit = async (values: EditProductOutput) => {
     setIsPending(true);
     try {
       let finalImageUrl = product.image;
 
-      // Only re-upload if a replacement file was staged
       if (values.imageFile && values.imageFile[0]) {
         const uploadData = new FormData();
         uploadData.append('file', values.imageFile[0]);
         finalImageUrl = await uploadImageAction(uploadData);
       }
 
-      // Execute execution payload modification pass-through
       await updateProductAction(product.id, {
         name: values.name,
         description: values.description,
         specification: values.specification,
         image: finalImageUrl,
+        is_featured: values.is_featured,
+        is_hot_deal: values.is_hot_deal,
+        is_premium: values.is_premium,
       });
 
       toast.success('Product portfolio item saved successfully!');
@@ -155,6 +177,59 @@ export function EditProductDialog({ product, open, setOpen }: EditProductDialogP
                 </FormItem>
               )}
             />
+
+            <div className="p-3 bg-muted/40 border rounded-lg space-y-2">
+              <span className="text-xs font-semibold block text-muted-foreground">Catalog Highlights & Badges</span>
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <FormField
+                  control={form.control}
+                  name="is_featured"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(field.value)}
+                        onChange={field.onChange}
+                        className="rounded border-border accent-amber-500"
+                      />
+                      <span className={field.value ? "font-semibold text-amber-600" : ""}>Featured</span>
+                    </label>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_hot_deal"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(field.value)}
+                        onChange={field.onChange}
+                        className="rounded border-border accent-red-500"
+                      />
+                      <span className={field.value ? "font-semibold text-red-600" : ""}>Hot Deal</span>
+                    </label>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_premium"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(field.value)}
+                        onChange={field.onChange}
+                        className="rounded border-border accent-purple-500"
+                      />
+                      <span className={field.value ? "font-semibold text-purple-600" : ""}>Premium</span>
+                    </label>
+                  )}
+                />
+              </div>
+            </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-border/60">
               <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)} disabled={isPending} className="h-8 text-xs">

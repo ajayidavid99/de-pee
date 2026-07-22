@@ -13,15 +13,39 @@ export interface DBProduct {
   specification: string;
   image: string;
   category_id: string;
-  category_name: string;
-  parent_category_id: string | null;
+  category_name?: string;
+  created_at?: string;
+  // Trend Management Flags
+  is_featured?: boolean;
+  is_hot_deal?: boolean;
+  is_premium?: boolean;
 }
 
 export interface DBCategory {
   id: string;
   name: string;
   parent_id: string | null;
-  image?: string | null; // Make image optional / nullable
+  image?: string | null;
+}
+
+export async function toggleProductTrend(
+  productId: string,
+  flag: 'is_featured' | 'is_hot_deal' | 'is_premium',
+  value: boolean
+) {
+  try {
+    await db.query(
+      `UPDATE products SET ${flag} = $1 WHERE id = $2`,
+      [value, productId]
+    );
+
+    revalidatePath('/');
+    revalidatePath('/admin/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update product trend flag:', error);
+    return { success: false, error: 'Database update failed' };
+  }
 }
 
 export async function uploadImageAction(formData: FormData): Promise<string> {
@@ -35,7 +59,6 @@ export async function uploadImageAction(formData: FormData): Promise<string> {
     throw new Error('No file provided');
   }
 
-  // Upload to Vercel Blob with public access and random suffix to avoid collisions
   const blob = await put(`products/${file.name}`, file, {
     access: 'public',
   });
@@ -53,6 +76,10 @@ export async function getProducts(): Promise<DBProduct[]> {
         p.specification,
         p.image,
         p.category_id,
+        p.is_featured,
+        p.is_hot_deal,
+        p.is_premium,
+        p.created_at,
         c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
@@ -67,7 +94,10 @@ export async function getProducts(): Promise<DBProduct[]> {
       image: String(row.image || ''),
       category_id: String(row.category_id || ''),
       category_name: String(row.category_name || 'Unassigned'),
-      parent_category_id: row.parent_category_id ? String(row.parent_category_id) : null,
+      is_featured: Boolean(row.is_featured),
+      is_hot_deal: Boolean(row.is_hot_deal),
+      is_premium: Boolean(row.is_premium),
+      created_at: row.created_at ? String(row.created_at) : undefined,
     }));
   } catch (error) {
     console.error("Failed to query products from Neon:", error);
@@ -75,9 +105,6 @@ export async function getProducts(): Promise<DBProduct[]> {
   }
 }
 
-/**
- * Fetches all categories and sub-categories including optional image path
- */
 export async function getCategories(): Promise<DBCategory[]> {
   try {
     const result = await db.query('SELECT id, name, parent_id, image FROM categories ORDER BY name ASC');
@@ -93,9 +120,6 @@ export async function getCategories(): Promise<DBCategory[]> {
   }
 }
 
-/**
- * Create a new category or sub-category dynamically with optional image
- */
 export async function createCategory(formData: { name: string; parentId?: string | null; image?: string | null }) {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
@@ -126,9 +150,6 @@ export async function createCategory(formData: { name: string; parentId?: string
   }
 }
 
-/**
- * Update an existing category or sub-category
- */
 export async function updateCategory(
   id: string,
   data: { name: string; parentId?: string | null; image?: string | null }
@@ -148,16 +169,12 @@ export async function updateCategory(
   return { success: true };
 }
 
-/**
- * Delete a category or sub-category
- */
 export async function deleteCategory(id: string) {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
     throw new Error('Unauthorized');
   }
 
-  // Check if any product depends on this category
   const check = await db.query('SELECT id FROM products WHERE category_id = $1 LIMIT 1', [id]);
   if (check.rows.length > 0) {
     throw new Error('Cannot delete category because active products are assigned to it.');
@@ -170,15 +187,15 @@ export async function deleteCategory(id: string) {
   return { success: true };
 }
 
-/**
- * Commits a validated medical instrument entry into storage using the "prod_" prefixed ID standard
- */
 export async function createProduct(formData: {
   name: string;
   description: string;
   specification: string;
   image: string;
   categoryId: string;
+  is_featured?: boolean;
+  is_hot_deal?: boolean;
+  is_premium?: boolean;
 }) {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
@@ -189,14 +206,13 @@ export async function createProduct(formData: {
     throw new Error('Missing mandatory product definition fields.');
   }
 
-  // Generate an industry-standard prefixed ID (e.g., prod_8f1a23...)
   const crypto = require('crypto');
   const uniqueId = `prod_${crypto.randomUUID()}`;
 
   try {
     await db.query(
-      `INSERT INTO products (id, name, description, specification, image, category_id) 
-       VALUES ($1, $2, $3, $4, $5, $6)`,
+      `INSERT INTO products (id, name, description, specification, image, category_id, is_featured, is_hot_deal, is_premium) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [
         uniqueId,
         formData.name,
@@ -204,11 +220,16 @@ export async function createProduct(formData: {
         formData.specification,
         formData.image,
         formData.categoryId,
+        formData.is_featured ?? false,
+        formData.is_hot_deal ?? false,
+        formData.is_premium ?? false,
       ],
     );
 
+    revalidatePath('/');
     revalidatePath('/products');
     revalidatePath('/dashboard');
+    revalidatePath('/admin/dashboard');
     return { success: true };
   } catch (error: any) {
     console.error('Neon catalog insertion failure:', error);
@@ -223,12 +244,10 @@ export async function deleteProduct(id: string) {
   }
 
   try {
-    // 1. Fetch the product first to get the image URL
     const productResult = await db.query('SELECT image FROM products WHERE id = $1', [id]);
     const product = productResult.rows[0];
 
     if (product && product.image) {
-      // 2. Delete the file from Vercel Blob storage bucket
       try {
         await del(product.image);        
       } catch (error) {
@@ -236,11 +255,12 @@ export async function deleteProduct(id: string) {
       }
     }
 
-    // 3. Delete the product row from the Neon database
     await db.query('DELETE FROM products WHERE id = $1', [id]);
 
+    revalidatePath('/');
     revalidatePath('/products');
     revalidatePath('/dashboard');
+    revalidatePath('/admin/dashboard');
     return { success: true };
   } catch (error: any) {
     console.error('Failed to delete product and asset:', error);
@@ -250,7 +270,15 @@ export async function deleteProduct(id: string) {
 
 export async function updateProductAction(
   id: string, 
-  data: { name: string; description: string; specification: string; image: string }
+  data: { 
+    name: string; 
+    description: string; 
+    specification: string; 
+    image: string;
+    is_featured?: boolean;
+    is_hot_deal?: boolean;
+    is_premium?: boolean;
+  }
 ) {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
@@ -258,11 +286,24 @@ export async function updateProductAction(
   }
   
   await db.query(
-    `UPDATE products SET name = $1, description = $2, specification = $3, image = $4 WHERE id = $5`,
-    [data.name, data.description, data.specification, data.image, id]
+    `UPDATE products 
+     SET name = $1, description = $2, specification = $3, image = $4, is_featured = $5, is_hot_deal = $6, is_premium = $7 
+     WHERE id = $8`,
+    [
+      data.name, 
+      data.description, 
+      data.specification, 
+      data.image, 
+      data.is_featured ?? false, 
+      data.is_hot_deal ?? false, 
+      data.is_premium ?? false, 
+      id
+    ]
   );
   
+  revalidatePath('/');
   revalidatePath('/products');
   revalidatePath('/dashboard');
+  revalidatePath('/admin/dashboard');
   return { success: true };
 }
