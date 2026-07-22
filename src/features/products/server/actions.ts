@@ -13,12 +13,8 @@ export interface DBProduct {
   specification: string;
   image: string;
   category_id: string;
-  category_name?: string;
-  created_at?: string;
-  // Trend Management Flags
-  is_featured?: boolean;
-  is_hot_deal?: boolean;
-  is_premium?: boolean;
+  category_name: string;
+  parent_category_id: string | null;
 }
 
 export interface DBCategory {
@@ -26,26 +22,6 @@ export interface DBCategory {
   name: string;
   parent_id: string | null;
   image?: string | null; // Make image optional / nullable
-}
-
-export async function toggleProductTrend(
-  productId: string,
-  flag: 'is_featured' | 'is_hot_deal' | 'is_premium',
-  value: boolean
-) {
-  try {
-    await db.query(
-      `UPDATE products SET ${flag} = $1 WHERE id = $2`,
-      [value, productId]
-    );
-
-    revalidatePath('/');
-    revalidatePath('/admin/dashboard');
-    return { success: true };
-  } catch (error) {
-    console.error('Failed to update product trend flag:', error);
-    return { success: false, error: 'Database update failed' };
-  }
 }
 
 export async function uploadImageAction(formData: FormData): Promise<string> {
@@ -77,10 +53,6 @@ export async function getProducts(): Promise<DBProduct[]> {
         p.specification,
         p.image,
         p.category_id,
-        p.is_featured,
-        p.is_hot_deal,
-        p.is_premium,
-        p.created_at,
         c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
@@ -95,10 +67,7 @@ export async function getProducts(): Promise<DBProduct[]> {
       image: String(row.image || ''),
       category_id: String(row.category_id || ''),
       category_name: String(row.category_name || 'Unassigned'),
-      is_featured: Boolean(row.is_featured),
-      is_hot_deal: Boolean(row.is_hot_deal),
-      is_premium: Boolean(row.is_premium),
-      created_at: row.created_at ? String(row.created_at) : undefined,
+      parent_category_id: row.parent_category_id ? String(row.parent_category_id) : null,
     }));
   } catch (error) {
     console.error("Failed to query products from Neon:", error);

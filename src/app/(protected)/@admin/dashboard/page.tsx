@@ -14,7 +14,6 @@ import {
   deleteCategory, 
   getProducts, 
   getCategories, 
-  toggleProductTrend,
   type DBProduct, 
   type DBCategory 
 } from '@/features/products/server/actions';
@@ -120,7 +119,7 @@ export default async function AdminDashboardPage() {
                         <th className="p-3 font-semibold">Image</th>
                         <th className="p-3 font-semibold">Product Name</th>
                         <th className="p-3 font-semibold">Allocated Category</th>
-                        <th className="p-3 font-semibold">Featured / Hot / Premium</th>
+                        <th className="p-3 font-semibold">Technical Specifications</th>
                         <th className="p-3 font-semibold text-right">Actions</th>
                       </tr>
                     </thead>
@@ -142,47 +141,8 @@ export default async function AdminDashboardPage() {
                                 {product.category_name}
                               </span>
                             </td>
-                            <td className="p-3">
-                              <div className="flex items-center gap-3 text-[10px]">
-                                {/* Featured Toggle */}
-                                <label className="flex items-center gap-1 cursor-pointer select-none">
-                                  <input
-                                    type="checkbox"
-                                    checked={!!product.is_featured}
-                                    onChange={(e) => toggleProductTrend(product.id, 'is_featured', e.target.checked)}
-                                    className="rounded border-border accent-amber-500"
-                                  />
-                                  <span className={product.is_featured ? 'font-bold text-amber-500' : 'text-muted-foreground'}>
-                                    Featured
-                                  </span>
-                                </label>
-
-                                {/* Hot Deal Toggle */}
-                                <label className="flex items-center gap-1 cursor-pointer select-none">
-                                  <input
-                                    type="checkbox"
-                                    checked={!!product.is_hot_deal}
-                                    onChange={(e) => toggleProductTrend(product.id, 'is_hot_deal', e.target.checked)}
-                                    className="rounded border-border accent-red-500"
-                                  />
-                                  <span className={product.is_hot_deal ? 'font-bold text-red-500' : 'text-muted-foreground'}>
-                                    Hot
-                                  </span>
-                                </label>
-
-                                {/* Premium Toggle */}
-                                <label className="flex items-center gap-1 cursor-pointer select-none">
-                                  <input
-                                    type="checkbox"
-                                    checked={!!product.is_premium}
-                                    onChange={(e) => toggleProductTrend(product.id, 'is_premium', e.target.checked)}
-                                    className="rounded border-border accent-purple-500"
-                                  />
-                                  <span className={product.is_premium ? 'font-bold text-purple-500' : 'text-muted-foreground'}>
-                                    Premium
-                                  </span>
-                                </label>
-                              </div>
+                            <td className="p-3 text-muted-foreground max-w-[240px] truncate font-mono text-[11px]">
+                              {product.specification || 'No technical specifications provided'}
                             </td>
                             <td className="p-3 text-right">
                               <DashboardActions id={product.id} onDelete={deleteProduct} rawItem={product} type="product" />

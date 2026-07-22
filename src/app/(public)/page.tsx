@@ -25,23 +25,12 @@ const HomePage = async () => {
     getBlogPosts(),
   ]);
 
-  // 1. Filter products based on admin toggles
-  const featuredProducts = products.filter((p) => p.is_featured);
-  const hotDeals = products.filter((p) => p.is_hot_deal);
-  const premiumAdditions = products.filter((p) => p.is_premium);
-
-  // 2. Fallbacks: use sliced defaults if no items are flagged yet
-  const heroProducts = featuredProducts.length > 0 ? featuredProducts : products.slice(0, 3);
-  const newArrivalList = premiumAdditions.length > 0 ? premiumAdditions : products.slice(0, 4);
-  const hotDealList = hotDeals.length > 0 ? hotDeals : products.slice(4, 10);
-  const mobileFeaturedList = featuredProducts.length > 0 ? featuredProducts : products.slice(0, 6);
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. Hero Block */}
       <HeroSection 
         locale={locale as Locale} 
-        products={heroProducts} 
+        products={products} 
         categories={categories}
         posts={posts}
       />
@@ -50,13 +39,13 @@ const HomePage = async () => {
       <ProductCategories categories={categories} />
 
       {/* 3. Premium Additions / New Arrivals */}
-      <NewArrivals products={newArrivalList} />
+      <NewArrivals products={products.slice(0, 4)} />
 
       {/* 4. Hot Procurement Deals Section */}
-      <HotDeals products={hotDealList} />
+      <HotDeals products={products.slice(4, 10)} />
       
       {/* 5. Fast-Moving Consumables Slider (Mobile) */}
-      <MobileFeaturedProducts products={mobileFeaturedList} />
+      <MobileFeaturedProducts products={products.slice(0, 6)} />
       
       {/* 6. Engineered for Clinical & Laboratory Integrity */}
       <WhyChooseUs />
