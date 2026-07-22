@@ -88,7 +88,7 @@ export async function getProducts(): Promise<DBProduct[]> {
         c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
-      ORDER BY p.created_at DESC
+      ORDER BY p.created_at DESC NULLS LAST, p.id DESC
     `);
     
     return (result.rows || []).map((row: any) => ({
