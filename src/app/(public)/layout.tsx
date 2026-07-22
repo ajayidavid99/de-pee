@@ -1,6 +1,7 @@
-//de-pee/src/app/(public)/layout.tsx
+// src/app/(public)/layout.tsx
 import { BackgroundGradient } from '@/components/shared/background-gradient';
 import Header from '@/features/navigation/header';
+import { FloatingQuoteBasket } from '@/components/shared/floating-quote-basket';
 import type { ReactNode } from 'react';
 
 const PublicLayout = ({ children }: { children: ReactNode }) => {
@@ -15,6 +16,9 @@ const PublicLayout = ({ children }: { children: ReactNode }) => {
       >
         {children}
       </main>
+
+      {/* Floating Quote Basket and Support available across all public routes */}
+      <FloatingQuoteBasket />
     </div>
   );
 };

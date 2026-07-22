@@ -1,5 +1,5 @@
 Folder PATH listing
-Volume serial number is 00000068 C493:B52A
+Volume serial number is 000000A5 C493:B52A
 C:.
 |   global.d.ts
 |   instrumentation-client.ts
@@ -209,6 +209,7 @@ C:.
 |   |   |       add-product-dialog.tsx
 |   |   |       edit-category-dialog.tsx
 |   |   |       edit-product-dialog.tsx
+|   |   |       trend-toggles.tsx
 |   |   |       
 |   |   \---server
 |   |           actions.ts
