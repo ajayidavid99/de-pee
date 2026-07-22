@@ -15,7 +15,6 @@ import { Plus, Loader2, UploadCloud } from 'lucide-react';
 import { createProduct, uploadImageAction, type DBCategory } from '../server/actions';
 import { toast } from 'sonner';
 
-// Schema to accept either a File object or an existing URL string (fallback)
 const productFormSchema = z.object({
   name: z.string().min(2, 'Product name is required'),
   parentCategoryId: z.string().min(1, 'Please select a main category'),
@@ -23,20 +22,25 @@ const productFormSchema = z.object({
   description: z.string().min(5, 'Provide a detailed description'),
   specification: z.string().min(3, 'Technical specification details are required'),
   imageFile: z.any().refine((files) => files?.[0] instanceof File, "An image file upload is required"),
+  is_featured: z.boolean().default(false),
+  is_hot_deal: z.boolean().default(false),
+  is_premium: z.boolean().default(false),
 });
 
-type ProductFormValues = z.infer<typeof productFormSchema>;
+type ProductFormInput = z.input<typeof productFormSchema>;
+type ProductFormOutput = z.output<typeof productFormSchema>;
 
 interface AddProductDialogProps {
   categories: DBCategory[];
 }
 
-export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
+export function AddProductDialog({ categories }: AddProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const form = useForm<ProductFormValues>({
+  // Pass <Input, Context, Output> to useForm to reconcile Zod default() field types
+  const form = useForm<ProductFormInput, any, ProductFormOutput>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: '',
@@ -44,44 +48,44 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
       subCategoryId: '',
       description: '',
       specification: '',
+      is_featured: false,
+      is_hot_deal: false,
+      is_premium: false,
     },
   });
 
-    const selectedParentId = form.watch('parentCategoryId');
+  const selectedParentId = form.watch('parentCategoryId');
   
-    // Find root level categories (no parent_id)
-    const mainCategories = categories.filter((c) => c.parent_id === null);
+  const mainCategories = categories.filter((c) => c.parent_id === null);
   
-    // Find children belonging to the currently selected parent category
-    const availableSubCategories = categories.filter(
-      (c) => c.parent_id === selectedParentId && selectedParentId !== ''
-    );
+  const availableSubCategories = categories.filter(
+    (c) => c.parent_id === selectedParentId && selectedParentId !== ''
+  );
   
-    const hasSubCategories = availableSubCategories.length > 0;
+  const hasSubCategories = availableSubCategories.length > 0;
   
-    // Clear subcategory choice if parent changes
-    useEffect(() => {
-      form.setValue('subCategoryId', '');
-    }, [selectedParentId, form]);
+  useEffect(() => {
+    form.setValue('subCategoryId', '');
+  }, [selectedParentId, form]);
 
-  const onSubmit = async (values: ProductFormValues) => {
+  const onSubmit = async (values: ProductFormOutput) => {
     setIsPending(true);
     try {
-      // 1. Prepare file payload for Server Action
       const imageFile = values.imageFile[0];
       const uploadData = new FormData();
       uploadData.append('file', imageFile);
 
-      // 2. Upload to Vercel Blob and retrieve URL
       const uploadedImageUrl = await uploadImageAction(uploadData);
 
-      // 3. Create product row using the uploaded secure URL
       await createProduct({
         name: values.name,
         description: values.description,
         specification: values.specification,
-        image: uploadedImageUrl, // Passes the newly hosted blob URL
+        image: uploadedImageUrl,
         categoryId: values.subCategoryId || values.parentCategoryId,
+        is_featured: values.is_featured,
+        is_hot_deal: values.is_hot_deal,
+        is_premium: values.is_premium,
       });
 
       toast.success('Product added successfully!');
@@ -126,7 +130,6 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
               )}
             />
 
-            {/* Parent Category Field */}
             <FormField
               control={form.control}
               name="parentCategoryId"
@@ -152,7 +155,6 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
               )}
             />
 
-            {/* Sub-Category Field (Conditionally Rendered based on selected parent) */}
             {hasSubCategories && (
               <FormField
                 control={form.control}
@@ -183,7 +185,7 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
             <FormField
               control={form.control}
               name="imageFile"
-              render={({ field: { onChange, ref, value, ...field } }) => ( // Pulling "value" out here safely
+              render={({ field: { onChange, ref, value, ...field } }) => (
                 <FormItem>
                   <FormLabel className="text-xs">Product Image Asset</FormLabel>
                   <FormControl>
@@ -200,11 +202,11 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
                             onChange={(e) => {
                               const files = e.target.files;
                               if (files && files[0]) {
-                                onChange(files); // Pass the FileList to hook-form
+                                onChange(files);
                                 setPreviewUrl(URL.createObjectURL(files[0]));
                               }
                             }}
-                            {...field} // Spreads name, onBlur, etc. safely WITHOUT the value property
+                            {...field}
                           />
                         </label>
                       </div>
@@ -251,6 +253,59 @@ export function AddProductDialog({ categories }: { categories: DBCategory[] }) {
                 </FormItem>
               )}
             />
+
+            <div className="p-3 bg-muted/40 border rounded-lg space-y-2">
+              <span className="text-xs font-semibold block text-muted-foreground">Catalog Highlights & Badges</span>
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <FormField
+                  control={form.control}
+                  name="is_featured"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(field.value)}
+                        onChange={field.onChange}
+                        className="rounded border-border accent-amber-500"
+                      />
+                      <span className={field.value ? "font-semibold text-amber-600" : ""}>Featured</span>
+                    </label>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_hot_deal"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(field.value)}
+                        onChange={field.onChange}
+                        className="rounded border-border accent-red-500"
+                      />
+                      <span className={field.value ? "font-semibold text-red-600" : ""}>Hot Deal</span>
+                    </label>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_premium"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(field.value)}
+                        onChange={field.onChange}
+                        className="rounded border-border accent-purple-500"
+                      />
+                      <span className={field.value ? "font-semibold text-purple-600" : ""}>Premium</span>
+                    </label>
+                  )}
+                />
+              </div>
+            </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-border/60">
               <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)} disabled={isPending} className="h-8 text-xs">
