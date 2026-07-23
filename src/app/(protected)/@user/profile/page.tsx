@@ -22,7 +22,7 @@ export default async function UserProfilePage() {
         <ProfileForm 
           user={{
             id: currentUser.id,
-            name: currentUser.name || '',
+            name: '',
             email: currentUser.email || '',
             role: currentUser.role,
           }} 
