@@ -1,4 +1,4 @@
-// de-pee/src/features/auth/hooks/auth-provider.tsx
+// src/features/auth/hooks/auth-provider.tsx
 'use client';
 
 import { env } from '@/libs/env';
@@ -25,6 +25,9 @@ interface AuthContextValue {
     email: string;
     password: string;
     name?: string;
+    phone?: string;
+    countryCode?: string;
+    [key: string]: any;
   }) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -67,12 +70,21 @@ export function AuthProvider({
   }, []);
 
   const signUp = useCallback(
-    async (input: { email: string; password: string; name?: string }) => {
+    async (input: {
+      email: string;
+      password: string;
+      name?: string;
+      phone?: string;
+      countryCode?: string;
+      [key: string]: any;
+    }) => {
       const result = await authClient.signUp.email({
         email: input.email,
         password: input.password,
         name: input.name ?? input.email.split('@')[0] ?? input.email,
-      });
+        phone: input.phone,
+        countryCode: input.countryCode,
+      } as any);
       if (result.error) {
         throw new Error(result.error.message ?? 'Sign up failed');
       }

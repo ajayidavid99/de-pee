@@ -1,4 +1,4 @@
-// de-pee/src/features/auth/server/get-current-user.ts
+// src/features/auth/server/get-current-user.ts
 import 'server-only';
 
 import { env } from '@/libs/env';
@@ -13,11 +13,16 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       headers: await headers(),
     });
     if (!session?.user?.email) return null;
-    const { id, email } = session.user;
-    const role = getRoleFromEmail(email, env.AUTH_ADMIN_EMAILS);
+    
+    const user = session.user as any; // Type cast for custom BetterAuth fields
+    const role = getRoleFromEmail(user.email, env.AUTH_ADMIN_EMAILS);
+
     return {
-      id: id ?? email,
-      email,
+      id: user.id ?? user.email,
+      email: user.email,
+      name: user.name || '',
+      phone: user.phone || '',
+      countryCode: user.countryCode || '+234',
       role,
       permissions: getPermissionsForRole(role),
     };

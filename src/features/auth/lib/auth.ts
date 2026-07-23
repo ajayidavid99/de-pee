@@ -1,4 +1,4 @@
-// de-pee/src/features/auth/lib/auth.ts
+// src/features/auth/lib/auth.ts
 import { env } from '@/libs/env';
 import { betterAuth } from 'better-auth';
 // Import your centralized database client pool
@@ -47,5 +47,17 @@ export const auth = betterAuth({
     enabled: true,
   },
   socialProviders,
-  // Add additional settings below if required by your template layout
+  user: {
+    additionalFields: {
+      phone: {
+        type: 'string',
+        required: false,
+      },
+      countryCode: {
+        type: 'string',
+        required: false,
+        defaultValue: '+234',
+      },
+    },
+  },
 });

@@ -7,13 +7,22 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../hooks/auth-provider';
 import { registerSchema, type RegisterInput } from '../schemas/register';
+
+const countryCodes = [
+  { label: '🇳🇬 Nigeria (+234)', value: '+234' },
+  { label: '🇬🇭 Ghana (+233)', value: '+233' },
+  { label: '🇰🇪 Kenya (+254)', value: '+254' },
+  { label: '🇬🇧 UK (+44)', value: '+44' },
+  { label: '🇺🇸 USA (+1)', value: '+1' },
+];
 
 const RegisterForm = () => {
   const t = useTranslations('auth.register');
@@ -25,7 +34,14 @@ const RegisterForm = () => {
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
+    defaultValues: {
+      name: '',
+      email: '',
+      countryCode: '+234',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
 
   useEffect(() => {
@@ -39,7 +55,10 @@ const RegisterForm = () => {
         email: values.email,
         password: values.password,
         name: values.name,
-      });
+        // Send extra fields directly to BetterAuth signUp
+        phone: values.phone,
+        countryCode: values.countryCode,
+      } as any);
       router.replace('/dashboard');
       router.refresh();
     } catch (error) {
@@ -68,12 +87,9 @@ const RegisterForm = () => {
           <CardTitle>{t('title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form
-            className="flex flex-col gap-4 sm:gap-6"
-            onSubmit={onSubmit}
-            noValidate
-          >
+          <form className="flex flex-col gap-4 sm:gap-6" onSubmit={onSubmit} noValidate>
             <div className="grid gap-4 sm:gap-6">
+              {/* Name */}
               <div className="grid gap-2">
                 <Label htmlFor="name">{t('name')}</Label>
                 <Input
@@ -88,6 +104,7 @@ const RegisterForm = () => {
                 <InputError message={errors.name?.message} />
               </div>
 
+              {/* Email */}
               <div className="grid gap-2">
                 <Label htmlFor="email">{tLogin('email')}</Label>
                 <Input
@@ -101,6 +118,41 @@ const RegisterForm = () => {
                 <InputError message={errors.email?.message} />
               </div>
 
+              {/* Country Code & Phone */}
+              <div className="grid gap-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="flex gap-2">
+                  <Controller
+                    control={form.control}
+                    name="countryCode"
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger className="w-[110px] text-xs">
+                          <SelectValue placeholder="+234" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map((c) => (
+                            <SelectItem key={c.value} value={c.value} className="text-xs">
+                              {c.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="8012345678"
+                    className="flex-1 text-xs"
+                    aria-invalid={!!errors.phone}
+                    {...form.register('phone')}
+                  />
+                </div>
+                <InputError message={errors.phone?.message} />
+              </div>
+
+              {/* Passwords */}
               <div className="grid gap-2">
                 <Label htmlFor="password">{tLogin('password')}</Label>
                 <PasswordInput
