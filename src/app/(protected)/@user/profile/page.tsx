@@ -1,16 +1,33 @@
+// src/app/(protected)/@user/profile/page.tsx
 import { PageHeader, PageLayout } from '@/components/shared/page-header';
 import { requirePermission } from '@/features/auth/rbac/require';
-import { getTranslations } from 'next-intl/server';
+import { getCurrentUser } from '@/features/auth/server/get-current-user';
+import { ProfileForm } from '@/features/auth/components/profile-form';
 
-const UserProfilePage = async () => {
+export default async function UserProfilePage() {
   await requirePermission('dashboard.view:user');
-  const t = await getTranslations('profile');
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return null;
+  }
 
   return (
     <PageLayout>
-      <PageHeader title={t('title')} subtitle={t('description')} />
+      <div className="space-y-6">
+        <PageHeader 
+          title="Account Settings" 
+          subtitle="Manage your personal information, email preferences, and password security." 
+        />
+        <ProfileForm 
+          user={{
+            id: currentUser.id,
+            name: currentUser.name || '',
+            email: currentUser.email || '',
+            role: currentUser.role,
+          }} 
+        />
+      </div>
     </PageLayout>
   );
-};
-
-export default UserProfilePage;
+}

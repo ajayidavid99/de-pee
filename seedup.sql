@@ -171,3 +171,32 @@ INSERT INTO blog_posts (id, slug, title, excerpt, content, category_label, autho
     '5 min read',
     'March 15, 2026'
 );
+
+-- Trend flags to products table
+ALTER TABLE products 
+  ADD COLUMN is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN is_hot_deal BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN is_premium BOOLEAN NOT NULL DEFAULT FALSE;
+
+  -- Main enquiry record
+CREATE TABLE IF NOT EXISTS enquiries (
+  id VARCHAR(64) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL, -- Nullable for guest checkout
+  full_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  organization VARCHAR(255),
+  message TEXT,
+  status VARCHAR(30) NOT NULL DEFAULT 'pending', -- pending, in_progress, quoted, fulfilled, cancelled
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Items inside each enquiry
+CREATE TABLE IF NOT EXISTS enquiry_items (
+  id VARCHAR(64) PRIMARY KEY,
+  enquiry_id VARCHAR(64) NOT NULL REFERENCES enquiries(id) ON DELETE CASCADE,
+  product_id VARCHAR(64) REFERENCES products(id) ON DELETE SET NULL,
+  product_name VARCHAR(255) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1
+);

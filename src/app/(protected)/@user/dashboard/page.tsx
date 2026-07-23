@@ -1,3 +1,4 @@
+// src/app/(protected)/@user/dashboard/page.tsx
 import { PageHeader, PageLayout } from '@/components/shared/page-header';
 import { requirePermission } from '@/features/auth/rbac/require';
 import { getTranslations } from 'next-intl/server';
