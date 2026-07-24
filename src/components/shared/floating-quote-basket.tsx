@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { DBProduct } from '@/features/products/server/actions';
+import { submitQuoteRequest } from '@/features/quotes/server/actions';
+import { toast } from 'sonner';
 import { 
   ShoppingBag, 
   FileText, 
@@ -29,6 +31,7 @@ export function FloatingQuoteBasket() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isBasketOpen, setIsBasketOpen] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load basket from local storage on mount
   useEffect(() => {
@@ -72,9 +75,27 @@ export function FloatingQuoteBasket() {
     updateCartState(newCart);
   };
 
-  const handleSubmitRequest = () => {
-    setFormSubmitted(true);
-    updateCartState([]);
+  const handleSubmitRequest = async () => {
+    if (quoteCart.length === 0) return;
+
+    setIsSubmitting(true);
+    try {
+      const payload = quoteCart.map((item) => ({
+        productId: item.product.id,
+        quantity: item.quantity,
+      }));
+
+      const result = await submitQuoteRequest(payload);
+      if (result.success) {
+        toast.success(`Quote Request ${result.referenceNo} submitted successfully!`);
+        setFormSubmitted(true);
+        updateCartState([]);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to submit quote request. Please log in first.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSupportClick = () => {
@@ -183,10 +204,11 @@ export function FloatingQuoteBasket() {
                 <div className="pt-2 border-t border-border/60">
                   <Button 
                     onClick={handleSubmitRequest} 
+                    disabled={isSubmitting}
                     className="w-full text-xs h-9 gap-1 bg-blue-600 hover:bg-blue-700 text-white font-bold"
                   >
                     <FileText className="h-3.5 w-3.5" />
-                    Submit Request ({totalBasketItemCount} items)
+                    {isSubmitting ? 'Submitting...' : `Submit Request (${totalBasketItemCount} items)`}
                   </Button>
                 </div>
               </div>
