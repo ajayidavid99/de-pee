@@ -32,6 +32,11 @@ export interface DBQuoteDetail extends DBQuote {
   }>;
 }
 
+export interface AdminQuoteSummary extends DBQuote {
+  user_name?: string;
+  user_email?: string;
+}
+
 /**
  * Creates DB tables if they don't exist yet
  */
@@ -188,5 +193,78 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
   } catch (error) {
     console.error('Failed to get quote details:', error);
     return null;
+  }
+}
+
+/**
+ * Fetch all quote requests across all users for Admin
+ */
+export async function getAllQuotesForAdmin(): Promise<AdminQuoteSummary[]> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized');
+  }
+
+  await ensureQuotesTable();
+
+  try {
+    const result = await db.query(`
+      SELECT 
+        q.id,
+        q.reference_no,
+        q.user_id,
+        q.status,
+        q.total_items,
+        q.notes,
+        q.created_at,
+        u.name as user_name,
+        u.email as user_email
+      FROM quotes q
+      LEFT JOIN users u ON q.user_id = u.id
+      ORDER BY q.created_at DESC
+    `);
+
+    return (result.rows || []).map((row: any) => ({
+      id: String(row.id),
+      reference_no: String(row.reference_no),
+      user_id: String(row.user_id),
+      status: row.status as DBQuote['status'],
+      total_items: Number(row.total_items),
+      notes: row.notes ? String(row.notes) : null,
+      created_at: row.created_at ? new Date(row.created_at).toLocaleDateString() : '',
+      user_name: String(row.user_name || 'Client'),
+      user_email: String(row.user_email || 'No email'),
+    }));
+  } catch (error) {
+    console.error('Failed to query admin quotes:', error);
+    return [];
+  }
+}
+
+/**
+ * Admin action to update quote status and response notes
+ */
+export async function updateQuoteStatus(
+  quoteId: string,
+  status: 'PENDING' | 'UNDER_REVIEW' | 'QUOTED' | 'REJECTED',
+  notes?: string
+) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    await db.query(
+      `UPDATE quotes SET status = $1, notes = $2 WHERE id = $3`,
+      [status, notes || null, quoteId]
+    );
+
+    revalidatePath('/admin/quotes');
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update quote status:', error);
+    return { success: false, error: 'Failed to update quote status.' };
   }
 }
