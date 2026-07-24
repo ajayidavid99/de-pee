@@ -1,3 +1,4 @@
+// src/features/navigation/sidebar.tsx
 'use client';
 
 import { AppBrand } from '@/components/shared/app-brand';
@@ -33,6 +34,7 @@ import {
   LogOut,
   Menu,
   UserCircle,
+  FileText,
   type LucideIcon,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -314,13 +316,16 @@ export function useSidebarCollapsed() {
 const NAV_ICONS = {
   dashboard: LayoutDashboard,
   profile: UserCircle,
+  quotes: FileText,
 } as const;
 
 function buildNavItems(
   dashboardLabel: string,
   profileLabel: string,
+  quotesLabel: string,
+  isAdmin: boolean,
 ): NavItem[] {
-  return [
+  const items: NavItem[] = [
     {
       id: 'dashboard',
       label: dashboardLabel,
@@ -334,6 +339,17 @@ function buildNavItems(
       icon: NAV_ICONS.profile,
     },
   ];
+
+  if (isAdmin) {
+    items.push({
+      id: 'admin-quotes',
+      label: quotesLabel,
+      href: '/admin/quotes',
+      icon: NAV_ICONS.quotes,
+    });
+  }
+
+  return items;
 }
 
 export function Sidebar() {
@@ -348,8 +364,14 @@ export function Sidebar() {
   const [collapsed] = useSidebarCollapsed();
 
   const items = useMemo(
-    () => buildNavItems(t('navigation.dashboard'), t('navigation.profile')),
-    [t],
+    () =>
+      buildNavItems(
+        t('navigation.dashboard'),
+        t('navigation.profile'),
+        t('navigation.quotes'),
+        user?.role === 'admin',
+      ),
+    [t, user?.role],
   );
 
   const labels = useMemo(

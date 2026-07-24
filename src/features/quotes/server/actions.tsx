@@ -38,31 +38,6 @@ export interface AdminQuoteSummary extends DBQuote {
 }
 
 /**
- * Creates DB tables if they don't exist yet
- */
-export async function ensureQuotesTable() {
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS quotes (
-      id TEXT PRIMARY KEY,
-      reference_no TEXT UNIQUE NOT NULL,
-      user_id TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'PENDING',
-      total_items INTEGER NOT NULL DEFAULT 1,
-      notes TEXT,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS quote_items (
-      id TEXT PRIMARY KEY,
-      quote_id TEXT NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
-      product_id TEXT NOT NULL,
-      quantity INTEGER NOT NULL DEFAULT 1,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
-}
-
-/**
  * Submit a Quote Request from basket items
  */
 export async function submitQuoteRequest(items: QuoteItemPayload[], notes?: string) {
@@ -74,8 +49,6 @@ export async function submitQuoteRequest(items: QuoteItemPayload[], notes?: stri
   if (!items || items.length === 0) {
     throw new Error('Basket is empty.');
   }
-
-  await ensureQuotesTable();
 
   const quoteId = `quote_${crypto.randomUUID()}`;
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -111,8 +84,6 @@ export async function submitQuoteRequest(items: QuoteItemPayload[], notes?: stri
 export async function getUserQuotes(): Promise<DBQuote[]> {
   const user = await getCurrentUser();
   if (!user) return [];
-
-  await ensureQuotesTable();
 
   try {
     const result = await db.query(
@@ -204,8 +175,6 @@ export async function getAllQuotesForAdmin(): Promise<AdminQuoteSummary[]> {
   if (!user || user.role !== 'admin') {
     throw new Error('Unauthorized');
   }
-
-  await ensureQuotesTable();
 
   try {
     const result = await db.query(`
