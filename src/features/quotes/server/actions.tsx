@@ -186,8 +186,8 @@ export async function getAllQuotesForAdmin(): Promise<AdminQuoteSummary[]> {
         q.total_items,
         q.notes,
         q.created_at,
-        u.name as user_name,
-        u.email as user_email
+        COALESCE(u.name, 'Client') as user_name,
+        COALESCE(u.email, 'Client Email') as user_email
       FROM quotes q
       LEFT JOIN users u ON q.user_id = u.id
       ORDER BY q.created_at DESC
@@ -201,8 +201,8 @@ export async function getAllQuotesForAdmin(): Promise<AdminQuoteSummary[]> {
       total_items: Number(row.total_items),
       notes: row.notes ? String(row.notes) : null,
       created_at: row.created_at ? new Date(row.created_at).toLocaleDateString() : '',
-      user_name: String(row.user_name || 'Client'),
-      user_email: String(row.user_email || 'No email'),
+      user_name: String(row.user_name),
+      user_email: String(row.user_email),
     }));
   } catch (error) {
     console.error('Failed to query admin quotes:', error);
