@@ -1,3 +1,4 @@
+// src/app/(protected)/@admin/quotes/page.tsx
 import { PageHeader, PageLayout } from '@/components/shared/page-header';
 import { requirePermission } from '@/features/auth/rbac/require';
 import { getAllQuotesForAdmin } from '@/features/quotes/server/actions';

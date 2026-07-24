@@ -1,3 +1,4 @@
+// src/app/(protected)/quotes/[id]/page.tsx
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PageLayout } from '@/components/shared/page-header';
