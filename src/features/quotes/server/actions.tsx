@@ -21,6 +21,17 @@ export interface DBQuote {
   created_at: string;
 }
 
+export interface DBQuoteDetail extends DBQuote {
+  items: Array<{
+    id: string;
+    product_id: string;
+    product_name: string;
+    product_image: string;
+    category_name: string;
+    quantity: number;
+  }>;
+}
+
 /**
  * Creates DB tables if they don't exist yet
  */
@@ -114,9 +125,68 @@ export async function getUserQuotes(): Promise<DBQuote[]> {
       status: row.status as DBQuote['status'],
       total_items: Number(row.total_items),
       notes: row.notes ? String(row.notes) : null,
-      created_at: row.created_at ? (new Date(row.created_at).toISOString().split('T')[0] ?? '') : '',    }));
+      created_at: row.created_at ? (new Date(row.created_at).toISOString().split('T')[0] ?? '') : '',
+    }));
   } catch (error) {
     console.error('Failed to fetch user quotes:', error);
     return [];
+  }
+}
+
+/**
+ * Fetch Quote Details with line items for a single quote
+ */
+export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | null> {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  try {
+    // 1. Fetch Quote header
+    const quoteRes = await db.query(
+      `SELECT id, reference_no, user_id, status, total_items, notes, created_at
+       FROM quotes
+       WHERE id = $1 AND (user_id = $2 OR $3 = 'admin')`,
+      [quoteId, user.id, user.role]
+    );
+
+    if (quoteRes.rows.length === 0) return null;
+    const q = quoteRes.rows[0];
+
+    // 2. Fetch Quote line items with product metadata
+    const itemsRes = await db.query(
+      `SELECT 
+         qi.id,
+         qi.product_id,
+         qi.quantity,
+         p.name as product_name,
+         p.image as product_image,
+         c.name as category_name
+       FROM quote_items qi
+       LEFT JOIN products p ON qi.product_id = p.id
+       LEFT JOIN categories c ON p.category_id = c.id
+       WHERE qi.quote_id = $1`,
+      [quoteId]
+    );
+
+    return {
+      id: String(q.id),
+      reference_no: String(q.reference_no),
+      user_id: String(q.user_id),
+      status: q.status as DBQuote['status'],
+      total_items: Number(q.total_items),
+      notes: q.notes ? String(q.notes) : null,
+      created_at: q.created_at ? new Date(q.created_at).toLocaleDateString() : '',
+      items: itemsRes.rows.map((row: any) => ({
+        id: String(row.id),
+        product_id: String(row.product_id),
+        product_name: String(row.product_name || 'Equipment Item'),
+        product_image: String(row.product_image || ''),
+        category_name: String(row.category_name || 'General'),
+        quantity: Number(row.quantity),
+      })),
+    };
+  } catch (error) {
+    console.error('Failed to get quote details:', error);
+    return null;
   }
 }

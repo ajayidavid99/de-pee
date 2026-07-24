@@ -85,14 +85,16 @@ export function FloatingQuoteBasket() {
         quantity: item.quantity,
       }));
 
+      // Save directly to Neon database
       const result = await submitQuoteRequest(payload);
+
       if (result.success) {
-        toast.success(`Quote Request ${result.referenceNo} submitted successfully!`);
+        toast.success(`Quote ${result.referenceNo} submitted! Admin has been notified.`);
         setFormSubmitted(true);
-        updateCartState([]);
+        updateCartState([]); // Clear local storage basket
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to submit quote request. Please log in first.');
+      toast.error(error.message || 'Please log in to submit a quote request.');
     } finally {
       setIsSubmitting(false);
     }
