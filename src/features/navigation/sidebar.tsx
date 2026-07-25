@@ -333,21 +333,18 @@ function buildNavItems(
       icon: NAV_ICONS.dashboard,
     },
     {
+      id: 'quotes',
+      label: isAdmin ? 'Manage Quotes' : quotesLabel,
+      href: isAdmin ? '/admin/quotes' : '/quotes',
+      icon: NAV_ICONS.quotes,
+    },
+    {
       id: 'profile',
       label: profileLabel,
       href: '/profile',
       icon: NAV_ICONS.profile,
     },
   ];
-
-  if (isAdmin) {
-    items.push({
-      id: 'admin-quotes',
-      label: quotesLabel,
-      href: '/admin/quotes',
-      icon: NAV_ICONS.quotes,
-    });
-  }
 
   return items;
 }
@@ -369,7 +366,7 @@ export function Sidebar() {
         t('navigation.dashboard'),
         t('navigation.profile'),
         t('navigation.quotes'),
-        user?.role === 'admin',
+        user?.role?.toLowerCase() === 'admin',
       ),
     [t, user?.role],
   );

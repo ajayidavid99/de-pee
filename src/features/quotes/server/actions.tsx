@@ -69,6 +69,7 @@ export async function submitQuoteRequest(items: QuoteItemPayload[], notes?: stri
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/quotes');
   revalidatePath('/admin/quotes');
   return { success: true, referenceNo, quoteId };
 }
@@ -242,8 +243,10 @@ export async function updateQuoteStatus(
     );
 
     revalidatePath('/admin/quotes');
-    revalidatePath('/dashboard');
+    revalidatePath(`/admin/quotes/${quoteId}`);
+    revalidatePath('/quotes');
     revalidatePath(`/quotes/${quoteId}`);
+    revalidatePath('/dashboard');
     return { success: true };
   } catch (error) {
     console.error('Failed to update quote status:', error);

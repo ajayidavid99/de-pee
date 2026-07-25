@@ -1,16 +1,16 @@
-// src/app/(protected)/quotes/[id]/page.tsx
+// src/app/(protected)/@user/quotes/[id]/page.tsx
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PageLayout } from '@/components/shared/page-header';
 import { getQuoteDetails } from '@/features/quotes/server/actions';
-import { getCurrentUser } from '@/features/auth/server/get-current-user';
+import { requirePermission } from '@/features/auth/rbac/require';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, Clock, FileText, AlertCircle } from 'lucide-react';
 
-interface QuoteDetailsPageProps {
+interface Props {
   params: Promise<{ id: string }>;
 }
 
@@ -21,39 +21,28 @@ const statusBadgeMap = {
   REJECTED: { label: 'Declined', variant: 'destructive' as const },
 };
 
-export default async function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
+export default async function UserQuoteDetailsPage({ params }: Props) {
+  await requirePermission('dashboard.view:user');
   const { id } = await params;
 
-  // Protect against catch-all routing collisions
-  if (!id || id === 'admin' || id === 'quotes') {
-    notFound();
-  }
+  if (!id) notFound();
 
-  const user = await getCurrentUser();
   const quote = await getQuoteDetails(id);
 
-  const backHref = user?.role?.toLowerCase() === 'admin' ? '/admin/quotes' : '/dashboard';
-
-  // Fallback UI if quote doesn't exist or isn't authorized
   if (!quote) {
     return (
       <PageLayout>
         <div className="max-w-2xl mx-auto py-12 text-center space-y-4">
-          <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-full text-amber-600 mb-2">
-            <AlertCircle className="h-8 w-8" />
-          </div>
+          <AlertCircle className="h-8 w-8 mx-auto text-amber-500" />
           <h1 className="text-xl font-bold">Quote Request Not Found</h1>
-          <p className="text-sm text-muted-foreground">
-            The requested quote reference <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{id}</code> could not be located or you don't have permission to view it.
+          <p className="text-xs text-muted-foreground">
+            The quote <code className="font-mono bg-muted px-1 py-0.5 rounded">{id}</code> was not found or belongs to another user.
           </p>
-          <div className="pt-4">
-            <Button asChild size="sm">
-              <Link href={backHref}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to {user?.role?.toLowerCase() === 'admin' ? 'Admin Quotes' : 'Dashboard'}
-              </Link>
-            </Button>
-          </div>
+          <Button asChild size="sm">
+            <Link href="/quotes">
+              <ArrowLeft className="h-4 w-4 mr-2" /> Back to My Quotes
+            </Link>
+          </Button>
         </div>
       </PageLayout>
     );
@@ -66,8 +55,8 @@ export default async function QuoteDetailsPage({ params }: QuoteDetailsPageProps
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild className="gap-1.5 text-xs">
-            <Link href={backHref}>
-              <ArrowLeft className="h-4 w-4" /> {user?.role?.toLowerCase() === 'admin' ? 'Back to Admin Quotes' : 'Back to Dashboard'}
+            <Link href="/quotes">
+              <ArrowLeft className="h-4 w-4" /> Back to My Quotes
             </Link>
           </Button>
           <Badge variant={badge.variant} className="text-xs px-2.5 py-1 font-semibold">
@@ -83,7 +72,7 @@ export default async function QuoteDetailsPage({ params }: QuoteDetailsPageProps
                   {quote.reference_no}
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Submitted on {quote.created_at} • {quote.total_items} item(s) requested
+                  Submitted on {quote.created_at} • {quote.total_items} item(s)
                 </p>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-lg border">

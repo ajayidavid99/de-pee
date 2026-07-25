@@ -33,7 +33,7 @@ export default async function AdminQuotesPage() {
             <div>
               <h3 className="text-sm font-bold text-foreground">Active Quotation Requests</h3>
               <p className="text-[11px] text-muted-foreground">
-                Showing {quotes.length} recorded request(s) submitted from catalog basket.
+                Showing {quotes.length} recorded request(s).
               </p>
             </div>
           </div>
@@ -50,7 +50,7 @@ export default async function AdminQuotesPage() {
                   <tr className="border-b border-border bg-muted/40 text-muted-foreground font-medium">
                     <th className="p-3 font-semibold">Reference</th>
                     <th className="p-3 font-semibold">Client</th>
-                    <th className="p-3 font-semibold">Items Requested</th>
+                    <th className="p-3 font-semibold">Items</th>
                     <th className="p-3 font-semibold">Status</th>
                     <th className="p-3 font-semibold">Date</th>
                     <th className="p-3 font-semibold text-right">Actions</th>
@@ -58,12 +58,10 @@ export default async function AdminQuotesPage() {
                 </thead>
                 <tbody className="divide-y divide-border/40">
                   {quotes.map((q) => {
-                    const badge = statusBadgeMap[q.status];
+                    const badge = statusBadgeMap[q.status] || { label: q.status, variant: 'secondary' as const };
                     return (
                       <tr key={q.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="p-3 font-mono font-bold text-foreground">
-                          {q.reference_no}
-                        </td>
+                        <td className="p-3 font-mono font-bold text-foreground">{q.reference_no}</td>
                         <td className="p-3">
                           <p className="font-semibold">{q.user_name}</p>
                           <p className="text-[10px] text-muted-foreground">{q.user_email}</p>
@@ -77,8 +75,8 @@ export default async function AdminQuotesPage() {
                         <td className="p-3 text-muted-foreground">{q.created_at}</td>
                         <td className="p-3 text-right flex items-center justify-end gap-2">
                           <Button variant="ghost" size="sm" asChild className="h-7 text-xs px-2 gap-1">
-                            <Link href={`/quotes/${q.id}`}>
-                              <Eye className="h-3 w-3" /> View
+                            <Link href={`/admin/quotes/${q.id}`}>
+                              <Eye className="h-3 w-3" /> Inspect
                             </Link>
                           </Button>
                           <UpdateQuoteDialog
