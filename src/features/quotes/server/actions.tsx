@@ -109,6 +109,8 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
 
   try {
     const isAdmin = user.role === 'admin';
+
+    // 1. Fetch Quote Header with User Verification
     const quoteRes = await db.query(
       `SELECT id, reference_no, user_id, status, total_items, notes, created_at
        FROM quotes
@@ -119,14 +121,15 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
     if (!quoteRes.rows || quoteRes.rows.length === 0) return null;
     const q = quoteRes.rows[0];
 
+    // 2. Fetch Line Items joined with products and categories
     const itemsRes = await db.query(
       `SELECT 
          qi.id,
          qi.product_id,
          qi.quantity,
-         p.name as product_name,
-         p.image as product_image,
-         c.name as category_name
+         COALESCE(p.name, 'Medical Equipment Item') as product_name,
+         COALESCE(p.image, '') as product_image,
+         COALESCE(c.name, 'General Supply') as category_name
        FROM quote_items qi
        LEFT JOIN products p ON qi.product_id = p.id
        LEFT JOIN categories c ON p.category_id = c.id
@@ -145,9 +148,9 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
       items: (itemsRes.rows || []).map((row: any) => ({
         id: String(row.id),
         product_id: String(row.product_id),
-        product_name: String(row.product_name || 'Equipment Item'),
-        product_image: String(row.product_image || ''),
-        category_name: String(row.category_name || 'General'),
+        product_name: String(row.product_name),
+        product_image: String(row.product_image),
+        category_name: String(row.category_name),
         quantity: Number(row.quantity),
       })),
     };
