@@ -344,7 +344,7 @@ function buildNavItems(
     items.push({
       id: 'admin-quotes',
       label: quotesLabel,
-      href: '/quotes',
+      href: '/admin/quotes',
       icon: NAV_ICONS.quotes,
     });
   }

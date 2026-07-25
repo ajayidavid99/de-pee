@@ -105,23 +105,41 @@ export async function getUserQuotes(): Promise<DBQuote[]> {
 
 export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | null> {
   const user = await getCurrentUser();
-  if (!user) return null;
+  
+  if (!user) {
+    console.error('[getQuoteDetails] No authenticated user found.');
+    return null;
+  }
+
+  // Convert role to lower-case to avoid 'Admin' vs 'admin' casing bugs
+  const userRole = String(user.role || '').toLowerCase();
+  const isAdmin = userRole === 'admin';
+  const userIdStr = String(user.id);
+
+  console.log(`[getQuoteDetails] Fetching quote: "${quoteId}" | User: "${userIdStr}" | IsAdmin: ${isAdmin}`);
 
   try {
-    const isAdmin = user.role === 'admin';
+    // Fetch header - if admin, skip user_id check
+    const quoteRes = isAdmin
+      ? await db.query(
+          `SELECT id, reference_no, user_id, status, total_items, notes, created_at
+           FROM quotes WHERE id = $1`,
+          [quoteId]
+        )
+      : await db.query(
+          `SELECT id, reference_no, user_id, status, total_items, notes, created_at
+           FROM quotes WHERE id = $1 AND user_id = $2`,
+          [quoteId, userIdStr]
+        );
 
-    // 1. Fetch Quote Header with User Verification
-    const quoteRes = await db.query(
-      `SELECT id, reference_no, user_id, status, total_items, notes, created_at
-       FROM quotes
-       WHERE id = $1 AND (user_id = $2 OR $3 = true)`,
-      [quoteId, String(user.id), isAdmin]
-    );
+    if (!quoteRes.rows || quoteRes.rows.length === 0) {
+      console.warn(`[getQuoteDetails] No quote found in DB for ID "${quoteId}" with User "${userIdStr}"`);
+      return null;
+    }
 
-    if (!quoteRes.rows || quoteRes.rows.length === 0) return null;
     const q = quoteRes.rows[0];
 
-    // 2. Fetch Line Items joined with products and categories
+    // Fetch itemized line items
     const itemsRes = await db.query(
       `SELECT 
          qi.id,
@@ -129,7 +147,7 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
          qi.quantity,
          COALESCE(p.name, 'Medical Equipment Item') as product_name,
          COALESCE(p.image, '') as product_image,
-         COALESCE(c.name, 'General Supply') as category_name
+         COALESCE(c.name, 'General') as category_name
        FROM quote_items qi
        LEFT JOIN products p ON qi.product_id = p.id
        LEFT JOIN categories c ON p.category_id = c.id
@@ -155,7 +173,7 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
       })),
     };
   } catch (error) {
-    console.error('Failed to get quote details:', error);
+    console.error('[getQuoteDetails] Query error:', error);
     return null;
   }
 }
@@ -165,7 +183,7 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
  */
 export async function getAllQuotesForAdmin(): Promise<AdminQuoteSummary[]> {
   const user = await getCurrentUser();
-  if (!user || user.role !== 'admin') {
+  if (!user || String(user.role || '').toLowerCase() !== 'admin') {
     throw new Error('Unauthorized');
   }
 
@@ -209,7 +227,7 @@ export async function updateQuoteStatus(
   notes?: string
 ) {
   const user = await getCurrentUser();
-  if (!user || user.role !== 'admin') {
+  if (!user || String(user.role || '').toLowerCase() !== 'admin') {
     throw new Error('Unauthorized');
   }
 

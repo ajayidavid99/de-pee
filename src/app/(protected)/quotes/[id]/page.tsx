@@ -1,5 +1,4 @@
 // src/app/(protected)/quotes/[id]/page.tsx
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PageLayout } from '@/components/shared/page-header';
 import { getQuoteDetails } from '@/features/quotes/server/actions';
@@ -8,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Clock, FileText } from 'lucide-react';
+import { ArrowLeft, Clock, FileText, AlertCircle } from 'lucide-react';
 
 interface QuoteDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -26,12 +25,34 @@ export default async function QuoteDetailsPage({ params }: QuoteDetailsPageProps
   const user = await getCurrentUser();
   const quote = await getQuoteDetails(id);
 
+  const backHref = user?.role?.toLowerCase() === 'admin' ? '/admin/quotes' : '/dashboard';
+
+  // Fallback UI if quote doesn't exist or isn't authorized
   if (!quote) {
-    notFound();
+    return (
+      <PageLayout>
+        <div className="max-w-2xl mx-auto py-12 text-center space-y-4">
+          <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-full text-amber-600 mb-2">
+            <AlertCircle className="h-8 w-8" />
+          </div>
+          <h1 className="text-xl font-bold">Quote Request Not Found</h1>
+          <p className="text-sm text-muted-foreground">
+            The requested quote reference <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{id}</code> could not be located or you don't have permission to view it.
+          </p>
+          <div className="pt-4">
+            <Button asChild size="sm">
+              <Link href={backHref}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to {user?.role?.toLowerCase() === 'admin' ? 'Admin Quotes' : 'Dashboard'}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </PageLayout>
+    );
   }
 
-  const badge = statusBadgeMap[quote.status];
-  const backHref = user?.role === 'admin' ? '/admin/quotes' : '/dashboard';
+  const badge = statusBadgeMap[quote.status] || { label: quote.status, variant: 'secondary' as const };
 
   return (
     <PageLayout>
@@ -39,7 +60,7 @@ export default async function QuoteDetailsPage({ params }: QuoteDetailsPageProps
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild className="gap-1.5 text-xs">
             <Link href={backHref}>
-              <ArrowLeft className="h-4 w-4" /> {user?.role === 'admin' ? 'Back to Admin Quotes' : 'Back to Dashboard'}
+              <ArrowLeft className="h-4 w-4" /> {user?.role?.toLowerCase() === 'admin' ? 'Back to Admin Quotes' : 'Back to Dashboard'}
             </Link>
           </Button>
           <Badge variant={badge.variant} className="text-xs px-2.5 py-1 font-semibold">
@@ -79,24 +100,32 @@ export default async function QuoteDetailsPage({ params }: QuoteDetailsPageProps
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {quote.items.map((item) => (
-                  <TableRow key={item.id} className="text-xs">
-                    <TableCell className="font-semibold">
-                      <div className="flex items-center gap-3">
-                        {item.product_image && (
-                          <img
-                            src={item.product_image}
-                            alt={item.product_name}
-                            className="h-8 w-8 rounded object-cover border"
-                          />
-                        )}
-                        <span>{item.product_name}</span>
-                      </div>
+                {quote.items.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-6 text-xs text-muted-foreground">
+                      No items recorded for this quote.
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{item.category_name}</TableCell>
-                    <TableCell className="text-right font-bold">{item.quantity}</TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  quote.items.map((item) => (
+                    <TableRow key={item.id} className="text-xs">
+                      <TableCell className="font-semibold">
+                        <div className="flex items-center gap-3">
+                          {item.product_image && (
+                            <img
+                              src={item.product_image}
+                              alt={item.product_name}
+                              className="h-8 w-8 rounded object-cover border"
+                            />
+                          )}
+                          <span>{item.product_name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{item.category_name}</TableCell>
+                      <TableCell className="text-right font-bold">{item.quantity}</TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>
