@@ -1,4 +1,5 @@
 // src/app/(protected)/quotes/[id]/page.tsx
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PageLayout } from '@/components/shared/page-header';
 import { getQuoteDetails } from '@/features/quotes/server/actions';
@@ -22,6 +23,12 @@ const statusBadgeMap = {
 
 export default async function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
   const { id } = await params;
+
+  // Protect against catch-all routing collisions
+  if (!id || id === 'admin' || id === 'quotes') {
+    notFound();
+  }
+
   const user = await getCurrentUser();
   const quote = await getQuoteDetails(id);
 
