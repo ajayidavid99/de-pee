@@ -157,6 +157,9 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
   }
 }
 
+/**
+ * Fetch all quote requests across all users for Admin
+ */
 export async function getAllQuotesForAdmin(): Promise<AdminQuoteSummary[]> {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
@@ -176,7 +179,7 @@ export async function getAllQuotesForAdmin(): Promise<AdminQuoteSummary[]> {
         COALESCE(u.name, 'Client') as user_name,
         COALESCE(u.email, 'Client Email') as user_email
       FROM quotes q
-      LEFT JOIN users u ON q.user_id = u.id
+      LEFT JOIN "user" u ON q.user_id = u.id
       ORDER BY q.created_at DESC
     `);
 
