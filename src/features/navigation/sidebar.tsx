@@ -335,7 +335,7 @@ function buildNavItems(
     {
       id: 'quotes',
       label: isAdmin ? 'Manage Quotes' : quotesLabel,
-      href: isAdmin ? '/admin/quotes' : '/quotes',
+      href: '/quotes',
       icon: NAV_ICONS.quotes,
     },
     {
