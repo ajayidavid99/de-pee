@@ -131,6 +131,7 @@ export async function getQuoteDetails(quoteId: string): Promise<DBQuoteDetail | 
            FROM quotes WHERE id = $1 AND user_id = $2`,
           [quoteId, userIdStr]
         );
+    console.log(quoteRes);
 
     if (!quoteRes.rows || quoteRes.rows.length === 0) {
       console.warn(`[getQuoteDetails] No quote found in DB for ID "${quoteId}" with User "${userIdStr}"`);
