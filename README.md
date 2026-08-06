@@ -1,3 +1,6 @@
-
-Equipment Category Samples
-1. Diagnostic & Monitoring EquipmentPatient Monitoring SystemsVital signs monitorsMultiparameter bedside monitorsCentral monitoring stationsCardiology Diagnostic Tools12-lead electrocardiograph (ECG) machinesHolter monitorsCardiac stress test systems2. Surgical & Operating Room SuppliesSurgical Illumination & VisualizationLED surgical headlightsCeiling-mounted operating room lightsMedical-grade surgical video monitorsAnesthesia & Respiratory DeliveryAdvanced anesthesia workstationsPortable ventilatorsSyringe and infusion pumpsSurgical InstrumentsStainless steel scalpel handles and bladesHemostatic forcepsElectrosurgical pencils3. Patient Care & Mobility SolutionsHospital Ward BedsFully electric ICU bedsSemi-electric patient bedsPediatric cribs with safety side railsPatient Transfer & Mobility AidsLightweight aluminum wheelchairsHydraulic patient lift hoistsHeavy-duty rolling walkersPressure Injury PreventionAlternating pressure air mattressesMedical gel seat cushionsPositioners and heel protectors
+Progress
+Update domain name
+Authentications
+    OTP, forgot password, etc
+Mail Notifications
+Whatsapp linking
