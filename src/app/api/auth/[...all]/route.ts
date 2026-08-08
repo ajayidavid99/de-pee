@@ -1,16 +1,15 @@
 // src/app/api/auth/[...all]/route.ts
 import { auth } from '@/features/auth/lib/auth';
+import { toNextJsHandler } from 'better-auth/next-js';
+
+// toNextJsHandler automatically parses Next.js proxy headers and normalizes the request
+const handler = toNextJsHandler(auth);
 
 export async function POST(req: Request) {
-  console.log('[DEBUG AUTH POST] URL:', req.url);
-
-  // auth.handler natively parses req.url without needing Next.js route context
-  const res = await auth.handler(req);
-
+  console.log('[DEBUG AUTH POST] Request received at Next.js adapter');
+  const res = await handler.POST(req);
   console.log('[DEBUG AUTH POST] Status:', res.status);
   return res;
 }
 
-export async function GET(req: Request) {
-  return auth.handler(req);
-}
+export const GET = handler.GET;
