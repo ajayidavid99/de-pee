@@ -19,7 +19,7 @@ if (
 }
 
 const allowlistedHosts = (() => {
-  const hosts = new Set<string>(['localhost:*', '*.vercel.app']);
+  const hosts = new Set<string>(['localhost:*', '*.vercel.app', '*.depeeventures.com']);
 
   for (const value of [env.BETTER_AUTH_URL, env.NEXT_PUBLIC_APP_URL]) {
     if (!value) continue;
