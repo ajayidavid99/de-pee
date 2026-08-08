@@ -46,8 +46,7 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,
-    // Enabling this hook registers `forgetPassword` on authClient
-    async sendResetPassword({ user, url, token }) {
+    async sendResetPassword({ user, url }) {
       await sendPasswordResetEmail(user.email, url);
       console.log(`Sending reset email to ${user.email} with URL: ${url}`);
     },
