@@ -46,9 +46,9 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,
+    // Adding this method registers the POST /api/auth/forget-password endpoint
     async sendResetPassword({ user, url }) {
       await sendPasswordResetEmail(user.email, url);
-      console.log(`Sending reset email to ${user.email} with URL: ${url}`);
     },
   },
   socialProviders,

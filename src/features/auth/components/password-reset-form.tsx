@@ -33,23 +33,23 @@ export default function PasswordResetForm() {
   const emailError = form.formState.errors.email?.message;
 
   const onSubmit = form.handleSubmit(async (values) => {
-    setErrorMsg(null);
-    try {
-      const res = await (authClient as any).forgetPassword({
-        email: values.email,
-        redirectTo: '/password-reset',
-      });
+  setErrorMsg(null);
+  try {
+    const res = await (authClient as any).forgetPassword({
+      email: values.email,
+      redirectTo: '/password-reset',
+    });
 
-      if (res?.error) {
-        setErrorMsg(res.error.message || 'Failed to request password reset.');
-      } else {
-        setSubmitted(true);
-        toast.success('Reset link sent to your email.');
-      }
-    } catch {
-      setErrorMsg('An unexpected error occurred.');
+    if (res?.error) {
+      setErrorMsg(res.error.message || 'Failed to request password reset.');
+    } else {
+      setSubmitted(true);
+      toast.success('Reset link sent to your email.');
     }
-  });
+  } catch (err: any) {
+    setErrorMsg('An unexpected error occurred.');
+  }
+});
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
