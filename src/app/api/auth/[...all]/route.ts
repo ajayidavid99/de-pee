@@ -14,6 +14,7 @@ export async function POST(req: Request) {
   
   // 3. Log what Better Auth decided to return
   console.log('[DEBUG AUTH POST] Status:', res.status);
+  console.log('[DEBUG AUTH POST] Status2:', res);
   
   return res;
 }
