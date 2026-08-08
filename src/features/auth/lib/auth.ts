@@ -44,10 +44,12 @@ export const auth = betterAuth({
   database: db,
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
+  trustedOrigins: allowlistedHosts,
   emailAndPassword: {
     enabled: true,
     // Adding this method registers the POST /api/auth/forget-password endpoint
     async sendResetPassword({ user, url }) {
+      console.log(`[DEBUG] Attempting to send reset email to: ${user.email}`); // Add this here too!
       await sendPasswordResetEmail(user.email, url);
     },
   },
