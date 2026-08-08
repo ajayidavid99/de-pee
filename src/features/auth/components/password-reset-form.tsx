@@ -1,3 +1,4 @@
+// src/features/auth/components/password-reset-form.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,8 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { authClient } from '@/features/auth/lib/auth-client';
+import { toast } from 'sonner';
 
 const schema = z.object({
   email: z.string().email(),
@@ -20,6 +23,7 @@ type FormValues = z.infer<typeof schema>;
 export default function PasswordResetForm() {
   const t = useTranslations('auth.passwordReset');
   const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -28,8 +32,23 @@ export default function PasswordResetForm() {
 
   const emailError = form.formState.errors.email?.message;
 
-  const onSubmit = form.handleSubmit(async () => {
-    setSubmitted(true);
+  const onSubmit = form.handleSubmit(async (values) => {
+    setErrorMsg(null);
+    try {
+      const res = await (authClient as any).forgetPassword({
+        email: values.email,
+        redirectTo: '/password-reset',
+      });
+
+      if (res?.error) {
+        setErrorMsg(res.error.message || 'Failed to request password reset.');
+      } else {
+        setSubmitted(true);
+        toast.success('Reset link sent to your email.');
+      }
+    } catch {
+      setErrorMsg('An unexpected error occurred.');
+    }
   });
 
   return (
@@ -56,6 +75,10 @@ export default function PasswordResetForm() {
                 />
                 <InputError message={emailError} />
               </div>
+
+              {errorMsg && (
+                <p className="text-xs text-destructive">{errorMsg}</p>
+              )}
 
               <Button type="submit" loading={form.formState.isSubmitting}>
                 {t('submit')}

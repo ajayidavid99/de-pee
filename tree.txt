@@ -1,5 +1,5 @@
 Folder PATH listing
-Volume serial number is 00000041 C493:B52A
+Volume serial number is 00000017 C493:B52A
 C:.
 |   global.d.ts
 |   instrumentation-client.ts
@@ -37,26 +37,30 @@ C:.
 |   |   |   +---dashboard
 |   |   |   |       page.tsx
 |   |   |   |       
-|   |   |   \---profile
-|   |   |           page.tsx
-|   |   |           
+|   |   |   +---profile
+|   |   |   |       page.tsx
+|   |   |   |       
+|   |   |   \---quotes
+|   |   |       |   page.tsx
+|   |   |       |   
+|   |   |       \---[id]
+|   |   |               page.tsx
+|   |   |               
 |   |   +---@user
 |   |   |   |   default.tsx
 |   |   |   |   
 |   |   |   +---dashboard
 |   |   |   |       page.tsx
 |   |   |   |       
-|   |   |   \---profile
-|   |   |           page.tsx
-|   |   |           
-|   |   +---admin
+|   |   |   +---profile
+|   |   |   |       page.tsx
+|   |   |   |       
 |   |   |   \---quotes
-|   |   |           page.tsx
-|   |   |           
-|   |   +---quotes
-|   |   |   \---[id]
-|   |   |           page.tsx
-|   |   |           
+|   |   |       |   page.tsx
+|   |   |       |   
+|   |   |       \---[id]
+|   |   |               page.tsx
+|   |   |               
 |   |   \---unauthorized
 |   |           page.tsx
 |   |           

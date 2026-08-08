@@ -3,6 +3,7 @@ import { env } from '@/libs/env';
 import { betterAuth } from 'better-auth';
 // Import your centralized database client pool
 import { db } from '@/libs/db';
+import { sendPasswordResetEmail } from '@/libs/email';
 
 if (
   process.env.NODE_ENV === 'production' &&
@@ -45,6 +46,11 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,
+    // Enabling this hook registers `forgetPassword` on authClient
+    async sendResetPassword({ user, url, token }) {
+      await sendPasswordResetEmail(user.email, url);
+      console.log(`Sending reset email to ${user.email} with URL: ${url}`);
+    },
   },
   socialProviders,
   user: {
