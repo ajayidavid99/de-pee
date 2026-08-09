@@ -35,7 +35,7 @@ export default function PasswordResetForm() {
   const onSubmit = form.handleSubmit(async (values) => {
     setErrorMsg(null);
     try {
-      const res = await (authClient as any).forgetPassword({
+      const res = await authClient.requestPasswordReset({
         email: values.email,
         redirectTo: '/password-reset',
       });
