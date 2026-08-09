@@ -3,7 +3,7 @@ import { env } from '@/libs/env';
 import { betterAuth } from 'better-auth';
 // Import your centralized database client pool
 import { db } from '@/libs/db';
-import { sendPasswordResetEmail } from '@/libs/email';
+import { sendPasswordResetEmail, sendWelcomeEmail } from '@/libs/email';
 
 if (
   process.env.NODE_ENV === 'production' &&
@@ -64,6 +64,16 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
         defaultValue: '+234',
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          console.log(`[AUTH] Sending welcome email to: ${user.email}`);
+          await sendWelcomeEmail(user.email, user.name);
+        },
       },
     },
   },

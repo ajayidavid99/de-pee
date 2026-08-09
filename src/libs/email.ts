@@ -19,3 +19,20 @@ export async function sendPasswordResetEmail(email: string, url: string) {
     `,
   });
 }
+
+export async function sendWelcomeEmail(email: string, name: string) {
+  return await resend.emails.send({
+    from: 'De-Pee Support <noreply@mail.depeeventures.com>',
+    to: email,
+    subject: 'Welcome to De-Pee Ventures!',
+    html: `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>Welcome, ${name || 'there'}!</h2>
+        <p>We are thrilled to have you on board with De-Pee Ventures.</p>
+        <p>You can now log in and explore your dashboard to request quotes and manage your account.</p>
+        <br/>
+        <p>Best regards,<br/>The De-Pee Ventures Team</p>
+      </div>
+    `,
+  });
+}

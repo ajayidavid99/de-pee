@@ -18,7 +18,8 @@ import {
   X, 
   Headphones, 
   Mail, 
-  PhoneCall 
+  PhoneCall,
+  MessageCircle 
 } from 'lucide-react';
 
 interface CartItem {
@@ -148,7 +149,7 @@ export function FloatingQuoteBasket() {
               <div className="text-center py-6 bg-emerald-500/10 text-emerald-600 rounded-lg p-3 space-y-2 border border-emerald-500/20">
                 <CheckCircle className="h-8 w-8 mx-auto" />
                 <p className="text-xs font-bold">Request Compiled Successfully</p>
-                <p className="text-[10px] text-muted-foreground leading-relaxed">Our logistics specialists across Lagos and Ife branch layers are reviewing specifications to draft precise pricing timelines.</p>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">Our logistics specialists across our branch layers are reviewing specifications to draft precise pricing timelines and will reach you via supplied contact or on this platform!</p>
               </div>
             ) : quoteCart.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg space-y-1.5">
@@ -252,18 +253,27 @@ export function FloatingQuoteBasket() {
 
             <div className="space-y-2 pt-1">
               <a 
-                href="mailto:support@depee.com" 
+                href="mailto:info@mail.depeeventures.com" 
                 className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
               >
                 <Mail className="h-3.5 w-3.5 text-blue-600" />
-                <span className="truncate">Email Procurement Desk</span>
+                <span className="truncate">Email Admin</span>
               </a>
               <a 
-                href="tel:+2348000000000" 
+                href="tel:+2348067844732" 
                 className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
               >
                 <PhoneCall className="h-3.5 w-3.5 text-emerald-600" />
-                <span>Call Lagos / Ife Office</span>
+                <span>Call Office</span>
+              </a>
+              <a 
+                href="https://wa.me/2348067844732" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
+              >
+                <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
+                <span>WhatsApp Office</span>
               </a>
             </div>
           </PopoverContent>
