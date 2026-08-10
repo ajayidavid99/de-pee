@@ -35,6 +35,7 @@ import {
   Menu,
   UserCircle,
   FileText,
+  Inbox,
   type LucideIcon,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -315,6 +316,7 @@ export function useSidebarCollapsed() {
 
 const NAV_ICONS = {
   dashboard: LayoutDashboard,
+  inbox: Inbox,
   profile: UserCircle,
   quotes: FileText,
 } as const;
@@ -332,6 +334,18 @@ function buildNavItems(
       href: '/dashboard',
       icon: NAV_ICONS.dashboard,
     },
+  ];
+
+  if (isAdmin) {
+    items.push({
+      id: 'inbox',
+      label: 'Inbox',
+      href: '/inbox',
+      icon: NAV_ICONS.inbox,
+    });
+  }
+
+  items.push(
     {
       id: 'quotes',
       label: isAdmin ? 'Manage Quotes' : quotesLabel,
@@ -344,7 +358,7 @@ function buildNavItems(
       href: '/profile',
       icon: NAV_ICONS.profile,
     },
-  ];
+  );
 
   return items;
 }
