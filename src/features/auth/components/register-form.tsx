@@ -3,6 +3,7 @@
 import TextLink from '@/components/shared/text-link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,7 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
@@ -31,6 +33,7 @@ const RegisterForm = () => {
   const router = useRouter();
   const { signUp, user, isLoading } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [hasConsented, setHasConsented] = useState<boolean>(false);
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -40,7 +43,6 @@ const RegisterForm = () => {
       countryCode: '+234',
       phone: '',
       password: '',
-      confirmPassword: '',
     },
   });
 
@@ -49,15 +51,17 @@ const RegisterForm = () => {
   }, [user, isLoading, router]);
 
   const onSubmit = form.handleSubmit(async (values) => {
+    if (!hasConsented) return;
     setServerError(null);
     try {
       await signUp({
         email: values.email,
         password: values.password,
         name: values.name,
-        // Send extra fields directly to BetterAuth signUp
         phone: values.phone,
         countryCode: values.countryCode,
+        consentedAt: new Date().toISOString(),
+        consentVersion: 'NDPA-2023-V1',
       } as any);
       router.replace('/dashboard');
       router.refresh();
@@ -152,7 +156,7 @@ const RegisterForm = () => {
                 <InputError message={errors.phone?.message} />
               </div>
 
-              {/* Passwords */}
+              {/* Password */}
               <div className="grid gap-2">
                 <Label htmlFor="password">{tLogin('password')}</Label>
                 <PasswordInput
@@ -165,25 +169,41 @@ const RegisterForm = () => {
                 <InputError message={errors.password?.message} />
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
-                <PasswordInput
-                  id="confirmPassword"
-                  autoComplete="new-password"
-                  placeholder={t('confirmPasswordPlaceholder')}
-                  aria-invalid={!!errors.confirmPassword}
-                  {...form.register('confirmPassword')}
-                />
-                <InputError message={errors.confirmPassword?.message} />
-              </div>
-
               {serverError && (
                 <p className="text-sm text-destructive" role="alert">
                   {serverError}
                 </p>
               )}
 
-              <Button type="submit" loading={form.formState.isSubmitting}>
+              {/* NDPA Consent Checkbox */}
+              <div className="flex items-start space-x-3 mt-2">
+                <Checkbox
+                  id="ndpa-consent"
+                  checked={hasConsented}
+                  onCheckedChange={(checked) => setHasConsented(!!checked)}
+                  className="mt-1"
+                />
+                <Label
+                  htmlFor="ndpa-consent"
+                  className="text-sm font-medium leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I agree to the{' '}
+                  <Link href="/terms" className="text-blue-600 hover:underline dark:text-blue-400">
+                    Terms of Service
+                  </Link>{' '}
+                  and acknowledge the{' '}
+                  <Link href="/privacy" className="text-blue-600 hover:underline dark:text-blue-400">
+                    Privacy Policy
+                  </Link>{' '}
+                  in accordance with the NDPA 2023.
+                </Label>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={!hasConsented || form.formState.isSubmitting}
+                loading={form.formState.isSubmitting}
+              >
                 {t('submit')}
               </Button>
             </div>

@@ -65,6 +65,16 @@ export const auth = betterAuth({
         required: false,
         defaultValue: '+234',
       },
+      // NDPA Audit Fields
+      consentedAt: {
+        type: 'string',
+        required: false,
+      },
+      consentVersion: {
+        type: 'string',
+        required: false,
+        defaultValue: 'NDPA-2023-V1',
+      },
     },
   },
   databaseHooks: {

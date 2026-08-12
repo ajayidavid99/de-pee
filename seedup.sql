@@ -217,3 +217,29 @@ CREATE TABLE IF NOT EXISTS quote_items (
   quantity INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- scripts/create-inbox-table.sql
+CREATE TABLE IF NOT EXISTS inbound_emails (
+  id VARCHAR(255) PRIMARY KEY,
+  from_email TEXT NOT NULL,
+  from_name TEXT,
+  to_email TEXT NOT NULL,
+  subject TEXT,
+  text_body TEXT,
+  html_body TEXT,
+  read_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_inbound_emails_created_at ON inbound_emails(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inbound_emails_read_at ON inbound_emails(read_at);
+
+-- scripts to create multiple images for products
+-- 1. Add a new array column for multiple images
+ALTER TABLE products ADD COLUMN images TEXT[] DEFAULT '{}';
+
+-- 2. Migrate your existing single images into the new array column
+UPDATE products SET images = ARRAY[image] WHERE image IS NOT NULL;
+
+-- 3. (Optional but recommended) Drop the old single image column to avoid confusion
+ALTER TABLE products DROP COLUMN image;

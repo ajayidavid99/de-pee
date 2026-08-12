@@ -1,11 +1,10 @@
-// de-pee/src/app/(public)/contact/page.tsx
-import { MapPin, Mail, Phone, Clock, Landmark } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+// src/app/(public)/contact/page.tsx
+import { MapPin, Mail, Phone, Clock, Landmark, MessageSquare, ExternalLink, Building2, ShieldCheck, Truck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 export const metadata = {
   title: 'Contact Information | De-Pee Medical',
-  description: 'Reach our distribution and procurement offices in Yaba, Lagos and Ife, Osun State.',
+  description: 'Reach our head office in Ile-Ife, Osun State or connect with our regional logistics network in Lagos.',
 };
 
 export default function ContactPage() {
@@ -17,128 +16,133 @@ export default function ContactPage() {
         <div className="border-b border-border/60 pb-6 mb-10">
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-2">Connect With Our Team</h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Get in touch directly with our localized logistics hubs to discuss supply contracts, technical hardware allocations, or quick quote fulfillments.
+            Reach out directly to our central administrative base or request procurement logistics through our regional support channels.
           </p>
         </div>
 
-        {/* Dynamic Multi-Location Dashboard */}
+        {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
-          {/* LEFT & MIDDLE ZONE: Dual Hub Addresses */}
+          {/* LEFT & MIDDLE ZONE: Main Office & Logistics Overview */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            
+            {/* Primary Head Office Card */}
+            <Card className="p-6 border border-border/80 bg-card space-y-5 shadow-sm">
+              <div className="flex items-center justify-between border-b border-border/40 pb-3">
+                <div className="flex items-center gap-2">
+                  <Landmark className="h-5 w-5 text-primary" />
+                  <div>
+                    <h2 className="text-base font-bold text-foreground">Headquarters & Central Hub</h2>
+                    <p className="text-[11px] text-muted-foreground">Primary administrative and operational center</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-semibold bg-primary/10 text-primary px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  Ile-Ife
+                </span>
+              </div>
               
-              {/* Branch 1: Lagos Hub */}
-              <Card className="p-5 border border-border/80 bg-card space-y-4">
-                <div className="flex items-center gap-2 border-b border-border/40 pb-2">
-                  <Landmark className="h-4 w-4 text-primary" />
-                  <h2 className="text-sm font-bold text-foreground">Lagos Distribution Office</h2>
-                </div>
-                
-                <div className="space-y-3 text-xs text-muted-foreground">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                    <p className="leading-normal">
-                      Herbert Macaulay Way, Yaba Area,<br />
-                      Lagos State, Nigeria.
-                    </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground pt-1">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2.5">
+                    <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-foreground block mb-0.5">Head Office Address</strong>
+                      <p className="leading-relaxed">
+                        Ilesa Road, directly opposite the Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC) Phase 1,<br />
+                        Ile-Ife, Osun State, Nigeria.
+                      </p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>+234 (0) 803 000 1111</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>lagos@depeemedical.com</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-1 text-[11px] font-medium text-foreground">
-                    <Clock className="h-3.5 w-3.5 text-primary" />
-                    <span>Mon - Fri: 8:00 AM - 5:00 PM</span>
+                  <div className="flex items-center gap-2.5">
+                    <Phone className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <div>
+                      <strong className="text-foreground block text-[10px] uppercase">Phone Line</strong>
+                      <span className="text-foreground font-medium">+234 806 784 4732</span>
+                    </div>
                   </div>
                 </div>
-              </Card>
 
-              {/* Branch 2: Osun Hub */}
-              <Card className="p-5 border border-border/80 bg-card space-y-4">
-                <div className="flex items-center gap-2 border-b border-border/40 pb-2">
-                  <Landmark className="h-4 w-4 text-primary" />
-                  <h2 className="text-sm font-bold text-foreground">Ife Operational Hub</h2>
-                </div>
-                
-                <div className="space-y-3 text-xs text-muted-foreground">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                    <p className="leading-normal">
-                      Ibadan Road, Near University Axis,<br />
-                      Ile-Ife, Osun State, Nigeria.
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>+234 (0) 805 222 3333</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>ife@depeemedical.com</span>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <Mail className="h-4 w-4 text-blue-600 shrink-0" />
+                    <div>
+                      <strong className="text-foreground block text-[10px] uppercase">Official Email</strong>
+                      <span className="text-foreground font-medium">info@mail.depeeventures.com</span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-1 text-[11px] font-medium text-foreground">
-                    <Clock className="h-3.5 w-3.5 text-primary" />
-                    <span>Mon - Sat: 8:00 AM - 4:00 PM</span>
+                  <div className="flex items-center gap-2.5">
+                    <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+                    <div>
+                      <strong className="text-foreground block text-[10px] uppercase">Operating Hours</strong>
+                      <span className="text-foreground font-medium">Mon - Sat: 8:00 AM - 5:00 PM</span>
+                    </div>
                   </div>
                 </div>
-              </Card>
+              </div>
+            </Card>
 
+            {/* Regional Presence & Logistics Feature Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl border border-border/60 bg-muted/30 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <h3 className="text-xs font-bold text-foreground">Dual-State Coverage</h3>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Operating dedicated operational nodes across <strong>Lagos State</strong> and <strong>Osun State</strong> to streamline regional clinical hardware delivery.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-border/60 bg-muted/30 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-primary" />
+                  <h3 className="text-xs font-bold text-foreground">Direct Procurement Support</h3>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Fast-track medical equipment sourcing and bulk supply inquiries through our centralized logistics desk.
+                </p>
+              </div>
             </div>
+
           </div>
 
-          {/* RIGHT ZONE: Quick Inquiry Dynamic Form */}
-          <aside className="lg:col-span-1 border border-border/80 rounded-2xl p-5 bg-linear-to-b from-card to-muted/20 space-y-4">
+          {/* RIGHT ZONE: Instant Support & Contact Panel */}
+          <aside className="lg:col-span-1 border border-border/80 rounded-2xl p-5 bg-muted/20 space-y-4">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-foreground">Direct Desk Message</h3>
-              <p className="text-[11px] text-muted-foreground leading-normal">
-                Drop your clinical hardware requirements here and a procurement representative will respond.
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-emerald-600" />
+                Direct Desk Support
+              </h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Need urgent assistance or pricing for specific clinical hardware? Use our floating support desk at the bottom-right of your screen to drop a direct message or chat with our admin team live.
               </p>
             </div>
 
-            <form className="space-y-3 pt-1">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-muted-foreground">Institution Name</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Ife Central Clinic" 
-                  className="w-full h-8 rounded-md border border-input bg-background px-3 text-xs focus:outline-hidden focus:ring-1 focus:ring-ring"
-                  required
-                />
-              </div>
+            <div className="space-y-2 pt-2">
+              <a 
+                href="https://wa.me/2348067844732" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors"
+              >
+                <span>Chat on WhatsApp</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+              <a 
+                href="mailto:info@mail.depeeventures.com" 
+                className="flex items-center justify-between text-xs p-2.5 rounded-lg border border-border/80 bg-background text-foreground font-medium hover:bg-muted transition-colors"
+              >
+                <span>Email Procurement Desk</span>
+                <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+              </a>
+            </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-muted-foreground">Target Hub Office</label>
-                <select className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:outline-hidden focus:ring-1 focus:ring-ring">
-                  <option value="yaba">Yaba, Lagos Branch</option>
-                  <option value="ife">Ife, Osun Branch</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-muted-foreground">Detailed Request</label>
-                <textarea 
-                  rows={3} 
-                  placeholder="Specify asset types or logistics requirements..." 
-                  className="w-full rounded-md border border-input bg-background p-2 text-xs focus:outline-hidden focus:ring-1 focus:ring-ring resize-none"
-                  required
-                />
-              </div>
-
-              <Button type="submit" size="sm" className="w-full text-[11px] h-8 font-medium">
-                Dispatch Inquiry
-              </Button>
-            </form>
+            <div className="pt-2 border-t border-border/60 flex items-center gap-2 text-[10px] text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span>Verified logistics & medical supply partner</span>
+            </div>
           </aside>
 
         </div>

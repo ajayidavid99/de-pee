@@ -3,6 +3,7 @@
 
 import { put, del } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 import { getCurrentUser } from '@/features/auth/server/get-current-user';
 import { db } from '@/libs/db';
 
@@ -11,11 +12,11 @@ export interface DBProduct {
   name: string;
   description: string;
   specification: string;
-  image: string;
+  images: string[];
+  image?: string; // Kept for backward compatibility
   category_id: string;
   category_name?: string;
   created_at?: string;
-  // Trend Management Flags
   is_featured?: boolean;
   is_hot_deal?: boolean;
   is_premium?: boolean;
@@ -28,6 +29,20 @@ export interface DBCategory {
   image?: string | null;
 }
 
+// Zod Validation Schema for Product
+export const ProductSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().min(1, 'Description is required'),
+  specification: z.string().min(1, 'Specification is required'),
+  category_id: z.string().min(1, 'Category is required'),
+  images: z
+    .array(z.string().url('Must be a valid URL'))
+    .min(1, 'At least one image is required'),
+  is_featured: z.boolean().default(false),
+  is_hot_deal: z.boolean().default(false),
+  is_premium: z.boolean().default(false),
+});
+
 export async function toggleProductTrend(
   productId: string,
   flag: 'is_featured' | 'is_hot_deal' | 'is_premium',
@@ -39,10 +54,10 @@ export async function toggleProductTrend(
   }
 
   try {
-    await db.query(
-      `UPDATE products SET ${flag} = $1 WHERE id = $2`,
-      [value, productId]
-    );
+    await db.query(`UPDATE products SET ${flag} = $1 WHERE id = $2`, [
+      value,
+      productId,
+    ]);
 
     revalidatePath('/');
     revalidatePath('/dashboard');
@@ -71,6 +86,7 @@ export async function uploadImageAction(formData: FormData): Promise<string> {
   return blob.url;
 }
 
+
 export async function getProducts(): Promise<DBProduct[]> {
   try {
     const result = await db.query(`
@@ -79,6 +95,7 @@ export async function getProducts(): Promise<DBProduct[]> {
         p.name,
         p.description,
         p.specification,
+        p.images,
         p.image,
         p.category_id,
         p.is_featured,
@@ -90,29 +107,50 @@ export async function getProducts(): Promise<DBProduct[]> {
       LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.created_at DESC NULLS LAST, p.id DESC
     `);
-    
-    return (result.rows || []).map((row: any) => ({
-      id: String(row.id || ''),
-      name: String(row.name || ''),
-      description: String(row.description || ''),
-      specification: String(row.specification || ''),
-      image: String(row.image || ''),
-      category_id: String(row.category_id || ''),
-      category_name: String(row.category_name || 'Unassigned'),
-      is_featured: Boolean(row.is_featured),
-      is_hot_deal: Boolean(row.is_hot_deal),
-      is_premium: Boolean(row.is_premium),
-      created_at: row.created_at ? String(row.created_at) : undefined,
-    }));
+
+    return (result.rows || []).map((row: any) => {
+      let imagesList: string[] = [];
+      if (Array.isArray(row.images)) {
+        imagesList = row.images;
+      } else if (typeof row.images === 'string') {
+        try {
+          imagesList = JSON.parse(row.images);
+        } catch {
+          imagesList = row.images ? [row.images] : [];
+        }
+      } else if (row.image) {
+        imagesList = [row.image];
+      }
+
+      // Safely extract primary fallback image URL
+      const primaryImage = imagesList[0] || (typeof row.image === 'string' ? row.image : '');
+
+      return {
+        id: String(row.id || ''),
+        name: String(row.name || ''),
+        description: String(row.description || ''),
+        specification: String(row.specification || ''),
+        images: imagesList,
+        image: primaryImage, // Kept for backward compatibility with frontend components
+        category_id: String(row.category_id || ''),
+        category_name: String(row.category_name || 'Unassigned'),
+        is_featured: Boolean(row.is_featured),
+        is_hot_deal: Boolean(row.is_hot_deal),
+        is_premium: Boolean(row.is_premium),
+        created_at: row.created_at ? String(row.created_at) : undefined,
+      };
+    });
   } catch (error) {
-    console.error("Failed to query products from Neon:", error);
+    console.error('Failed to query products from Neon:', error);
     return [];
   }
 }
 
 export async function getCategories(): Promise<DBCategory[]> {
   try {
-    const result = await db.query('SELECT id, name, parent_id, image FROM categories ORDER BY name ASC');
+    const result = await db.query(
+      'SELECT id, name, parent_id, image FROM categories ORDER BY name ASC'
+    );
     return (result.rows || []).map((row: any) => ({
       id: String(row.id || ''),
       name: String(row.name || ''),
@@ -125,7 +163,11 @@ export async function getCategories(): Promise<DBCategory[]> {
   }
 }
 
-export async function createCategory(formData: { name: string; parentId?: string | null; image?: string | null }) {
+export async function createCategory(formData: {
+  name: string;
+  parentId?: string | null;
+  image?: string | null;
+}) {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
     throw new Error('Unauthorized');
@@ -180,9 +222,14 @@ export async function deleteCategory(id: string) {
     throw new Error('Unauthorized');
   }
 
-  const check = await db.query('SELECT id FROM products WHERE category_id = $1 LIMIT 1', [id]);
+  const check = await db.query(
+    'SELECT id FROM products WHERE category_id = $1 LIMIT 1',
+    [id]
+  );
   if (check.rows.length > 0) {
-    throw new Error('Cannot delete category because active products are assigned to it.');
+    throw new Error(
+      'Cannot delete category because active products are assigned to it.'
+    );
   }
 
   await db.query('DELETE FROM categories WHERE id = $1', [id]);
@@ -196,7 +243,7 @@ export async function createProduct(formData: {
   name: string;
   description: string;
   specification: string;
-  image: string;
+  images: string[];
   categoryId: string;
   is_featured?: boolean;
   is_hot_deal?: boolean;
@@ -207,7 +254,12 @@ export async function createProduct(formData: {
     throw new Error('Unauthorized operational action.');
   }
 
-  if (!formData.name || !formData.categoryId || !formData.image) {
+  if (
+    !formData.name ||
+    !formData.categoryId ||
+    !formData.images ||
+    formData.images.length === 0
+  ) {
     throw new Error('Missing mandatory product definition fields.');
   }
 
@@ -216,19 +268,20 @@ export async function createProduct(formData: {
 
   try {
     await db.query(
-      `INSERT INTO products (id, name, description, specification, image, category_id, is_featured, is_hot_deal, is_premium) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      `INSERT INTO products (id, name, description, specification, images, image, category_id, is_featured, is_hot_deal, is_premium) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [
         uniqueId,
         formData.name,
         formData.description,
         formData.specification,
-        formData.image,
+        formData.images,
+        formData.images[0] || '',
         formData.categoryId,
         formData.is_featured ?? false,
         formData.is_hot_deal ?? false,
         formData.is_premium ?? false,
-      ],
+      ]
     );
 
     revalidatePath('/products');
@@ -236,7 +289,9 @@ export async function createProduct(formData: {
     return { success: true };
   } catch (error: any) {
     console.error('Neon catalog insertion failure:', error);
-    throw new Error(error.message || 'Database transaction anomaly encountered.');
+    throw new Error(
+      error.message || 'Database transaction anomaly encountered.'
+    );
   }
 }
 
@@ -247,14 +302,32 @@ export async function deleteProduct(id: string) {
   }
 
   try {
-    const productResult = await db.query('SELECT image FROM products WHERE id = $1', [id]);
+    const productResult = await db.query(
+      'SELECT images, image FROM products WHERE id = $1',
+      [id]
+    );
     const product = productResult.rows[0];
 
-    if (product && product.image) {
-      try {
-        await del(product.image);        
-      } catch (error) {
-        console.error('Failed to delete product image asset:', error);
+    if (product) {
+      let imagesToDelete: string[] = [];
+      if (Array.isArray(product.images)) {
+        imagesToDelete = product.images;
+      } else if (typeof product.images === 'string') {
+        try {
+          imagesToDelete = JSON.parse(product.images);
+        } catch {
+          imagesToDelete = product.images ? [product.images] : [];
+        }
+      } else if (product.image) {
+        imagesToDelete = [product.image];
+      }
+
+      for (const imgUrl of imagesToDelete) {
+        try {
+          await del(imgUrl);
+        } catch (error) {
+          console.error('Failed to delete product image asset:', error);
+        }
       }
     }
 
@@ -270,12 +343,12 @@ export async function deleteProduct(id: string) {
 }
 
 export async function updateProductAction(
-  id: string, 
-  data: { 
-    name: string; 
-    description: string; 
-    specification: string; 
-    image: string;
+  id: string,
+  data: {
+    name: string;
+    description: string;
+    specification: string;
+    images: string[];
     is_featured?: boolean;
     is_hot_deal?: boolean;
     is_premium?: boolean;
@@ -285,23 +358,24 @@ export async function updateProductAction(
   if (!user || user.role !== 'admin') {
     throw new Error('Unauthorized');
   }
-  
+
   await db.query(
     `UPDATE products 
-     SET name = $1, description = $2, specification = $3, image = $4, is_featured = $5, is_hot_deal = $6, is_premium = $7 
-     WHERE id = $8`,
+     SET name = $1, description = $2, specification = $3, images = $4, image = $5, is_featured = $6, is_hot_deal = $7, is_premium = $8 
+     WHERE id = $9`,
     [
-      data.name, 
-      data.description, 
-      data.specification, 
-      data.image, 
-      data.is_featured ?? false, 
-      data.is_hot_deal ?? false, 
-      data.is_premium ?? false, 
-      id
+      data.name,
+      data.description,
+      data.specification,
+      data.images,
+      data.images[0] || '',
+      data.is_featured ?? false,
+      data.is_hot_deal ?? false,
+      data.is_premium ?? false,
+      id,
     ]
   );
-  
+
   revalidatePath('/products');
   revalidatePath('/dashboard');
   return { success: true };

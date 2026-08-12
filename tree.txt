@@ -1,5 +1,5 @@
-Folder PATH listing
-Volume serial number is 0000005D C493:B52A
+Folder PATH listing               
+Volume serial number is 00000090 C493:B52A
 C:.
 |   global.d.ts
 |   instrumentation-client.ts
@@ -35,6 +35,9 @@ C:.
 |   |   |   |   default.tsx
 |   |   |   |   
 |   |   |   +---dashboard
+|   |   |   |       page.tsx
+|   |   |   |       
+|   |   |   +---inbox
 |   |   |   |       page.tsx
 |   |   |   |       
 |   |   |   +---profile
@@ -91,12 +94,14 @@ C:.
 |       |   \---[...all]
 |       |           route.ts
 |       |           
-|       \---health
-|               route.ts
-|               
+|       +---health
+|       |       route.ts
+|       |       
+|       \---webhooks
+|           \---resend
+|                   route.ts
+|                   
 +---components
-|   |   shared.zip
-|   |   
 |   +---icons
 |   |       loader-icon.tsx
 |   |       
@@ -214,6 +219,10 @@ C:.
 |   |   |   
 |   |   \---components
 |   |           language-switcher.tsx
+|   |           
+|   +---inbox
+|   |   \---server
+|   |           actions.ts
 |   |           
 |   +---navigation
 |   |       header.tsx

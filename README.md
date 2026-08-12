@@ -6,3 +6,5 @@ Mail Notifications
 Whatsapp linking
 Speed Optimization
 https://www.brevo.com/ email
+
+Head office address and Phone

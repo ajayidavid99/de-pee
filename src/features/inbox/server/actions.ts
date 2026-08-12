@@ -1,8 +1,8 @@
 // src/features/inbox/server/actions.ts
-'use me'
 'use server';
 
 import { db } from '@/libs/db';
+import { resend } from '@/libs/email';
 import { revalidatePath } from 'next/cache';
 
 export interface InboundEmail {
@@ -102,5 +102,55 @@ export async function toggleEmailReadStatus(id: string, isRead: boolean) {
 
 export async function deleteInboundEmail(id: string) {
   await db.query(`DELETE FROM inbound_emails WHERE id = $1`, [id]);
+  revalidatePath('/inbox');
+}
+
+export async function sendInboxReply(to: string, subject: string, htmlContent: string) {
+  try {
+    // Strip HTML tags for the plain text version to improve deliverability & avoid spam filters
+    const plainTextContent = htmlContent.replace(/<[^>]*>?/gm, '');
+
+    await resend.emails.send({
+      from: 'De-Pee Support <info@mail.depeeventures.com>',
+      to,
+      subject,
+      text: plainTextContent, // Plain text fallback
+      html: htmlContent,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send reply:', error);
+    throw new Error('Failed to send reply email');
+  }
+}
+
+export async function submitDirectMessage(data: { name: string; email: string; phone: string; message: string }) {
+  // Global Web Crypto API (supported natively in Node 19+ & Next.js Server Actions)
+  const id = `msg_${crypto.randomUUID()}`;
+
+  const htmlBody = `
+    <div style="font-family: sans-serif;">
+      <h3>New Direct Message</h3>
+      <p><strong>Phone:</strong> ${data.phone}</p>
+      <hr />
+      <p>${data.message.replace(/\n/g, '<br/>')}</p>
+    </div>
+  `;
+
+  await db.query(
+    `INSERT INTO inbound_emails 
+    (id, from_email, from_name, to_email, subject, text_body, html_body) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [
+      id,
+      data.email,
+      data.name,
+      'info@mail.depeeventures.com',
+      `Direct Message from ${data.name}`,
+      data.message,
+      htmlBody,
+    ]
+  );
+
   revalidatePath('/inbox');
 }

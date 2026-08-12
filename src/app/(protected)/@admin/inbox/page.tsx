@@ -5,17 +5,21 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import {
   deleteInboundEmail,
   getInboundEmailById,
   getInboundEmails,
+  sendInboxReply,
   toggleEmailReadStatus,
   type InboundEmail,
 } from '@/features/inbox/server/actions';
 import {
+  ArrowLeft,
   CheckCircle2,
   Clock,
   Circle,
@@ -41,13 +45,19 @@ export default function AdminInboxPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  // Reply Dialog state
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [replyBody, setReplyBody] = useState('');
+  const [isReplying, setIsReplying] = useState(false);
+
   const fetchList = useCallback(async () => {
     setLoadingList(true);
     try {
       const res = await getInboundEmails({ filter, search });
       setEmails(res.data);
       setUnreadCount(res.unreadCount);
-      if (res.data.length > 0 && !selectedId) {
+      // On desktop, auto-select first. On mobile, we shouldn't auto-select so the user sees the list first.
+      if (res.data.length > 0 && !selectedId && window.innerWidth >= 768) {
         const firstEmail = res.data[0];
         if (firstEmail) {
           setSelectedId(firstEmail.id);
@@ -120,10 +130,42 @@ export default function AdminInboxPage() {
     });
   };
 
+  const handleSendReply = async () => {
+    if (!selectedEmail || !replyBody.trim()) return;
+    setIsReplying(true);
+
+    // Construct the official HTML signature
+    const signatureHtml = `
+      <br/><br/>
+      <hr style="border: none; border-top: 1px solid #eaeaea; margin: 16px 0;" />
+      <div style="font-family: sans-serif; font-size: 12px; color: #555; line-height: 1.5;">
+        <strong>De-Pee Ventures Support</strong><br/>
+        Ilesa Road, directly opposite the Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC) Phase 1<br/>
+        Ile-Ife, Osun State<br/>
+        Phone: +234 806 784 4732
+      </div>
+    `;
+
+    try {
+      await sendInboxReply(
+        selectedEmail.from_email,
+        `Update regarding your message to De-Pee Ventures`,
+        `<p style="font-family: sans-serif; font-size: 14px; color: #333;">${replyBody.replace(/\n/g, '<br/>')}</p>${signatureHtml}`,
+      );
+      toast.success('Reply sent successfully!');
+      setReplyOpen(false);
+      setReplyBody('');
+    } catch {
+      toast.error('Failed to send reply.');
+    } finally {
+      setIsReplying(false);
+    }
+  };
+
   return (
-    <div className="flex h-[calc(100vh-var(--app-header-height,4rem))] flex-col gap-4 p-4 md:p-6">
+    <div className="flex h-[calc(100svh-5rem)] min-h-[700px] flex-col gap-3 -mt-3 md:-mt-1">
       {/* Top Header Controls */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className={`flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${selectedId ? 'hidden md:flex' : 'flex'}`}>
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold tracking-tight">Inbox</h1>
           {unreadCount > 0 && (
@@ -147,9 +189,10 @@ export default function AdminInboxPage() {
       </div>
 
       {/* Main Container */}
-      <Card className="grid flex-1 overflow-hidden md:grid-cols-12">
-        {/* Left Column: Email List */}
-        <div className="flex flex-col border-r border-border md:col-span-5 lg:col-span-4">
+      <Card className="grid flex-1 min-h-0 overflow-hidden md:grid-cols-12">
+        
+        {/* Left Column: Email List - Hidden on mobile if an email is selected */}
+        <div className={`flex-col border-r border-border md:col-span-5 lg:col-span-4 ${selectedId ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-3 border-b border-border space-y-2">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -266,8 +309,8 @@ export default function AdminInboxPage() {
           </div>
         </div>
 
-        {/* Right Column: Email Content View */}
-        <div className="flex flex-col md:col-span-7 lg:col-span-8 bg-background">
+        {/* Right Column: Email Content View - Hidden on mobile if NO email is selected */}
+        <div className={`flex-col min-h-0 md:col-span-7 lg:col-span-8 bg-background ${!selectedId ? 'hidden md:flex' : 'flex'}`}>
           {loadingDetail ? (
             <div className="p-6 space-y-4">
               <Skeleton className="h-6 w-1/2" />
@@ -281,20 +324,26 @@ export default function AdminInboxPage() {
               <Skeleton className="h-64 w-full" />
             </div>
           ) : selectedEmail ? (
-            <div className="flex h-full flex-col">
+            <div className="flex h-full flex-col min-h-0">
               {/* Header Actions Bar */}
               <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center gap-2">
                   <Button
+                    variant="ghost"
+                    size="icon"
+                    className="md:hidden shrink-0"
+                    onClick={() => setSelectedId(null)}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
                     variant="outline"
                     size="sm"
                     className="gap-1.5"
-                    onClick={() =>
-                      window.open(`mailto:${selectedEmail.from_email}?subject=Re: ${selectedEmail.subject}`)
-                    }
+                    onClick={() => setReplyOpen(true)}
                   >
                     <Reply className="h-4 w-4" />
-                    Reply
+                    <span className="hidden sm:inline">Reply</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -305,11 +354,13 @@ export default function AdminInboxPage() {
                   >
                     {selectedEmail.read_at ? (
                       <>
-                        <Mail className="h-4 w-4 mr-1.5" /> Mark Unread
+                        <Mail className="h-4 w-4 sm:mr-1.5" /> 
+                        <span className="hidden sm:inline">Mark Unread</span>
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark Read
+                        <CheckCircle2 className="h-4 w-4 sm:mr-1.5" /> 
+                        <span className="hidden sm:inline">Mark Read</span>
                       </>
                     )}
                   </Button>
@@ -320,12 +371,13 @@ export default function AdminInboxPage() {
                   className="text-destructive hover:text-destructive"
                   onClick={(e) => handleDelete(e, selectedEmail.id)}
                 >
-                  <Trash2 className="h-4 w-4 mr-1.5" /> Delete
+                  <Trash2 className="h-4 w-4 sm:mr-1.5" /> 
+                  <span className="hidden sm:inline">Delete</span>
                 </Button>
               </div>
 
               {/* Message Details */}
-              <div className="p-6 border-b border-border space-y-4">
+              <div className="p-4 border-b border-border space-y-3">
                 <h2 className="text-xl font-semibold">{selectedEmail.subject || '(No Subject)'}</h2>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -339,7 +391,7 @@ export default function AdminInboxPage() {
                         <span className="font-semibold text-sm">
                           {selectedEmail.from_name || selectedEmail.from_email}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground hidden sm:inline">
                           &lt;{selectedEmail.from_email}&gt;
                         </span>
                       </div>
@@ -348,15 +400,16 @@ export default function AdminInboxPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
                     <Clock className="h-3.5 w-3.5" />
-                    {new Date(selectedEmail.created_at).toLocaleString()}
+                    <span className="hidden sm:inline">{new Date(selectedEmail.created_at).toLocaleString()}</span>
+                    <span className="sm:hidden">{new Date(selectedEmail.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
 
               {/* Email Content Body */}
-              <div className="flex-1 p-4 md:p-6 overflow-hidden">
+              <div className="flex-1 min-h-0 p-4 md:p-6 overflow-hidden">
                 {selectedEmail.html_body ? (
                   <iframe
                     title="Email Body"
@@ -368,6 +421,9 @@ export default function AdminInboxPage() {
                           <style>
                             *, *::before, *::after {
                               box-sizing: border-box;
+                            }
+                            html, body {
+                              height: 100%;
                             }
                             body {
                               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -393,7 +449,7 @@ export default function AdminInboxPage() {
                         <body>${selectedEmail.html_body}</body>
                       </html>
                     `}
-                    className="w-full h-full min-h-[400px] border-0 rounded-md bg-white"
+                    className="block w-full h-full min-h-[500px] border-0 rounded-md bg-white"
                   />
                 ) : (
                   <pre className="whitespace-pre-wrap font-sans text-sm text-foreground">
@@ -410,6 +466,48 @@ export default function AdminInboxPage() {
           )}
         </div>
       </Card>
+
+      {/* Reply Dialog */}
+      <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Reply to {selectedEmail?.from_name || selectedEmail?.from_email}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Original Message Preview */}
+            <div className="text-sm text-muted-foreground border-l-2 pl-3 line-clamp-2">
+              {selectedEmail?.text_body}
+            </div>
+            
+            {/* Reply Input & Signature Preview */}
+            <div className="space-y-3">
+              <Textarea
+                placeholder="Type your reply here..."
+                value={replyBody}
+                onChange={(e) => setReplyBody(e.target.value)}
+                className="min-h-[150px] resize-none"
+              />
+              
+              <div className="rounded-md bg-muted/50 p-3 text-[11px] leading-relaxed text-muted-foreground border border-border/50">
+                <p className="font-semibold text-foreground mb-1">Signature appended automatically:</p>
+                <p>De-Pee Ventures Support</p>
+                <p>Ilesa Road, directly opposite the Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC) Phase 1<br/>Ile-Ife, Osun State</p>
+                <p>Phone: +234 806 784 4732</p>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReplyOpen(false)} disabled={isReplying}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendReply} disabled={isReplying || !replyBody.trim()}>
+              {isReplying ? 'Sending...' : 'Send Reply'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

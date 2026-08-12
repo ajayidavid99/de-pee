@@ -5,13 +5,33 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Loader2, UploadCloud } from 'lucide-react';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, Loader2, UploadCloud, X } from 'lucide-react';
 import { createProduct, uploadImageAction, type DBCategory } from '../server/actions';
 import { toast } from 'sonner';
 
@@ -21,7 +41,6 @@ const productFormSchema = z.object({
   subCategoryId: z.string().optional(),
   description: z.string().min(5, 'Provide a detailed description'),
   specification: z.string().min(3, 'Technical specification details are required'),
-  imageFile: z.any().refine((files) => files?.[0] instanceof File, "An image file upload is required"),
   is_featured: z.boolean().default(false),
   is_hot_deal: z.boolean().default(false),
   is_premium: z.boolean().default(false),
@@ -37,9 +56,9 @@ interface AddProductDialogProps {
 export function AddProductDialog({ categories }: AddProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
 
-  // Pass <Input, Context, Output> to useForm to reconcile Zod default() field types
   const form = useForm<ProductFormInput, any, ProductFormOutput>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -55,33 +74,56 @@ export function AddProductDialog({ categories }: AddProductDialogProps) {
   });
 
   const selectedParentId = form.watch('parentCategoryId');
-  
   const mainCategories = categories.filter((c) => c.parent_id === null);
-  
   const availableSubCategories = categories.filter(
     (c) => c.parent_id === selectedParentId && selectedParentId !== ''
   );
-  
   const hasSubCategories = availableSubCategories.length > 0;
-  
+
   useEffect(() => {
     form.setValue('subCategoryId', '');
   }, [selectedParentId, form]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const files = Array.from(e.target.files);
+
+    setIsUploading(true);
+    try {
+      const uploadedUrls = await Promise.all(
+        files.map(async (file) => {
+          const uploadData = new FormData();
+          uploadData.append('file', file);
+          return await uploadImageAction(uploadData);
+        })
+      );
+
+      setImages((prev) => [...prev, ...uploadedUrls]);
+      toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
+    } catch (error: any) {
+      toast.error(error.message || 'Image upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const onSubmit = async (values: ProductFormOutput) => {
+    if (images.length === 0) {
+      toast.error('Please upload at least one product image.');
+      return;
+    }
+
     setIsPending(true);
     try {
-      const imageFile = values.imageFile[0];
-      const uploadData = new FormData();
-      uploadData.append('file', imageFile);
-
-      const uploadedImageUrl = await uploadImageAction(uploadData);
-
       await createProduct({
         name: values.name,
         description: values.description,
         specification: values.specification,
-        image: uploadedImageUrl,
+        images: images,
         categoryId: values.subCategoryId || values.parentCategoryId,
         is_featured: values.is_featured,
         is_hot_deal: values.is_hot_deal,
@@ -91,7 +133,7 @@ export function AddProductDialog({ categories }: AddProductDialogProps) {
       toast.success('Product added successfully!');
       setOpen(false);
       form.reset();
-      setPreviewUrl(null);
+      setImages([]);
     } catch (error: any) {
       toast.error(error.message || 'Something went wrong');
     } finally {
@@ -182,45 +224,42 @@ export function AddProductDialog({ categories }: AddProductDialogProps) {
               />
             )}
 
-            <FormField
-              control={form.control}
-              name="imageFile"
-              render={({ field: { onChange, ref, value, ...field } }) => (
-                <FormItem>
-                  <FormLabel className="text-xs">Product Image Asset</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <label className="flex flex-col items-center justify-center border border-dashed border-border/100 rounded-lg p-4 cursor-pointer hover:bg-muted/40 transition">
-                          <UploadCloud className="h-5 w-5 text-muted-foreground mb-1" />
-                          <span className="text-[11px] font-medium text-muted-foreground">Select file (JPEG, PNG, WEBP)</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            ref={ref}
-                            onChange={(e) => {
-                              const files = e.target.files;
-                              if (files && files[0]) {
-                                onChange(files);
-                                setPreviewUrl(URL.createObjectURL(files[0]));
-                              }
-                            }}
-                            {...field}
-                          />
-                        </label>
-                      </div>
-                      {previewUrl && (
-                        <div className="h-16 w-16 border rounded-lg overflow-hidden shrink-0 bg-muted">
-                          <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
-                        </div>
-                      )}
+            {/* Multiple Images Upload Field */}
+            <div className="space-y-2">
+              <FormLabel className="text-xs">Product Image Assets</FormLabel>
+              <label className="flex flex-col items-center justify-center border border-dashed border-border/100 rounded-lg p-4 cursor-pointer hover:bg-muted/40 transition">
+                <UploadCloud className="h-5 w-5 text-muted-foreground mb-1" />
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {isUploading ? 'Uploading assets...' : 'Select multiple images (JPEG, PNG, WEBP)'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={isUploading}
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+              </label>
+
+              {/* Thumbnail Gallery Preview Grid */}
+              {images.length > 0 && (
+                <div className="flex gap-2 mt-2 flex-wrap max-h-40 overflow-y-auto p-1 border rounded-md">
+                  {images.map((url, idx) => (
+                    <div key={idx} className="relative w-16 h-16 border rounded-md overflow-hidden group shrink-0">
+                      <img src={url} alt={`Preview ${idx + 1}`} className="object-cover w-full h-full" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full p-0.5 transition"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
-                  </FormControl>
-                  <FormMessage className="text-[10px]" />
-                </FormItem>
+                  ))}
+                </div>
               )}
-            />
+            </div>
 
             <FormField
               control={form.control}
@@ -308,10 +347,10 @@ export function AddProductDialog({ categories }: AddProductDialogProps) {
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-border/60">
-              <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)} disabled={isPending} className="h-8 text-xs">
+              <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)} disabled={isPending || isUploading} className="h-8 text-xs">
                 Cancel
               </Button>
-              <Button type="submit" size="sm" disabled={isPending} className="h-8 text-xs gap-1">
+              <Button type="submit" size="sm" disabled={isPending || isUploading} className="h-8 text-xs gap-1">
                 {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
                 Save Product
               </Button>

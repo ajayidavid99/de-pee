@@ -3,9 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useAuth } from '@/features/auth/hooks/auth-provider';
 import type { DBProduct } from '@/features/products/server/actions';
 import { submitQuoteRequest } from '@/features/quotes/server/actions';
+import { submitDirectMessage } from '@/features/inbox/server/actions';
 import { toast } from 'sonner';
 import { 
   ShoppingBag, 
@@ -19,7 +23,10 @@ import {
   Headphones, 
   Mail, 
   PhoneCall,
-  MessageCircle 
+  MessageCircle,
+  MapPin,
+  Send,
+  Loader2
 } from 'lucide-react';
 
 interface CartItem {
@@ -28,13 +35,37 @@ interface CartItem {
 }
 
 export function FloatingQuoteBasket() {
+  const { user } = useAuth(); // Pre-fills support form if logged in
+
   const [quoteCart, setQuoteCart] = useState<CartItem[]>([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isBasketOpen, setIsBasketOpen] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load basket from local storage on mount
+  // Direct Message Support Form State
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [showSupportForm, setShowSupportForm] = useState(false);
+  const [supportFormData, setSupportFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    message: '',
+  });
+
+  // Keep user details synced when auth state resolves
+  useEffect(() => {
+    if (user) {
+      setSupportFormData((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+      }));
+    }
+  }, [user]);
+
+  // Sync basket with localStorage
   useEffect(() => {
     const syncCart = () => {
       const savedCart = localStorage.getItem('depee_quote_basket');
@@ -48,7 +79,6 @@ export function FloatingQuoteBasket() {
     };
 
     syncCart();
-    // Listen for custom cart update events triggered across pages
     window.addEventListener('cart-updated', syncCart);
     return () => window.removeEventListener('cart-updated', syncCart);
   }, []);
@@ -86,18 +116,38 @@ export function FloatingQuoteBasket() {
         quantity: item.quantity,
       }));
 
-      // Save directly to Neon database
       const result = await submitQuoteRequest(payload);
 
       if (result.success) {
         toast.success(`Quote ${result.referenceNo} submitted! Admin has been notified.`);
         setFormSubmitted(true);
-        updateCartState([]); // Clear local storage basket
+        updateCartState([]);
       }
     } catch (error: any) {
       toast.error(error.message || 'Please log in to submit a quote request.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSendDirectMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSendingMessage(true);
+    try {
+      await submitDirectMessage(supportFormData);
+
+      // Enhanced Toast Notification informing user of contact channels and spam check
+      toast.success('Message sent successfully!', {
+        description: 'We will reach out to you shortly via phone or email. Please endeavor to check your spam folder if you do not see a reply in your inbox.',
+        duration: 7000,
+      });
+
+      setShowSupportForm(false);
+      setSupportFormData((prev) => ({ ...prev, message: '' }));
+    } catch {
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSendingMessage(false);
     }
   };
 
@@ -222,7 +272,7 @@ export function FloatingQuoteBasket() {
         {/* Divider */}
         <div className="w-full h-[1px] sm:w-[1px] sm:h-5 bg-border/80 my-0.5 sm:my-auto" />
 
-        {/* Support Popover */}
+        {/* Support Popover with Integrated Direct Message Form */}
         <Popover open={isSupportOpen} onOpenChange={(open) => { setIsSupportOpen(open); if (open) setIsBasketOpen(false); }}>
           <PopoverTrigger asChild>
             <button 
@@ -236,7 +286,7 @@ export function FloatingQuoteBasket() {
           <PopoverContent 
             align="end" 
             sideOffset={14} 
-            className="w-[300px] p-4 shadow-2xl border-border bg-card text-card-foreground rounded-xl space-y-3"
+            className="w-[320px] sm:w-[360px] p-4 shadow-2xl border-border bg-card text-card-foreground rounded-xl space-y-3 max-h-[85vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between pb-2 border-b border-border/60">
               <h3 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
@@ -247,35 +297,127 @@ export function FloatingQuoteBasket() {
               </Button>
             </div>
 
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Need guidance choosing medical equipment or confirming specs for Lagos or Ife centers?
-            </p>
-
-            <div className="space-y-2 pt-1">
-              <a 
-                href="mailto:info@mail.depeeventures.com" 
-                className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
-              >
-                <Mail className="h-3.5 w-3.5 text-blue-600" />
-                <span className="truncate">Email Admin</span>
-              </a>
-              <a 
-                href="tel:+2348067844732" 
-                className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
-              >
-                <PhoneCall className="h-3.5 w-3.5 text-emerald-600" />
-                <span>Call Office</span>
-              </a>
-              <a 
-                href="https://wa.me/2348067844732" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
-              >
-                <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
-                <span>WhatsApp Office</span>
-              </a>
+            {/* Address & Head Office Info Box */}
+            <div className="bg-muted/70 p-2.5 rounded-lg text-xs text-muted-foreground space-y-1.5 border border-border/40">
+              <div className="flex items-start gap-2">
+                <MapPin className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <p className="text-[11px] leading-tight">
+                  <strong className="text-foreground">Head Office:</strong> Ilesa Road, directly opposite OAUTHC Phase 1 in Ile-Ife, Osun State.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <PhoneCall className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                <p className="text-[11px]">+234 806 784 4732 (Lagos & Ife)</p>
+              </div>
             </div>
+
+            {/* Toggle Between Direct Message Form and Quick Contacts */}
+            {showSupportForm ? (
+              <form onSubmit={handleSendDirectMessage} className="space-y-2.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-foreground">Send Direct Message</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowSupportForm(false)} 
+                    className="text-[10px] text-blue-600 underline"
+                  >
+                    Back to options
+                  </button>
+                </div>
+
+                <Input 
+                  placeholder="Your Name" 
+                  value={supportFormData.name}
+                  onChange={(e) => setSupportFormData({ ...supportFormData, name: e.target.value })}
+                  required 
+                  className="h-8 text-xs"
+                />
+                <Input 
+                  type="email" 
+                  placeholder="Email Address" 
+                  value={supportFormData.email}
+                  onChange={(e) => setSupportFormData({ ...supportFormData, email: e.target.value })}
+                  required 
+                  className="h-8 text-xs"
+                />
+                <Input 
+                  type="tel" 
+                  placeholder="Phone Number" 
+                  value={supportFormData.phone}
+                  onChange={(e) => setSupportFormData({ ...supportFormData, phone: e.target.value })}
+                  required 
+                  className="h-8 text-xs"
+                />
+                <Textarea 
+                  placeholder="How can we help you?" 
+                  value={supportFormData.message}
+                  onChange={(e) => setSupportFormData({ ...supportFormData, message: e.target.value })}
+                  required 
+                  className="min-h-[80px] text-xs resize-none"
+                />
+
+                <Button 
+                  type="submit" 
+                  disabled={isSendingMessage} 
+                  className="w-full text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                >
+                  {isSendingMessage ? (
+                    <>
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-1.5 h-3.5 w-3.5" />
+                      Send Message
+                    </>
+                  )}
+                </Button>
+              </form>
+            ) : (
+              <div className="space-y-2 pt-1">
+                <Button 
+                  onClick={() => setShowSupportForm(true)}
+                  className="w-full text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Send Direct Message
+                </Button>
+
+                <div className="relative my-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/60" />
+                  </div>
+                  <div className="relative flex justify-center text-[9px] uppercase">
+                    <span className="bg-card px-2 text-muted-foreground font-semibold">Or reach out via</span>
+                  </div>
+                </div>
+
+                <a 
+                  href="mailto:info@mail.depeeventures.com" 
+                  className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
+                >
+                  <Mail className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="truncate">Email Admin</span>
+                </a>
+                <a 
+                  href="tel:+2348067844732" 
+                  className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
+                >
+                  <PhoneCall className="h-3.5 w-3.5 text-emerald-600" />
+                  <span>Call Office</span>
+                </a>
+                <a 
+                  href="https://wa.me/2348067844732" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-xs p-2 rounded-md hover:bg-muted transition-colors border border-border/40"
+                >
+                  <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
+                  <span>WhatsApp Office</span>
+                </a>
+              </div>
+            )}
           </PopoverContent>
         </Popover>
 
