@@ -6,8 +6,7 @@ import {
   NewArrivals, 
   MobileFeaturedProducts, 
   WhyChooseUs, 
-  MobileLatestNews, 
-  CompanyFooter 
+  MobileLatestNews
 } from '@/components/shared/home-sections';
 import type { Locale } from '@/features/site/config';
 import { getLocale } from 'next-intl/server';
@@ -54,9 +53,6 @@ const HomePage = async () => {
       <MobileLatestNews posts={posts.slice(0, 3)} />
       
       <div className="flex-1" />
-      
-      {/* 8. Quote Form & Footer */}
-      <CompanyFooter />
     </div>
   );
 };

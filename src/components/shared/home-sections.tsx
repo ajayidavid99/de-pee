@@ -186,10 +186,3 @@ export function MobileLatestNews({ posts }: { posts: BlogPost[] }) {
     </div>
   );
 }
-
-/* ==========================================================================\
-   7. FOOTER & QUOTATION MODULE
-   ========================================================================== */
-export function CompanyFooter() {
-  return <SiteFooter showQuoteForm={false} />;
-}

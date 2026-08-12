@@ -1,4 +1,3 @@
-// src/features/inbox/server/actions.ts
 'use server';
 
 import { db } from '@/libs/db';
@@ -107,14 +106,13 @@ export async function deleteInboundEmail(id: string) {
 
 export async function sendInboxReply(to: string, subject: string, htmlContent: string) {
   try {
-    // Strip HTML tags for the plain text version to improve deliverability & avoid spam filters
     const plainTextContent = htmlContent.replace(/<[^>]*>?/gm, '');
 
     await resend.emails.send({
       from: 'De-Pee Support <info@mail.depeeventures.com>',
       to,
       subject,
-      text: plainTextContent, // Plain text fallback
+      text: plainTextContent,
       html: htmlContent,
     });
     return { success: true };
@@ -125,7 +123,6 @@ export async function sendInboxReply(to: string, subject: string, htmlContent: s
 }
 
 export async function submitDirectMessage(data: { name: string; email: string; phone: string; message: string }) {
-  // Global Web Crypto API (supported natively in Node 19+ & Next.js Server Actions)
   const id = `msg_${crypto.randomUUID()}`;
 
   const htmlBody = `
@@ -148,6 +145,48 @@ export async function submitDirectMessage(data: { name: string; email: string; p
       'info@mail.depeeventures.com',
       `Direct Message from ${data.name}`,
       data.message,
+      htmlBody,
+    ]
+  );
+
+  revalidatePath('/inbox');
+}
+
+export async function submitDirectQuoteRequest(data: { 
+  name: string; 
+  address: string; 
+  email: string; 
+  phone: string; 
+  details: string 
+}) {
+  const id = `msg_${crypto.randomUUID()}`;
+
+  const htmlBody = `
+    <div style="font-family: sans-serif;">
+      <h3>New Direct Quote Request</h3>
+      <p><strong>Contact Name:</strong> ${data.name}</p>
+      <p><strong>Email:</strong> ${data.email}</p>
+      <p><strong>Phone:</strong> ${data.phone}</p>
+      <p><strong>Delivery Address:</strong> ${data.address || 'Not provided'}</p>
+      <hr />
+      <h4>Required Items:</h4>
+      <p>${data.details.replace(/\n/g, '<br/>')}</p>
+    </div>
+  `;
+
+  const textBody = `Quote Request from ${data.name}\nPhone: ${data.phone}\nAddress: ${data.address}\n\nDetails:\n${data.details}`;
+
+  await db.query(
+    `INSERT INTO inbound_emails 
+    (id, from_email, from_name, to_email, subject, text_body, html_body) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [
+      id,
+      data.email,
+      data.name,
+      'info@mail.depeeventures.com',
+      `Direct Quote Request from ${data.name}`,
+      textBody,
       htmlBody,
     ]
   );

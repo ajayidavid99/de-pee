@@ -349,7 +349,7 @@ export function FloatingQuoteBasket() {
                   className="h-8 text-xs"
                 />
                 <Textarea 
-                  placeholder="How can we help you?" 
+                  placeholder="How can we help?" 
                   value={supportFormData.message}
                   onChange={(e) => setSupportFormData({ ...supportFormData, message: e.target.value })}
                   required 
