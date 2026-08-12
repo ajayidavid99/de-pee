@@ -11,8 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, UploadCloud } from 'lucide-react';
-import { updateCategory, uploadImageAction, type DBCategory } from '../server/actions';
+import { updateCategory, uploadImageAction } from '../server/actions';
 import { toast } from 'sonner';
+import type { DBCategory } from '../schema';
 
 const editCategorySchema = z.object({
   name: z.string().min(2, 'Category name is required'),

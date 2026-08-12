@@ -14,10 +14,9 @@ import {
   deleteCategory, 
   getProducts, 
   getCategories, 
-  type DBProduct, 
-  type DBCategory 
 } from '@/features/products/server/actions';
 import { deleteBlogPost, getBlogPosts, type BlogPost } from '@/features/blog/server/actions';
+import type { DBProduct, DBCategory } from '@/features/products/schema';
 
 export const dynamic = 'force-dynamic';
 

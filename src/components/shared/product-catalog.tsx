@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import type { DBProduct } from '@/features/products/server/actions';
 import { 
   Package, 
   Layers, 
@@ -15,6 +14,7 @@ import {
   SlidersHorizontal 
 } from 'lucide-react';
 import Link from 'next/link';
+import type { DBProduct } from '@/features/products/schema';
 
 interface ProductCatalogProps {
   initialProducts: DBProduct[];

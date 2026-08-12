@@ -32,8 +32,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Loader2, UploadCloud, X } from 'lucide-react';
-import { createProduct, uploadImageAction, type DBCategory } from '../server/actions';
 import { toast } from 'sonner';
+import type { DBCategory } from '../schema';
+import { uploadImageAction, createProduct } from '../server/actions';
 
 const productFormSchema = z.object({
   name: z.string().min(2, 'Product name is required'),
