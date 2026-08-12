@@ -215,24 +215,26 @@ export default function ProductCatalog({ initialProducts, initialCategories }: P
 
                   return (
                     <Card key={product.id} className="flex flex-col justify-between overflow-hidden border-border/60 hover:shadow-sm transition-shadow">
-                      <div>
+                      <Link href={`/products/${product.id}`} className="group block cursor-pointer">
                         <div className="h-36 bg-muted relative border-b border-border/40 overflow-hidden">
                           <img 
                             src={displayImage} 
                             alt={product.name} 
-                            className="w-full h-full object-cover" 
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                           />
                           <span className="absolute bottom-2 left-2 bg-background/90 text-foreground text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border border-border/40">
                             {product.category_name}
                           </span>
                         </div>
                         <div className="p-3 space-y-1.5">
-                          <h3 className="text-xs font-bold text-foreground line-clamp-1">{product.name}</h3>
+                          <h3 className="text-xs font-bold text-foreground line-clamp-1 group-hover:text-blue-600 transition-colors">
+                            {product.name}
+                          </h3>
                           <p className="text-[11px] text-muted-foreground line-clamp-2 min-h-[32px] leading-relaxed">
                             {product.description}
                           </p>
                         </div>
-                      </div>
+                      </Link>
 
                       <div className="p-3 pt-0 space-y-2 border-t border-border/30 mt-2 bg-muted/10">
                         <div className="flex items-center justify-between gap-2">

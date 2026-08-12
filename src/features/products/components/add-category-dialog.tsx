@@ -11,8 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FolderPlus, Loader2, UploadCloud } from 'lucide-react';
-import { createCategory, uploadImageAction, type DBCategory } from '../server/actions';
+import { createCategory, uploadImageAction } from '../server/actions';
 import { toast } from 'sonner';
+import type { DBCategory } from '../schema';
 
 // Optional image upload validation schema
 const categoryFormSchema = z.object({

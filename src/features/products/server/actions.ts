@@ -46,11 +46,11 @@ export async function uploadImageAction(formData: FormData): Promise<string> {
 
   const blob = await put(`products/${file.name}`, file, {
     access: 'public',
+    addRandomSuffix: true, // Prevents duplicate filename conflicts on Vercel Blob
   });
 
   return blob.url;
 }
-
 
 export async function getProducts(): Promise<DBProduct[]> {
   try {
@@ -61,7 +61,6 @@ export async function getProducts(): Promise<DBProduct[]> {
         p.description,
         p.specification,
         p.images,
-        p.image,
         p.category_id,
         p.is_featured,
         p.is_hot_deal,
@@ -233,15 +232,14 @@ export async function createProduct(formData: {
 
   try {
     await db.query(
-      `INSERT INTO products (id, name, description, specification, images, image, category_id, is_featured, is_hot_deal, is_premium) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      `INSERT INTO products (id, name, description, specification, images, category_id, is_featured, is_hot_deal, is_premium) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [
         uniqueId,
         formData.name,
         formData.description,
         formData.specification,
         formData.images,
-        formData.images[0] || '',
         formData.categoryId,
         formData.is_featured ?? false,
         formData.is_hot_deal ?? false,
@@ -268,7 +266,7 @@ export async function deleteProduct(id: string) {
 
   try {
     const productResult = await db.query(
-      'SELECT images, image FROM products WHERE id = $1',
+      'SELECT images FROM products WHERE id = $1',
       [id]
     );
     const product = productResult.rows[0];
@@ -326,14 +324,13 @@ export async function updateProductAction(
 
   await db.query(
     `UPDATE products 
-     SET name = $1, description = $2, specification = $3, images = $4, image = $5, is_featured = $6, is_hot_deal = $7, is_premium = $8 
-     WHERE id = $9`,
+     SET name = $1, description = $2, specification = $3, images = $4, is_featured = $5, is_hot_deal = $6, is_premium = $7 
+     WHERE id = $8`,
     [
       data.name,
       data.description,
       data.specification,
       data.images,
-      data.images[0] || '',
       data.is_featured ?? false,
       data.is_hot_deal ?? false,
       data.is_premium ?? false,

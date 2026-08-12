@@ -11,8 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Loader2, UploadCloud, X } from 'lucide-react';
-import { updateProductAction, uploadImageAction, type DBProduct } from '../server/actions';
+import { updateProductAction, uploadImageAction } from '../server/actions';
 import { toast } from 'sonner';
+import type { DBProduct } from '../schema';
 
 const editProductSchema = z.object({
   name: z.string().min(2, 'Product name is required'),

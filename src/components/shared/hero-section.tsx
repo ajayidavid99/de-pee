@@ -3,12 +3,12 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { type Locale } from '@/features/site/config';
-import type { DBProduct } from '@/features/products/server/actions';
 import type { BlogPost } from '@/features/blog/server/actions';
 // If needed for mapping types, import your DBCategory type here or use any
 import { Activity, ArrowRight, Clock, ShieldAlert, Stethoscope } from 'lucide-react';
 import Link from 'next/link';
 import { Globe, Headphones, ShieldCheck } from 'lucide-react';
+import type { DBProduct } from '@/features/products/schema';
 
 interface ValueCardProps {
   icon: React.ComponentType<{ className?: string }>;

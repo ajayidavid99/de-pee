@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAuth } from '@/features/auth/hooks/auth-provider';
-import type { DBProduct } from '@/features/products/server/actions';
 import { submitQuoteRequest } from '@/features/quotes/server/actions';
 import { submitDirectMessage } from '@/features/inbox/server/actions';
 import { toast } from 'sonner';
@@ -28,6 +27,7 @@ import {
   Send,
   Loader2
 } from 'lucide-react';
+import type { DBProduct } from '@/features/products/schema';
 
 interface CartItem {
   product: DBProduct;

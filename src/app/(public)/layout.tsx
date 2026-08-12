@@ -2,6 +2,7 @@
 import { BackgroundGradient } from '@/components/shared/background-gradient';
 import Header from '@/features/navigation/header';
 import { FloatingQuoteBasket } from '@/components/shared/floating-quote-basket';
+import { SiteFooter } from '@/components/shared/site-footer';
 import type { ReactNode } from 'react';
 
 const PublicLayout = ({ children }: { children: ReactNode }) => {
@@ -16,6 +17,8 @@ const PublicLayout = ({ children }: { children: ReactNode }) => {
       >
         {children}
       </main>
+
+      <SiteFooter />
 
       {/* Floating Quote Basket and Support available across all public routes */}
       <FloatingQuoteBasket />

@@ -3,15 +3,16 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { SiteFooter } from '@/components/shared/site-footer';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Activity, ArrowRight, Building2, Clock, Flame, ShieldCheck, Mail, Phone, MapPin, Calendar, BookOpen } from 'lucide-react';
 import Link from 'next/link';
-import type { DBProduct } from '@/features/products/server/actions';
 import type { BlogPost } from '@/features/blog/server/actions';
+import type { DBProduct } from '@/features/products/schema';
 
 /* ==========================================================================\
-   3. NEW ARRIVALS / PREMIUM ADDITIONS (Compact Card Layout)
+   3. NEW ARRIVALS / PREMIUM ADDITIONS (Compact Clickable Card Layout)
    ========================================================================== */
 export function NewArrivals({ products }: { products: DBProduct[] }) {
   return (
@@ -34,41 +35,45 @@ export function NewArrivals({ products }: { products: DBProduct[] }) {
           </Link>
         </div>
 
-        {/* Compact Grid matching Product Categories style */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {products.map((item) => (
-            <Card 
-              key={item.id} 
-              hover 
-              className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 transition-all duration-300 group hover:border-primary/50 flex flex-col justify-between h-44 sm:h-48 p-3"
-            >
-              {/* Product Image Box */}
-              <div className="relative h-20 sm:h-24 w-full rounded-lg bg-muted overflow-hidden border border-border/40 shrink-0">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                />
-              </div>
+          {products.map((item) => {
+            const displayImage = item.images?.[0] || item.image || '/placeholder.png';
 
-              {/* Product Info */}
-              <div className="space-y-0.5 mt-2 min-w-0 flex-1">
-                <span className="text-[9px] font-bold text-primary uppercase tracking-wider font-mono block truncate">
-                  {item.category_name}
-                </span>
-                <h3 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors truncate">
-                  {item.name}
-                </h3>
-              </div>
+            return (
+              <Card 
+                key={item.id} 
+                hover 
+                className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 transition-all duration-300 group hover:border-primary/50 flex flex-col justify-between h-44 sm:h-48 p-3"
+              >
+                {/* Clickable Image + Title Area */}
+                <Link href={`/products/${item.id}`} className="group/item block cursor-pointer flex-1 min-w-0">
+                  <div className="relative h-20 sm:h-24 w-full rounded-lg bg-muted overflow-hidden border border-border/40 shrink-0">
+                    <img 
+                      src={displayImage} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300" 
+                    />
+                  </div>
 
-              {/* Action Link */}
-              <div className="mt-2 pt-2 border-t border-border/40">
-                <Button size="sm" asChild className="w-full text-[10px] h-6 font-bold rounded-md">
-                  <Link href={`/products/${item.id}`}>Request Quote</Link>
-                </Button>
-              </div>
-            </Card>
-          ))}
+                  <div className="space-y-0.5 mt-2 min-w-0">
+                    <span className="text-[9px] font-bold text-primary uppercase tracking-wider font-mono block truncate">
+                      {item.category_name}
+                    </span>
+                    <h3 className="text-xs font-bold text-foreground group-hover/item:text-primary transition-colors truncate">
+                      {item.name}
+                    </h3>
+                  </div>
+                </Link>
+
+                {/* Action Link */}
+                <div className="mt-2 pt-2 border-t border-border/40">
+                  <Button size="sm" asChild className="w-full text-[10px] h-6 font-bold rounded-md">
+                    <Link href={`/products/${item.id}`}>Request Quote</Link>
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -76,7 +81,7 @@ export function NewArrivals({ products }: { products: DBProduct[] }) {
 }
 
 /* ==========================================================================\
-   4. MOBILE featured slider (Now dynamic)
+   4. MOBILE featured slider (Clickable Items)
    ========================================================================== */
 export function MobileFeaturedProducts({ products }: { products: DBProduct[] }) {
   return (
@@ -84,20 +89,26 @@ export function MobileFeaturedProducts({ products }: { products: DBProduct[] }) 
       <div className="px-4">
         <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Fast-Moving Procurement Consumables</h3>
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
-          {products.map((p) => (
-            <div key={p.id} className="w-48 shrink-0 bg-background border border-border/80 rounded-xl overflow-hidden p-3 space-y-2">
-              <div className="h-24 w-full bg-muted rounded-lg overflow-hidden">
-                <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+          {products.map((p) => {
+            const displayImage = p.images?.[0] || p.image || '/placeholder.png';
+
+            return (
+              <div key={p.id} className="w-48 shrink-0 bg-background border border-border/80 rounded-xl overflow-hidden p-3 space-y-2 flex flex-col justify-between">
+                <Link href={`/products/${p.id}`} className="group block cursor-pointer space-y-2">
+                  <div className="h-24 w-full bg-muted rounded-lg overflow-hidden">
+                    <img src={displayImage} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{p.name}</h4>
+                    <p className="text-[10px] text-muted-foreground truncate uppercase">{p.category_name}</p>
+                  </div>
+                </Link>
+                <Button size="sm" asChild className="w-full h-7 text-[10px]">
+                  <Link href={`/products/${p.id}`}>Add Tender</Link>
+                </Button>
               </div>
-              <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-foreground truncate">{p.name}</h4>
-                <p className="text-[10px] text-muted-foreground truncate uppercase">{p.category_name}</p>
-              </div>
-              <Button size="sm" asChild className="w-full h-7 text-[10px]">
-                <Link href={`/products/${p.id}`}>Add Tender</Link>
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -139,7 +150,7 @@ export function WhyChooseUs() {
 }
 
 /* ==========================================================================\
-   6. MOBILE LATEST NEWS (Now dynamic)
+   6. MOBILE LATEST NEWS
    ========================================================================== */
 export function MobileLatestNews({ posts }: { posts: BlogPost[] }) {
   return (
@@ -180,44 +191,5 @@ export function MobileLatestNews({ posts }: { posts: BlogPost[] }) {
    7. FOOTER & QUOTATION MODULE
    ========================================================================== */
 export function CompanyFooter() {
-  return (
-    <footer id="quote-form" className="w-full bg-slate-900 border-t border-slate-800 text-slate-400 py-12">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-8 border-b border-slate-800">
-          
-          <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
-            <div className="space-y-1">
-              <span className="text-[9px] font-mono text-blue-400 uppercase tracking-widest font-bold">Fast tender setup</span>
-              <h3 className="text-sm font-bold text-white">Direct procurement quote request</h3>
-              <p className="text-xs text-slate-400">Instantly register requirements with our clinical account coordinators.</p>
-            </div>
-
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
-              <div className="grid grid-cols-2 gap-3">
-                <Input placeholder="Clinic / Lab Name" className="bg-slate-950/50 border-slate-700 text-xs text-white placeholder:text-slate-500" />
-                <Input placeholder="Procurement Email" className="bg-slate-950/50 border-slate-700 text-xs text-white placeholder:text-slate-500" />
-              </div>
-              <Textarea placeholder="List items or quantities required..." className="bg-slate-950/50 border-slate-700 text-xs text-white placeholder:text-slate-500 min-h-[70px]" />
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs h-9">Send Request</Button>
-            </form>
-          </div>
-
-          <div className="flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">De-Pee Medical</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">Providing premium procurement tools to clinics and laboratories across local administrative zones.</p>
-              <div className="space-y-2 text-xs text-slate-300">
-                <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-blue-400" /><span>Lagos & Ife Distribution Centers</span></div>
-                <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-blue-400" /><span>+234 806 784 4732</span></div>
-              </div>
-            </div>
-            <div className="pt-6 border-t border-slate-800 text-[11px] text-slate-500">
-              © {new Date().getFullYear()} De-Pee Medical Procurement. All Rights Reserved.
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </footer>
-  );
+  return <SiteFooter showQuoteForm={false} />;
 }
